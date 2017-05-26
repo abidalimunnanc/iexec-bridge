@@ -1,0 +1,5 @@
+var config = {};
+
+config.HPC = '';
+
+module.exports = config;
