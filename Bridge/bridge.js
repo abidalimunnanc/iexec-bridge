@@ -29,8 +29,11 @@ launchEvent.watch(function(err, result){
 });
 
 
-function callApi() {
+function callApi(app ,params1, params2, addressFrom) {
 
+	// call API REST
+
+	// response API
 
 
 }
