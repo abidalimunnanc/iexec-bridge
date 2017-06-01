@@ -1,5 +1,4 @@
-var config = {};
-
-config.account = '';
-
-module.exports = config;
+{
+  "ContractAbi": "",
+  "ContractAddress": ""
+}
