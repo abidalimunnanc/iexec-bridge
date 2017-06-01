@@ -1,5 +1,5 @@
 var config = {};
 
-config.HPC = '';
+config.account = '';
 
 module.exports = config;
