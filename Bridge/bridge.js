@@ -16,6 +16,8 @@ const contractInstance = vanitygenContract.at(config.ContractAddress);
 const launchEvent = contractInstance.Launch({});
 
 // // return UID
+// function register(appName) {}
+// // return UID
 // function submit(appName, param) {}
 //
 // // return pattern
