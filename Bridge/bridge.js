@@ -135,7 +135,6 @@ function sendWork(xmlWork) {
 	console.log(options.hostname + ":" + options.port + options.path);
 
 	const req = https.request(options, (res) => {
-		getAppResponseLength = res.headers['content-length'];
 
 		res.on('data', (d) => {
 			var strd = String.fromCharCode.apply(null, new Uint16Array(d));
@@ -177,9 +176,10 @@ function register(appName) {
 			console.log(appName + " = " + appUid);
 			var workDescription = "<work><uid>" + workUid +
 			"</uid><accessrights>0x755</accessrights><appuid>" + 
-			appUid + "</appuid></work>";
+			appUid + "</appuid><status>UNAVAILABLE</status></work>";
 			console.log("workDescription = " + workDescription)
 			sendWork(workDescription);
+			sendWork(workDescription); // a 2nd time to force status to UNAVAILABLE
 			return workUid;
 		}).catch(function (err){
 			console.log("ERR : " + err);
