@@ -143,10 +143,7 @@ function sendWork(xmlWork) {
 		});
 
 		res.on('end', (d) => {
-
-			parseString(getAppResponse, function (err, result) {
-				console.log(JSON.stringify(result));
-			});
+			console.log(d);
 		});
 	});
 
