@@ -509,7 +509,8 @@ function getApps() {
 						appuids[i] = appuid;
 					}
 					var apppUidPromises = appuids.map(getApp);
-					Promise.all(apppUidPromises).then(function(jsonObject){
+					Promise.all(apppUidPromises).then(function(xmlStr){
+						console.debug(xmlStr);
 						resolve();
 					}).catch(function(urls){
 						console.error("Error fetching some images: " + urls)
