@@ -60,12 +60,14 @@ var SERVERURI = IEXECURI;
  */
 var PATH_GETAPPS = "/getapps";
 var PATH_GET = "/get";
+var PATH_SENDWORK = "/sendwork";
 
 /**
  * API URI
  */
 var URI_GETAPPS = SERVERURI + PATH_GETAPPS;
 var URI_GET = SERVERURI + PATH_GET;
+var URI_SENDWORK = SERVERURI + PATH_SENDWORK;
 
 /**
  * Credentials
@@ -116,6 +118,43 @@ function rpcError(xmldoc) {
 	}
 }
 
+/**
+ * This sends the work to server
+ * @param xmlWork is an XML description of the work
+ */
+function sendWork(xmlWork) {
+
+	var sendWorkPath = PATH_SENDWORK + "?XMLDESC=" + xmlWork;
+	const options = {
+			hostname: SERVERNAME,
+			port: SERVERPORT,
+			path: PATH_SENDWORK + CREDENTIALS + "&XMLDESC=" + xmlWork,
+			method: 'GET',
+			rejectUnauthorized: false
+	};
+	console.log(options.hostname + ":" + options.port + options.path);
+
+	const req = https.request(options, (res) => {
+		getAppResponseLength = res.headers['content-length'];
+
+		res.on('data', (d) => {
+			var strd = String.fromCharCode.apply(null, new Uint16Array(d));
+			console.log(strd);
+		});
+
+		res.on('end', (d) => {
+
+			parseString(getAppResponse, function (err, result) {
+				console.log(JSON.stringify(result));
+			});
+		});
+	});
+
+	req.on('error', (e) => {
+		connectionError();
+	});
+	req.end();
+}
 
 /**
  * This registers a new UNAVAILABLE work for the provided application.
@@ -131,10 +170,24 @@ function register(appName) {
 	console.log("register ; " + appName);
 
 	if(!(appName in hashtableAppNames)){
-		throw "Application not found : " + appName;
+		getApps().then(function (success) {
+			if(!(appName in hashtableAppNames)){
+				throw "Application not found " + appName;
+			}
+			const workUid = uuidV4();
+			console.log("work uid = " + workUid);
+			var appUid =  hashtableAppNames[appName];
+			console.log(appName + " = " + appUid);
+			var workDescription = "<work><uid>" + workUid +
+			"</uid><accessrights>0x755</accessrights><appuid>" + 
+			appUid + "</appuid></work>";
+			console.log("workDescription = " + workDescription)
+			sendWork(workDescription);
+			return workUid;
+		}).catch(function (err){
+			console.log("ERR : " + err);
+		});
 	}
-	const workUid = uuidV4();
-	console.log("work uid = " + workUid);
 }
 
 /**
@@ -291,6 +344,7 @@ function getApp(appUid) {
 
 					if(!(appName in hashtableAppNames)){
 						hashtableAppNames[appName] = appUid;
+						console.debug("hashtableAppNames[" + appName + "] = " + hashtableAppNames[appName])
 					}
 				});
 				resolve();
@@ -311,7 +365,6 @@ function getApp(appUid) {
 function getApps() {
 	return new Promise(function(resolve, reject){
 		var getAppsResponse = "";
-		var getAppsResponseLength = 1;
 
 		const options = {
 				hostname: SERVERNAME,
@@ -324,7 +377,6 @@ function getApps() {
 		console.debug(options.hostname + ":" + options.port + PATH_GETAPPS);
 
 		const req = https.request(options, (res) => {
-			getAppsResponseLength = res.headers['content-length'];
 
 			res.on('data', (d) => {
 				var strd = String.fromCharCode.apply(null, new Uint16Array(d));
@@ -341,16 +393,12 @@ function getApps() {
 					for (var i = 0; i < appsCount; i++) {
 						var appuid = JSON.stringify(jsonData['xwhep']['XMLVector'][0]['XMLVALUE'][i]['$']['value']).replace(/\"/g, "");
 						appuids[i] = appuid;
-						console.debug("app[" + i + "].uid = " + appuids[i]);
 					}
 					var apppUidPromises = appuids.map(getApp);
 					Promise.all(apppUidPromises).then(function(uids){
-					    for (var i=0; i<uids.length; i++){
-							console.debug("promises uids[" + i + "] = " + uids[i]);
-					    }
 						resolve();
 					}).catch(function(urls){
-					    console.log("Error fetching some images: " + urls)
+						console.error("Error fetching some images: " + urls)
 					});
 				});
 			});
@@ -364,10 +412,5 @@ function getApps() {
 
 }
 
-getApps().then(function (success) {
-	console.log(success);
-	register("ls");	
-}).catch(function (err){
-	console.log("ERR : " + err);
-});
+register("ls");
 
