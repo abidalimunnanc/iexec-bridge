@@ -329,13 +329,6 @@ function setParam(uid, paramName, paramValue) {
  * @exception is thrown if paramName does not represent a valid work parameter
  */
 function getParam(uid, paramName) {
-	if(!(paramName in workAvailableParameters)){
-		throw "Not a work parameter : " + paramName;
-	}
-
-	if(workAvailableParameters[paramName] == false){
-		throw "Read only parameter : " + paramName;
-	}
 
 	return new Promise(function(resolve, reject){
 		get(uid).then(function(getResponse){
@@ -351,6 +344,10 @@ function getParam(uid, paramName) {
 			}
 
 			var paramValue =  jsonObject['xwhep']['work'][0][paramName];
+			if (paramValue == undefined) {
+				reject("not a work parameter : " + paramName);
+			}
+
 			console.debug(paramName + " = " + paramValue);
 
 			resolve(paramValue);
