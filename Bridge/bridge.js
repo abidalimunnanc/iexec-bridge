@@ -22,6 +22,10 @@ const launchEvent = contractInstance.Launch({});
 
 const https = require('https');
 const fs = require('fs');
+const util = require('util');
+var parseString = require('xml2js').parseString;
+const uuidV4 = require('uuid/v4');
+
 
 /**
  * This are the local XWHEP server informations, for testing only
@@ -48,13 +52,20 @@ var SERVERURI = LOCALHOSTURI;
 var SERVERNAME = IEXECHOSTNAME;
 var SERVERPORT = IEXECPORT;
 var SERVERURI = IEXECURI;
-*/
+ */
 
 
 /**
- * API PATHs
+ * API PATH
  */
 var PATH_GETAPPS = "/getapps";
+var PATH_GET = "/get";
+
+/**
+ * API URI
+ */
+var URI_GETAPPS = SERVERURI + PATH_GETAPPS;
+var URI_GET = SERVERURI + PATH_GET;
 
 /**
  * Credentials
@@ -90,40 +101,6 @@ var hashtableAppNames = {};
 
 
 /**
- * These are used to retrieve objects given their UID from server
- * These are hashtables having UID as key and xmlHttpConnection as value
- */
-var hashtableGetApp    = {};
-
-
-/**
- * This creates a new XMLHTTPRequest object
- */
-function getXmlHttpObject()
-{
-	var ret=null;
-	try
-	{
-		// Firefox, Opera 8.0+, Safari
-		ret=new XMLHttpRequest();
-	}
-	catch (e)
-	{
-		console.log(e);
-		// Internet Explorer
-		try
-		{
-			ret=new ActiveXObject("Msxml2.sXMLHTTP");
-		}
-		catch (e)
-		{
-			ret=new ActiveXObject("Microsoft.XMLHTTP");
-		}
-	}
-	return ret;
-}
-
-/**
  * This throws "Connection error"
  */
 function connectionError() {
@@ -145,8 +122,8 @@ function rpcError(xmldoc) {
 
 
 /**
- * This registers a new WAITING work for the provided application.
- * Since the status is set to WAITING, this new work is not candidate for scheduling.
+ * This registers a new UNAVAILABLE work for the provided application.
+ * Since the status is set to UNAVAILABLE, this new work is not candidate for scheduling.
  * This lets a chance to sets some parameters. 
  * To make this work candidate for scheduling, setPending() must be called
  * @param appName is the application name 
@@ -155,6 +132,14 @@ function rpcError(xmldoc) {
  * @see #setPending(uid) 
  */
 function register(appName) {
+	if(!(appName in hashtableAppNames)){
+		getApps();
+	}
+	if(!(appName in hashtableAppNames)){
+		throw "Application not found : " + appName;
+	}
+	const workUid = uuidV4();
+	console.log("work uid = " + workUid);
 }
 
 /**
@@ -176,7 +161,7 @@ function submit(appName, cmdLineParam) {
  * @param paramValue contains the value of the work parameter
  * @return nothing
  * @exception is thrown if work is not found
- * @exception is thrown if work status is not WAITING
+ * @exception is thrown if work status is not UNAVAILABLE
  * @exception is thrown if paramName does not represent a valid work parameter
  * @exception is thrown if parameter is read only (e.g. status, return code, etc.)
  */
@@ -212,7 +197,7 @@ function getStatus(uid) {
  * @param uid is the work unique identifier 
  * @return nothing
  * @exception is thrown if work is not found
- * @exception is thrown if work status is not WAITING
+ * @exception is thrown if work status is not UNAVAILABLE
  */
 function setPending(uid) {
 }
@@ -272,51 +257,128 @@ function waitResult(uid, pattern) {
 
 
 /**
+ * This retrieves an application
+ * @param appUid is the uid of the application to retrieve
+ */
+function getApp(appUid) {
+	var getAppResponse = "";
+	var getAppResponseLength = 1;
+
+	var getAppPath = PATH_GET + "/" + appUid;
+	const options = {
+			hostname: SERVERNAME,
+			port: SERVERPORT,
+			path: getAppPath + CREDENTIALS,
+			method: 'GET',
+			rejectUnauthorized: false
+	};
+	console.log(options.hostname + ":" + options.port + getAppPath);
+
+	const req = https.request(options, (res) => {
+		getAppResponseLength = res.headers['content-length'];
+
+		res.on('data', (d) => {
+			var strd = String.fromCharCode.apply(null, new Uint16Array(d));
+			getAppResponse += strd;
+		});
+
+		res.on('end', (d) => {
+
+			parseString(getAppResponse, function (err, result) {
+				var jsonData = JSON.parse(JSON.stringify(result));
+				if (jsonData['xwhep']['app'] == undefined) {
+					throw ("not an application : " + appUid);
+				}
+
+				var appName =  jsonData['xwhep']['app'][0]['name'];
+				console.log("app name = " + appName);
+
+				if(!(appName in hashtableAppNames)){
+					hashtableAppNames[appName] = appUid;
+				}
+			});
+		});
+	});
+
+	req.on('error', (e) => {
+		console.error(e);
+		connectionError();
+	});
+	req.end();
+
+}
+
+/**
  * This retrieves registered applications uid
  * This cancels all detail
  */
 function getApps() {
+	var getAppsResponse = "";
+	var getAppsResponseLength = 1;
+
 	const options = {
 			hostname: SERVERNAME,
 			port: SERVERPORT,
 			path: PATH_GETAPPS + CREDENTIALS,
 			method: 'GET',
 			rejectUnauthorized: false
-//			checkServerIdentity : (servername, cert) => {return undefined}
 	};
-/*
-	console.log(URI_GETAPPS);
-	https.get(URI_GETAPPS, (res) => {
-		console.log('statusCode:', res.statusCode);
-		console.log('headers:', res.headers);
+
+	console.log(options.hostname + ":" + options.port + PATH_GETAPPS);
+
+	const req = https.request(options, (res) => {
+//		console.log('statusCode:', res.statusCode);
+//		console.log('headers :', res.headers);
+//		console.log("headers : " + Object.prototype.toString.call(res.headers).slice(8, -1) + "\n");
+		getAppsResponseLength = res.headers['content-length'];
+//		console.log("getAppsResponseLength : " + getAppsResponseLength);
 
 		res.on('data', (d) => {
-			process.stdout.write(d);
+//			console.log('DATA statusCode:', res.statusCode);
+//			console.log('DATA headers :', res.headers);
+			var strd = String.fromCharCode.apply(null, new Uint16Array(d));
+			getAppsResponse += strd;
+//			console.log("DATA getAppsResponse  : " + getAppsResponse);
+//			console.log("DATA " + getAppsResponseLength + " ; " + getAppsResponse.length);
 		});
 
-	}).on('error', (e) => {
-		console.error(e);
+		res.on('end', (d) => {
+//			console.log('END statusCode:', res.statusCode);
+//			console.log('END headers :', res.headers);
+//			console.log("END getAppsResponse  : " + getAppsResponse);
+//			console.log("END " + getAppsResponseLength + " ; " + getAppsResponse.length);
+
+//			console.log("END stringify " + JSON.stringify(getAppsResponse));
+
+			parseString(getAppsResponse, function (err, result) {
+//				console.dir("parseString stringify " + JSON.stringify(result));
+				var jsonData = JSON.parse(JSON.stringify(result));
+//				console.log("parseString json 0 " + jsonData);
+//				console.log("parseString json 1 " + jsonData['xwhep']);
+//				console.log("parseString json 2 " + jsonData['xwhep']['XMLVector']);
+				var appsCount = jsonData['xwhep']['XMLVector'][0]['XMLVALUE'].length;
+				console.log("appsCount " + appsCount);
+				for (var i = 0; i < appsCount; i++) {
+					var appuid = JSON.stringify(jsonData['xwhep']['XMLVector'][0]['XMLVALUE'][i]['$']['value']).replace(/\"/g, "");
+					console.log("app[" + i + "].uid = " + appuid);
+					getApp(appuid);
+				}
+			});
+		});
 	});
-*/
-	console.log(SERVERNAME + ":" + SERVERPORT + PATH_GETAPPS);
-	const req = https.request(options, (res) => {
-		  console.log('statusCode:', res.statusCode);
-		  console.log('headers:', res.headers);
 
-		  res.on('data', (d) => {
-		    process.stdout.write(d);
-		  });
-		});
-
-		req.on('error', (e) => {
-		  console.error(e);
-		});
-		req.end();
+	req.on('error', (e) => {
+		console.error(e);
+		connectionError();
+	});
+	req.end();
 }
 
 
 
-getApps();
+//getApps();
+register("ls");
+
 /*
 
 launchEvent.watch((err, res) => {
