@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 /*
-
+ * Promises introduction:
+ * http://www.javascriptkit.com/javatutors/javascriptpromises.shtml
 
 import Web3 from 'web3';
 //import { exec } from 'child_process';
@@ -25,7 +26,6 @@ const fs = require('fs');
 const util = require('util');
 var parseString = require('xml2js').parseString;
 const uuidV4 = require('uuid/v4');
-
 
 /**
  * This are the local XWHEP server informations, for testing only
@@ -74,10 +74,6 @@ var LOGIN="admin";
 var PASSWD="adminp";
 var CREDENTIALS="?XWLOGIN=" + LOGIN + "&XWPASSWD=" + PASSWD;
 
-/**
- * API URIs
- */
-var URI_GETAPPS = SERVERURI + PATH_GETAPPS + CREDENTIALS;
 
 
 /**
@@ -132,9 +128,8 @@ function rpcError(xmldoc) {
  * @see #setPending(uid) 
  */
 function register(appName) {
-	if(!(appName in hashtableAppNames)){
-		getApps();
-	}
+	console.log("register ; " + appName);
+
 	if(!(appName in hashtableAppNames)){
 		throw "Application not found : " + appName;
 	}
@@ -261,51 +256,52 @@ function waitResult(uid, pattern) {
  * @param appUid is the uid of the application to retrieve
  */
 function getApp(appUid) {
-	var getAppResponse = "";
-	var getAppResponseLength = 1;
+	return new Promise(function(resolve, reject){
+		var getAppResponse = "";
+		var getAppResponseLength = 1;
 
-	var getAppPath = PATH_GET + "/" + appUid;
-	const options = {
-			hostname: SERVERNAME,
-			port: SERVERPORT,
-			path: getAppPath + CREDENTIALS,
-			method: 'GET',
-			rejectUnauthorized: false
-	};
-	console.log(options.hostname + ":" + options.port + getAppPath);
+		var getAppPath = PATH_GET + "/" + appUid;
+		const options = {
+				hostname: SERVERNAME,
+				port: SERVERPORT,
+				path: getAppPath + CREDENTIALS,
+				method: 'GET',
+				rejectUnauthorized: false
+		};
+		console.debug(options.hostname + ":" + options.port + getAppPath);
 
-	const req = https.request(options, (res) => {
-		getAppResponseLength = res.headers['content-length'];
+		const req = https.request(options, (res) => {
+			getAppResponseLength = res.headers['content-length'];
 
-		res.on('data', (d) => {
-			var strd = String.fromCharCode.apply(null, new Uint16Array(d));
-			getAppResponse += strd;
-		});
+			res.on('data', (d) => {
+				var strd = String.fromCharCode.apply(null, new Uint16Array(d));
+				getAppResponse += strd;
+			});
 
-		res.on('end', (d) => {
+			res.on('end', (d) => {
 
-			parseString(getAppResponse, function (err, result) {
-				var jsonData = JSON.parse(JSON.stringify(result));
-				if (jsonData['xwhep']['app'] == undefined) {
-					throw ("not an application : " + appUid);
-				}
+				parseString(getAppResponse, function (err, result) {
+					var jsonData = JSON.parse(JSON.stringify(result));
+					if (jsonData['xwhep']['app'] == undefined) {
+						throw ("not an application : " + appUid);
+					}
 
-				var appName =  jsonData['xwhep']['app'][0]['name'];
-				console.log("app name = " + appName);
+					var appName =  jsonData['xwhep']['app'][0]['name'];
+					console.log(appUid + " ; " + appName);
 
-				if(!(appName in hashtableAppNames)){
-					hashtableAppNames[appName] = appUid;
-				}
+					if(!(appName in hashtableAppNames)){
+						hashtableAppNames[appName] = appUid;
+					}
+				});
+				resolve();
 			});
 		});
-	});
 
-	req.on('error', (e) => {
-		console.error(e);
-		connectionError();
+		req.on('error', (e) => {
+			reject(e);
+		});
+		req.end();
 	});
-	req.end();
-
 }
 
 /**
@@ -313,82 +309,65 @@ function getApp(appUid) {
  * This cancels all detail
  */
 function getApps() {
-	var getAppsResponse = "";
-	var getAppsResponseLength = 1;
+	return new Promise(function(resolve, reject){
+		var getAppsResponse = "";
+		var getAppsResponseLength = 1;
 
-	const options = {
-			hostname: SERVERNAME,
-			port: SERVERPORT,
-			path: PATH_GETAPPS + CREDENTIALS,
-			method: 'GET',
-			rejectUnauthorized: false
-	};
+		const options = {
+				hostname: SERVERNAME,
+				port: SERVERPORT,
+				path: PATH_GETAPPS + CREDENTIALS,
+				method: 'GET',
+				rejectUnauthorized: false
+		};
 
-	console.log(options.hostname + ":" + options.port + PATH_GETAPPS);
+		console.debug(options.hostname + ":" + options.port + PATH_GETAPPS);
 
-	const req = https.request(options, (res) => {
-//		console.log('statusCode:', res.statusCode);
-//		console.log('headers :', res.headers);
-//		console.log("headers : " + Object.prototype.toString.call(res.headers).slice(8, -1) + "\n");
-		getAppsResponseLength = res.headers['content-length'];
-//		console.log("getAppsResponseLength : " + getAppsResponseLength);
+		const req = https.request(options, (res) => {
+			getAppsResponseLength = res.headers['content-length'];
 
-		res.on('data', (d) => {
-//			console.log('DATA statusCode:', res.statusCode);
-//			console.log('DATA headers :', res.headers);
-			var strd = String.fromCharCode.apply(null, new Uint16Array(d));
-			getAppsResponse += strd;
-//			console.log("DATA getAppsResponse  : " + getAppsResponse);
-//			console.log("DATA " + getAppsResponseLength + " ; " + getAppsResponse.length);
-		});
+			res.on('data', (d) => {
+				var strd = String.fromCharCode.apply(null, new Uint16Array(d));
+				getAppsResponse += strd;
+			});
 
-		res.on('end', (d) => {
-//			console.log('END statusCode:', res.statusCode);
-//			console.log('END headers :', res.headers);
-//			console.log("END getAppsResponse  : " + getAppsResponse);
-//			console.log("END " + getAppsResponseLength + " ; " + getAppsResponse.length);
+			res.on('end', (d) => {
 
-//			console.log("END stringify " + JSON.stringify(getAppsResponse));
-
-			parseString(getAppsResponse, function (err, result) {
-//				console.dir("parseString stringify " + JSON.stringify(result));
-				var jsonData = JSON.parse(JSON.stringify(result));
-//				console.log("parseString json 0 " + jsonData);
-//				console.log("parseString json 1 " + jsonData['xwhep']);
-//				console.log("parseString json 2 " + jsonData['xwhep']['XMLVector']);
-				var appsCount = jsonData['xwhep']['XMLVector'][0]['XMLVALUE'].length;
-				console.log("appsCount " + appsCount);
-				for (var i = 0; i < appsCount; i++) {
-					var appuid = JSON.stringify(jsonData['xwhep']['XMLVector'][0]['XMLVALUE'][i]['$']['value']).replace(/\"/g, "");
-					console.log("app[" + i + "].uid = " + appuid);
-					getApp(appuid);
-				}
+				parseString(getAppsResponse, function (err, result) {
+					var jsonData = JSON.parse(JSON.stringify(result));
+					var appsCount = jsonData['xwhep']['XMLVector'][0]['XMLVALUE'].length;
+					var appuids = [];
+					console.debug("appsCount " + appsCount);
+					for (var i = 0; i < appsCount; i++) {
+						var appuid = JSON.stringify(jsonData['xwhep']['XMLVector'][0]['XMLVALUE'][i]['$']['value']).replace(/\"/g, "");
+						appuids[i] = appuid;
+						console.debug("app[" + i + "].uid = " + appuids[i]);
+					}
+					var apppUidPromises = appuids.map(getApp);
+					Promise.all(apppUidPromises).then(function(uids){
+					    for (var i=0; i<uids.length; i++){
+							console.debug("promises uids[" + i + "] = " + uids[i]);
+					    }
+						resolve();
+					}).catch(function(urls){
+					    console.log("Error fetching some images: " + urls)
+					});
+				});
 			});
 		});
+
+		req.on('error', (e) => {
+			reject(e);
+		});
+		req.end();
 	});
 
-	req.on('error', (e) => {
-		console.error(e);
-		connectionError();
-	});
-	req.end();
 }
 
-
-
-//getApps();
-register("ls");
-
-/*
-
-launchEvent.watch((err, res) => {
-	if (err) {
-		console.log(`Erreur event ${err}`);
-		return;
-	}
-	console.log(`Parse ${res.args.user} ${res.args.fonction} ${res.args.param1} ${res.args.param2}`);
-	const params = `-P ${res.args.value}  1${res.args.param}`;
-	console.log(`params send to submit task ${params}`);
-
+getApps().then(function (success) {
+	console.log(success);
+	register("ls");	
+}).catch(function (err){
+	console.log("ERR : " + err);
 });
- */
+
