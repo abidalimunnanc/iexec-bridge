@@ -367,7 +367,7 @@ function getParam(uid, paramName) {
  * @see #getParam(uid, paramName) 
  */
 function getStatus(uid) {
-	return getParam()
+	return getParam(uid, "status");
 }
 
 /**
