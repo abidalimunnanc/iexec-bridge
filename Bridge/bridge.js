@@ -91,7 +91,74 @@ var XMLRPCRESULTRETURNCODE="RETURNCODE";
  */
 var XMLRPCRESULTMESSAGE="MESSAGE";
 
+/*
+var workAvailableParameters = {"uid":false, "owneruid":false, "pouet":true};
+var uid = "uid";
+if(uid in workAvailableParameters){
+	document.getElementById("demo2").innerHTML += "uid est modifiable : " + workAvailableParameters['uid'] + "<br>";
+}
+var pouet = "pouet";
+if(pouet in workAvailableParameters){
+	document.getElementById("demo2").innerHTML += "pouet est modifiable : " + workAvailableParameters['pouet'] + "<br>";
+}
+var qwerty = "qwerty";
+if(!(qwerty in workAvailableParameters)){
+	document.getElementById("demo2").innerHTML += "qwerty n'y est pas";
+}
+ */
 
+/**
+ * This object contains work parameters write access.
+ * Key is the work parameter name
+ * Value describes the write access
+ */
+var workAvailableParameters = {
+		"uid" : false,
+		"owneruid" : false,
+		"accessrights" : true, 
+		"errormsg" : true,
+		"mtime" : false,
+		"userproxy" : true,
+		"sessionuid" : true,
+		"groupuid" : true, 
+		"sgid" : true,
+		"expectedhostuid" : true,
+		"isservice" : false,
+		"label" : true,
+		"appuid": true,
+		"returncode" : false,
+		"server" : false,
+		"listenport" : true,
+		"smartsocketaddr" : true,
+		"smartsocketclient" : true,
+		"envvars" : true,
+		"cmdline" : true,
+		"stdinuri" : true,
+		"dirinuri" : true,
+		"resulturi" : false,
+		"arrivaldate" : false,
+		"completeddate" : false,
+		"readydate" : false,
+		"datareadydate" : false,
+		"compstartdate" : false,
+		"compenddate" : false,
+		"sendtoclient" : false,
+		"local" : false,
+		"active" : true,
+		"replications" : true,
+		"totalr" : true,
+		"sizer" : true,
+		"replicateduid" : true,
+		"datadrivenuri" : true,
+		"maxretry" : true,
+		"retry" : false,
+		"maxwallclocktime" : true,
+		"diskspace" : true,
+		"minmemory" : true,
+		"mincpuspeed" : true,
+		"status" : false,
+		"minfreemassstorage" : true
+}
 /**
  * This contains all known application names
  */
@@ -132,17 +199,16 @@ function sendWork(xmlWork) {
 			method: 'GET',
 			rejectUnauthorized: false
 	};
-	console.log(options.hostname + ":" + options.port + options.path);
+	console.debug(options.hostname + ":" + options.port + sendWorkPath);
 
 	const req = https.request(options, (res) => {
 
 		res.on('data', (d) => {
 			var strd = String.fromCharCode.apply(null, new Uint16Array(d));
-			console.log(strd);
+			console.debug(strd);
 		});
 
 		res.on('end', (d) => {
-			console.log(d);
 		});
 	});
 
@@ -150,6 +216,46 @@ function sendWork(xmlWork) {
 		connectionError();
 	});
 	req.end();
+}
+
+/**
+ * This retrieves an object from server
+ * @param uid is the uid of the object to retrieve
+ * @return a Promise
+ * @resolve a String containing the XML representation of the retrieved object 
+ */
+function get(uid) {
+	return new Promise(function(resolve, reject){
+		var getResponse = "";
+
+		var getPath = PATH_GET + "/" + uid;
+		const options = {
+				hostname: SERVERNAME,
+				port: SERVERPORT,
+				path: getPath + CREDENTIALS,
+				method: 'GET',
+				rejectUnauthorized: false
+		};
+		console.debug(options.hostname + ":" + options.port + getPath);
+
+		const req = https.request(options, (res) => {
+
+			res.on('data', (d) => {
+				var strd = String.fromCharCode.apply(null, new Uint16Array(d));
+				getResponse += strd;
+			});
+
+			res.on('end', (d) => {
+				console.debug(getResponse);
+				resolve(getResponse);
+			});
+		});
+
+		req.on('error', (e) => {
+			reject(e);
+		});
+		req.end();
+	});
 }
 
 /**
@@ -182,7 +288,7 @@ function register(appName) {
 			sendWork(workDescription); // a 2nd time to force status to UNAVAILABLE
 			return workUid;
 		}).catch(function (err){
-			console.log("ERR : " + err);
+			console.log("ERROR : " + err);
 		});
 	}
 }
@@ -223,6 +329,36 @@ function setParam(uid, paramName, paramValue) {
  * @exception is thrown if paramName does not represent a valid work parameter
  */
 function getParam(uid, paramName) {
+	if(!(paramName in workAvailableParameters)){
+		throw "Not a work parameter : " + paramName;
+	}
+
+	if(workAvailableParameters[paramName] == false){
+		throw "Read only parameter : " + paramName;
+	}
+
+	return new Promise(function(resolve, reject){
+		get(uid).then(function(getResponse){
+
+			var jsonObject;
+			parseString(getResponse, function (err, result) {
+				jsonObject = JSON.parse(JSON.stringify(result));
+			});
+			console.debug(JSON.stringify(jsonObject));
+
+			if (jsonObject['xwhep']['work'] == undefined) {
+				reject("not a work : " + uid);
+			}
+
+			var paramValue =  jsonObject['xwhep']['work'][0][paramName];
+			console.debug(paramName + " = " + paramValue);
+
+			resolve(paramValue);
+			
+		}).catch(function(e){
+			reject("Work not found (" + uid + ") : " + e);
+		});
+	});
 }
 
 /**
@@ -300,64 +436,47 @@ function submitAndWait(appName, cmdLineParam, pattern) {
 function waitResult(uid, pattern) {
 }
 
-
 /**
  * This retrieves an application
  * @param appUid is the uid of the application to retrieve
+ * @return a new Promise
+ * @resolve a String containing the XML representation of the retrieved object 
+ * @see get(uid)
  */
 function getApp(appUid) {
 	return new Promise(function(resolve, reject){
-		var getAppResponse = "";
-		var getAppResponseLength = 1;
+		get(appUid).then(function(getResponse){
 
-		var getAppPath = PATH_GET + "/" + appUid;
-		const options = {
-				hostname: SERVERNAME,
-				port: SERVERPORT,
-				path: getAppPath + CREDENTIALS,
-				method: 'GET',
-				rejectUnauthorized: false
-		};
-		console.debug(options.hostname + ":" + options.port + getAppPath);
-
-		const req = https.request(options, (res) => {
-			getAppResponseLength = res.headers['content-length'];
-
-			res.on('data', (d) => {
-				var strd = String.fromCharCode.apply(null, new Uint16Array(d));
-				getAppResponse += strd;
+			var jsonObject;
+			parseString(getResponse, function (err, result) {
+				jsonObject = JSON.parse(JSON.stringify(result));
 			});
+			
+			console.debug(JSON.stringify(jsonObject));
 
-			res.on('end', (d) => {
+			if (jsonObject['xwhep']['app'] == undefined) {
+				reject("not an application : " + appUid);
+			}
 
-				parseString(getAppResponse, function (err, result) {
-					var jsonData = JSON.parse(JSON.stringify(result));
-					if (jsonData['xwhep']['app'] == undefined) {
-						throw ("not an application : " + appUid);
-					}
+			var appName =  jsonObject['xwhep']['app'][0]['name'];
+			console.debug(appUid + " ; " + appName);
 
-					var appName =  jsonData['xwhep']['app'][0]['name'];
-					console.log(appUid + " ; " + appName);
-
-					if(!(appName in hashtableAppNames)){
-						hashtableAppNames[appName] = appUid;
-						console.debug("hashtableAppNames[" + appName + "] = " + hashtableAppNames[appName])
-					}
-				});
-				resolve();
-			});
+			if(!(appName in hashtableAppNames)){
+				hashtableAppNames[appName] = appUid;
+				console.debug("hashtableAppNames[" + appName + "] = " + hashtableAppNames[appName])
+			}
+			resolve(getResponse);
+		}).catch(function(e){
+			reject("Application not found (" + appUid + ") : " + e);
 		});
-
-		req.on('error', (e) => {
-			reject(e);
-		});
-		req.end();
 	});
 }
 
 /**
  * This retrieves registered applications uid
- * This cancels all detail
+ * @return a new Promise
+ * @resolve undefined
+ * @see getApp(appUid)
  */
 function getApps() {
 	return new Promise(function(resolve, reject){
@@ -388,11 +507,12 @@ function getApps() {
 					var appuids = [];
 					console.debug("appsCount " + appsCount);
 					for (var i = 0; i < appsCount; i++) {
+//						for (var i = 0; i < 1; i++) {
 						var appuid = JSON.stringify(jsonData['xwhep']['XMLVector'][0]['XMLVALUE'][i]['$']['value']).replace(/\"/g, "");
 						appuids[i] = appuid;
 					}
 					var apppUidPromises = appuids.map(getApp);
-					Promise.all(apppUidPromises).then(function(uids){
+					Promise.all(apppUidPromises).then(function(jsonObject){
 						resolve();
 					}).catch(function(urls){
 						console.error("Error fetching some images: " + urls)
