@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+//#!/usr/bin/env node
 /*
  * Promises introduction:
  * http://www.javascriptkit.com/javatutors/javascriptpromises.shtml
@@ -61,6 +61,7 @@ var SERVERURI = IEXECURI;
 var PATH_GETAPPS = "/getapps";
 var PATH_GET = "/get";
 var PATH_SENDWORK = "/sendwork";
+var PATH_REMOVE = "/remove";
 
 /**
  * API URI
@@ -68,6 +69,7 @@ var PATH_SENDWORK = "/sendwork";
 var URI_GETAPPS = SERVERURI + PATH_GETAPPS;
 var URI_GET = SERVERURI + PATH_GET;
 var URI_SENDWORK = SERVERURI + PATH_SENDWORK;
+var URI_REMOVE = SERVERURI + PATH_REMOVE;
 
 /**
  * Credentials
@@ -235,34 +237,39 @@ function rpcError(xmldoc) {
 /**
  * This sends the work to server
  * @param xmlWork is an XML description of the work
+ * @return a new Promise
+ * @resolve undefined
  */
 function sendWork(xmlWork) {
 
-	var sendWorkPath = PATH_SENDWORK + "?XMLDESC=" + xmlWork;
-	const options = {
-			hostname: SERVERNAME,
-			port: SERVERPORT,
-			path: PATH_SENDWORK + CREDENTIALS + "&XMLDESC=" + xmlWork,
-			method: 'GET',
-			rejectUnauthorized: false
-	};
-	console.log(options.hostname + ":" + options.port + sendWorkPath);
+	return new Promise(function(resolve, reject){
+		var sendWorkPath = PATH_SENDWORK + "?XMLDESC=" + xmlWork;
+		const options = {
+				hostname: SERVERNAME,
+				port: SERVERPORT,
+				path: PATH_SENDWORK + CREDENTIALS + "&XMLDESC=" + xmlWork,
+				method: 'GET',
+				rejectUnauthorized: false
+		};
+		console.debug(options.hostname + ":" + options.port + sendWorkPath);
 
-	const req = https.request(options, (res) => {
+		const req = https.request(options, (res) => {
 
-		res.on('data', (d) => {
-			var strd = String.fromCharCode.apply(null, new Uint16Array(d));
-			console.debug(strd);
+			res.on('data', (d) => {
+				var strd = String.fromCharCode.apply(null, new Uint16Array(d));
+				console.debug(strd);
+			});
+
+			res.on('end', (d) => {
+				resolve();
+			});
 		});
 
-		res.on('end', (d) => {
+		req.on('error', (e) => {
+			reject(e);
 		});
+		req.end();
 	});
-
-	req.on('error', (e) => {
-		connectionError();
-	});
-	req.end();
 }
 
 /**
@@ -311,7 +318,8 @@ function get(uid) {
  * This lets a chance to sets some parameters. 
  * To make this work candidate for scheduling, setPending() must be called
  * @param appName is the application name 
- * @return uid of the registered work
+ * @return a new Promise
+ * @resolve the new work uid
  * @exception is thrown if application is not found
  * @see #setPending(uid) 
  */
@@ -334,13 +342,17 @@ function register(appName) {
 				var workDescription = "<work><uid>" + workUid +
 				"</uid><accessrights>0x755</accessrights><appuid>" + 
 				appUid + "</appuid><status>UNAVAILABLE</status></work>";
-
-				sendWork(workDescription);
-				sendWork(workDescription); // a 2nd time to force status to UNAVAILABLE
-
-				resolve(workUid);
+				sendWork(workDescription).then(function (){
+					sendWork(workDescription).then(function (){  // a 2nd time to force status to UNAVAILABLE
+						resolve(workUid);
+					}).catch(function (err){
+						reject("register() sendWork 2 error : " + err);
+					});
+				}).catch(function (err){
+					reject("register() sendWork 1 error : " + err);
+				});
 			}).catch(function (err){
-				reject("ERROR : " + err);
+				reject("register() getApps error : " + err);
 			});
 		}
 	});
@@ -351,7 +363,8 @@ function register(appName) {
  * Since the status is set to PENDING, this new work candidate for scheduling.
  * @param appName is the application name 
  * @param cmdLineParam is the command line parameter. This may be ""
- * @return uid of the submitted work
+ * @return a new Promise
+ * @resolve the new work uid
  * @exception is thrown if application is not found
  */
 function submit(appName, cmdLineParam) {
@@ -359,10 +372,7 @@ function submit(appName, cmdLineParam) {
 		register("ls").then(function (uid) {
 			setParam(uid, "cmdline", cmdLineParam).then(function () {
 				setPending(uid).then(function () {
-					getStatus(uid).then(function (status) {
-						console.log("status = " + status);
-					});	
-					return uid;
+					resolve(uid);
 				}).catch(function (msg) {
 					console.error(msg);
 				});
@@ -413,7 +423,10 @@ function setParam(uid, paramName, paramValue) {
 
 			jsonObject['xwhep']['work'][0][paramName] = paramValue;
 
-			sendWork(json2xml(jsonObject, false));
+			sendWork(json2xml(jsonObject, false)).then(function () {
+			}).catch(function (err){
+				reject("register() error : " + err);
+			});
 
 			resolve();
 
@@ -499,14 +512,14 @@ function setPending(uid) {
 				reject("setPending(): Not a work : " + uid);
 			}
 
-
 			jsonObject['xwhep']['work'][0]['status'] = "PENDING";
+			console.debug("setPending() : " + JSON.stringify(jsonObject));
 
-			sendWork(json2xml(jsonObject, false));
-
-			resolve();
-
-
+			sendWork(json2xml(jsonObject, false)).then(function () {
+				resolve();
+			}).catch(function (err){
+				reject("register() error : " + err);
+			});
 		}).catch(function(e){
 			reject("setPending(): Work not found (" + uid + ") : " + e);
 		});
@@ -637,7 +650,6 @@ function getApps() {
 					var appuids = [];
 					console.debug("appsCount " + appsCount);
 					for (var i = 0; i < appsCount; i++) {
-//						for (var i = 0; i < 1; i++) {
 						var appuid = JSON.stringify(jsonData['xwhep']['XMLVector'][0]['XMLVALUE'][i]['$']['value']).replace(/\"/g, "");
 						appuids[i] = appuid;
 					}
