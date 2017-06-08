@@ -26,6 +26,7 @@ const fs = require('fs');
 const util = require('util');
 var parseString = require('xml2js').parseString;
 const uuidV4 = require('uuid/v4');
+var sleep = require('sleep');
 
 /**
  * This are the local XWHEP server informations, for testing only
@@ -290,7 +291,7 @@ function get(uid) {
 				method: 'GET',
 				rejectUnauthorized: false
 		};
-		console.debug(options.hostname + ":" + options.port + getPath);
+		console.debug("get() : " + options.hostname + ":" + options.port + getPath);
 
 		const req = https.request(options, (res) => {
 
@@ -300,7 +301,6 @@ function get(uid) {
 			});
 
 			res.on('end', (d) => {
-				console.debug(getResponse);
 				resolve(getResponse);
 			});
 		});
@@ -374,13 +374,13 @@ function submit(appName, cmdLineParam) {
 				setPending(uid).then(function () {
 					resolve(uid);
 				}).catch(function (msg) {
-					console.error(msg);
+					reject(msg);
 				});
 			}).catch(function (msg) {
-				console.error(msg);
+				reject (msg);
 			});
 		}).catch(function (msg) {
-			console.error(msg);
+			reject (msg);
 		});
 	});
 }
@@ -426,7 +426,7 @@ function setParam(uid, paramName, paramValue) {
 			sendWork(json2xml(jsonObject, false)).then(function () {
 				resolve();
 			}).catch(function (err){
-				reject("register() error : " + err);
+				reject("setParam() error : " + err);
 			});
 		}).catch(function(e){
 			reject("setParam(): Work not found (" + uid + ") : " + e);
@@ -515,7 +515,7 @@ function setPending(uid) {
 			sendWork(json2xml(jsonObject, false)).then(function () {
 				resolve();
 			}).catch(function (err){
-				reject("register() error : " + err);
+				reject("setPending() error : " + err);
 			});
 		}).catch(function(e){
 			reject("setPending(): Work not found (" + uid + ") : " + e);
@@ -593,8 +593,11 @@ function remove(uid) {
  * @exception is thrown if work status is ERROR
  */
 function submitAndWait(appName, cmdLineParam, pattern) {
-	var uid = submit(appName, cmdLineParam);
-	return waitResult(uid, pattern);
+	submit(appName, cmdLineParam).then(function (uid) {
+		return waitResult(uid, pattern);
+	}).catch(function (e) {
+		throw "submitAndWaitResult() : " + e;
+	});
 }
 
 /**
@@ -606,6 +609,25 @@ function submitAndWait(appName, cmdLineParam, pattern) {
  * @exception is thrown if work status is ERROR
  */
 function waitResult(uid, pattern) {
+	var status = "";
+	while (status != "COMPLETED") {
+		getstatus(uid).then(function (newStatus) {
+
+			status = newStatus;
+
+			switch(status) {
+			case "ERROR":
+				throw "waitResult() : work status is ERROR (" + uid + ")";
+			case "COMPLETED":
+				return;
+			default:
+				sleep.sleep(30);
+			}
+
+		}).catch(function (e) {
+			throw "waitResult() : " + e;
+		});
+	}
 }
 
 /**
@@ -688,8 +710,8 @@ function getApps() {
 					Promise.all(apppUidPromises).then(function(xmlStr){
 						console.debug(xmlStr);
 						resolve();
-					}).catch(function(urls){
-						console.error("Error fetching some images: " + urls)
+					}).catch(function(e){
+						reject ("getApps() : " + e)
 					});
 				});
 			});
@@ -728,8 +750,8 @@ submit("ls", "-Rals").then(function (uid) {
 	get(uid).then(function (xml) {
 		console.log(xml);
 	})
-	remove(uid).then(function () {
-	});
+//	remove(uid).then(function () {
+//	});
 }).catch(function (msg) {
 	console.error(msg);
 });
