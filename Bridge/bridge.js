@@ -424,13 +424,10 @@ function setParam(uid, paramName, paramValue) {
 			jsonObject['xwhep']['work'][0][paramName] = paramValue;
 
 			sendWork(json2xml(jsonObject, false)).then(function () {
+				resolve();
 			}).catch(function (err){
 				reject("register() error : " + err);
 			});
-
-			resolve();
-
-
 		}).catch(function(e){
 			reject("setParam(): Work not found (" + uid + ") : " + e);
 		});
@@ -606,8 +603,10 @@ function getApp(appUid) {
 
 			if(!(appName in hashtableAppNames)){
 				hashtableAppNames[appName] = appUid;
-				console.debug("hashtableAppNames[" + appName + "] = " + hashtableAppNames[appName])
 			}
+
+			console.debug("hashtableAppNames[" + appName + "] = " + hashtableAppNames[appName])
+
 			resolve(getResponse);
 		}).catch(function(e){
 			reject("getApp() : Application not found (" + appUid + ") : " + e);
