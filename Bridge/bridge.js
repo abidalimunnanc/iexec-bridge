@@ -164,6 +164,53 @@ var workAvailableParameters = {
  */
 var hashtableAppNames = {};
 
+/*	This function 'json2xml()' is licensed under Creative Commons GNU LGPL License.
+
+License: http://creativecommons.org/licenses/LGPL/2.1/
+Version: 0.9
+Author:  Stefan Goessner/2006
+Web:     http://goessner.net/ 
+ */
+function json2xml(o, tab) {
+	var toXml = function(v, name, ind) {
+		var xml = "";
+		if (v instanceof Array) {
+			for (var i=0, n=v.length; i<n; i++)
+				xml += ind + toXml(v[i], name, ind+"\t") + "\n";
+		}
+		else if (typeof(v) == "object") {
+			var hasChild = false;
+			xml += ind + "<" + name;
+			for (var m in v) {
+				if (m.charAt(0) == "@")
+					xml += " " + m.substr(1) + "=\"" + v[m].toString() + "\"";
+				else
+					hasChild = true;
+			}
+			xml += hasChild ? ">" : "/>";
+			if (hasChild) {
+				for (var m in v) {
+					if (m == "#text")
+						xml += v[m];
+					else if (m == "#cdata")
+						xml += "<![CDATA[" + v[m] + "]]>";
+					else if (m.charAt(0) != "@")
+						xml += toXml(v[m], m, ind+"\t");
+				}
+				xml += (xml.charAt(xml.length-1)=="\n"?ind:"") + "</" + name + ">";
+			}
+		}
+		else {
+			xml += ind + "<" + name + ">" + v.toString() +  "</" + name + ">";
+		}
+		return xml;
+	}, xml="";
+	for (var m in o)
+		xml += toXml(o[m], m, "");
+	return tab ? xml.replace(/\t/g, tab) : xml.replace(/\t|\n/g, "");
+}
+
+
 
 /**
  * This throws "Connection error"
@@ -199,7 +246,7 @@ function sendWork(xmlWork) {
 			method: 'GET',
 			rejectUnauthorized: false
 	};
-	console.debug(options.hostname + ":" + options.port + sendWorkPath);
+	console.log(options.hostname + ":" + options.port + sendWorkPath);
 
 	const req = https.request(options, (res) => {
 
@@ -269,28 +316,34 @@ function get(uid) {
  * @see #setPending(uid) 
  */
 function register(appName) {
-	console.log("register ; " + appName);
+	console.debug("register ; " + appName);
 
-	if(!(appName in hashtableAppNames)){
-		getApps().then(function (success) {
-			if(!(appName in hashtableAppNames)){
-				throw "Application not found " + appName;
-			}
-			const workUid = uuidV4();
-			console.log("work uid = " + workUid);
-			var appUid =  hashtableAppNames[appName];
-			console.log(appName + " = " + appUid);
-			var workDescription = "<work><uid>" + workUid +
-			"</uid><accessrights>0x755</accessrights><appuid>" + 
-			appUid + "</appuid><status>UNAVAILABLE</status></work>";
-			console.log("workDescription = " + workDescription)
-			sendWork(workDescription);
-			sendWork(workDescription); // a 2nd time to force status to UNAVAILABLE
-			return workUid;
-		}).catch(function (err){
-			console.log("ERROR : " + err);
-		});
-	}
+	return new Promise(function(resolve, reject){
+		if(!(appName in hashtableAppNames)){
+			getApps().then(function (success) {
+				if(!(appName in hashtableAppNames)){
+					throw "Application not found " + appName;
+				}
+
+				const workUid = uuidV4();
+				console.debug("work uid = " + workUid);
+
+				var appUid =  hashtableAppNames[appName];
+				console.debug(appName + " = " + appUid);
+
+				var workDescription = "<work><uid>" + workUid +
+				"</uid><accessrights>0x755</accessrights><appuid>" + 
+				appUid + "</appuid><status>UNAVAILABLE</status></work>";
+
+				sendWork(workDescription);
+				sendWork(workDescription); // a 2nd time to force status to UNAVAILABLE
+
+				resolve(workUid);
+			}).catch(function (err){
+				reject("ERROR : " + err);
+			});
+		}
+	});
 }
 
 /**
@@ -302,6 +355,24 @@ function register(appName) {
  * @exception is thrown if application is not found
  */
 function submit(appName, cmdLineParam) {
+	return new Promise(function(resolve, reject){
+		register("ls").then(function (uid) {
+			setParam(uid, "cmdline", cmdLineParam).then(function () {
+				setPending(uid).then(function () {
+					getStatus(uid).then(function (status) {
+						console.log("status = " + status);
+					});	
+					return uid;
+				}).catch(function (msg) {
+					console.error(msg);
+				});
+			}).catch(function (msg) {
+				console.error(msg);
+			});
+		}).catch(function (msg) {
+			console.error(msg);
+		});
+	});
 }
 
 /**
@@ -310,13 +381,47 @@ function submit(appName, cmdLineParam) {
  * @param uid is the work unique identifier 
  * @param paramName contains the name of the work parameter to modify
  * @param paramValue contains the value of the work parameter
- * @return nothing
+ * @return a new Promise
+ * @resolve undefined
  * @exception is thrown if work is not found
  * @exception is thrown if work status is not UNAVAILABLE
  * @exception is thrown if paramName does not represent a valid work parameter
  * @exception is thrown if parameter is read only (e.g. status, return code, etc.)
  */
 function setParam(uid, paramName, paramValue) {
+	if(!(paramName in workAvailableParameters)){
+		throw "Invalid parameter "+ paramName;
+	}
+	if(workAvailableParameters[paramName] === false){
+		throw "Read only parameter "+ paramName;
+	}
+
+	return new Promise(function(resolve, reject){
+		get(uid).then(function(getResponse){
+			var jsonObject;
+			parseString(getResponse, function (err, result) {
+				jsonObject = JSON.parse(JSON.stringify(result));
+			});
+
+			if (jsonObject['xwhep']['work'] === undefined) {
+				reject("setParam(): Not a work : " + uid);
+			}
+
+			if (jsonObject['xwhep']['work'][0]['status'] != "UNAVAILABLE") {
+				reject("setParam(): Invalid status : " + jsonObject['xwhep']['work'][0]['status']);
+			}
+
+			jsonObject['xwhep']['work'][0][paramName] = paramValue;
+
+			sendWork(json2xml(jsonObject, false));
+
+			resolve();
+
+
+		}).catch(function(e){
+			reject("setParam(): Work not found (" + uid + ") : " + e);
+		});
+	});
 }
 
 /**
@@ -324,7 +429,8 @@ function setParam(uid, paramName, paramValue) {
  * 
  * @param uid is the work unique identifier 
  * @param paramName contains the name of the work parameter to modify
- * @return the parameter value
+ * @return a new Promise
+ * @resolve a String containing the parameter value 
  * @exception is thrown if work is not found
  * @exception is thrown if paramName does not represent a valid work parameter
  */
@@ -337,23 +443,20 @@ function getParam(uid, paramName) {
 			parseString(getResponse, function (err, result) {
 				jsonObject = JSON.parse(JSON.stringify(result));
 			});
-			console.debug(JSON.stringify(jsonObject));
 
-			if (jsonObject['xwhep']['work'] == undefined) {
-				reject("not a work : " + uid);
+			if (jsonObject['xwhep']['work'] === undefined) {
+				reject("getParam(): Not a work : " + uid);
 			}
 
 			var paramValue =  jsonObject['xwhep']['work'][0][paramName];
 			if (paramValue == undefined) {
-				reject("not a work parameter : " + paramName);
+				reject("getParam() : Invalid work parameter : " + paramName);
 			}
 
-			console.debug(paramName + " = " + paramValue);
-
 			resolve(paramValue);
-			
+
 		}).catch(function(e){
-			reject("Work not found (" + uid + ") : " + e);
+			reject("getParam(): Work not found (" + uid + ") : " + e);
 		});
 	});
 }
@@ -362,8 +465,11 @@ function getParam(uid, paramName) {
  * This retrieves the status for the provided work.
  * 
  * @param uid is the work unique identifier 
- * @return the work status
+ * @return a new Promise
+ * @resolve a String containing the parameter value 
  * @exception is thrown if work is not found
+ * @exception is thrown if paramName does not represent a valid work parameter
+ * @exception is thrown if parameter is read only
  * @see #getParam(uid, paramName) 
  */
 function getStatus(uid) {
@@ -372,12 +478,39 @@ function getStatus(uid) {
 
 /**
  * This sets the status of the provided work to PENDING
+ * We don't call setParam() since STATUS is supposed to be read only
  * @param uid is the work unique identifier 
- * @return nothing
+ * @return a new Promise
+ * @resolve undefined 
  * @exception is thrown if work is not found
  * @exception is thrown if work status is not UNAVAILABLE
+ * @exception is thrown if paramName does not represent a valid work parameter
+ * @exception is thrown if parameter is read only (e.g. status, return code, etc.)
  */
 function setPending(uid) {
+	return new Promise(function(resolve, reject){
+		get(uid).then(function(getResponse){
+			var jsonObject;
+			parseString(getResponse, function (err, result) {
+				jsonObject = JSON.parse(JSON.stringify(result));
+			});
+
+			if (jsonObject['xwhep']['work'] === undefined) {
+				reject("setPending(): Not a work : " + uid);
+			}
+
+
+			jsonObject['xwhep']['work'][0]['status'] = "PENDING";
+
+			sendWork(json2xml(jsonObject, false));
+
+			resolve();
+
+
+		}).catch(function(e){
+			reject("setPending(): Work not found (" + uid + ") : " + e);
+		});
+	});
 }
 
 /**
@@ -448,11 +581,11 @@ function getApp(appUid) {
 			parseString(getResponse, function (err, result) {
 				jsonObject = JSON.parse(JSON.stringify(result));
 			});
-			
+
 			console.debug(JSON.stringify(jsonObject));
 
 			if (jsonObject['xwhep']['app'] == undefined) {
-				reject("not an application : " + appUid);
+				reject("getApp() : Not an application : " + appUid);
 			}
 
 			var appName =  jsonObject['xwhep']['app'][0]['name'];
@@ -464,7 +597,7 @@ function getApp(appUid) {
 			}
 			resolve(getResponse);
 		}).catch(function(e){
-			reject("Application not found (" + appUid + ") : " + e);
+			reject("getApp() : Application not found (" + appUid + ") : " + e);
 		});
 	});
 }
@@ -520,12 +653,41 @@ function getApps() {
 		});
 
 		req.on('error', (e) => {
-			reject(e);
+			reject("getApps() : " + e);
 		});
 		req.end();
 	});
 
 }
 
-register("ls");
+//register("ls").then(function (uid) {
+//console.log("uid = " + uid);
+//getStatus(uid).then(function (status) {
+//setParam(uid, "cmdline", "pouet").then(function () {
+//setPending(uid).then(function () {
+//getStatus(uid).then(function (status) {
+//console.log("status = " + status);
+//});
+//}).catch(function (msg) {
+//console.error(msg);
+//});
+//}).catch(function (msg) {
+//console.error(msg);
+//});
+//}).catch(function (msg) {
+//console.error(msg);
+//});
+//}).catch(function (msg) {
+//console.error(msg);
+//});
+
+
+submit("ls", "-Rals").then(function (uid) {
+	get(uid).then(function (xml) {
+		console.log(xml);
+	})
+}).catch(function (msg) {
+	console.error(msg);
+});
+
 
