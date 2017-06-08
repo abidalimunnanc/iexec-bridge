@@ -26,7 +26,8 @@ const fs = require('fs');
 const util = require('util');
 var parseString = require('xml2js').parseString;
 const uuidV4 = require('uuid/v4');
-var sleep = require('sleep');
+var wait = require('wait-promise');
+
 
 /**
  * This are the local XWHEP server informations, for testing only
@@ -301,6 +302,7 @@ function get(uid) {
 			});
 
 			res.on('end', (d) => {
+				console.debug("get() : " + getResponse);
 				resolve(getResponse);
 			});
 		});
@@ -447,12 +449,16 @@ function setParam(uid, paramName, paramValue) {
 function getParam(uid, paramName) {
 
 	return new Promise(function(resolve, reject){
+		console.log("getParam (" + uid + ", " + paramName + ")");
 		get(uid).then(function(getResponse){
+			console.log("getParam (" + uid + ", " + paramName + ") = " + getResponse);
 
 			var jsonObject;
 			parseString(getResponse, function (err, result) {
 				jsonObject = JSON.parse(JSON.stringify(result));
 			});
+
+			console.log("getParam " + JSON.stringify(jsonObject));
 
 			if (jsonObject['xwhep']['work'] === undefined) {
 				reject("getParam(): Not a work : " + uid);
@@ -462,6 +468,7 @@ function getParam(uid, paramName) {
 			if (paramValue == undefined) {
 				reject("getParam() : Invalid work parameter : " + paramName);
 			}
+			console.log("getParam " + paramValue);
 
 			resolve(paramValue);
 
@@ -588,15 +595,19 @@ function remove(uid) {
  * @param appName is the application name 
  * @param cmdLineParam is the command line parameter. This may be ""
  * @param pattern is a regexp to be found in stdout
- * @return the value of the found pattern
+ * @return a new Promise
+ * @resolve the value of the found pattern
  * @exception is thrown if application is not found
  * @exception is thrown if work status is ERROR
  */
 function submitAndWait(appName, cmdLineParam, pattern) {
-	submit(appName, cmdLineParam).then(function (uid) {
-		return waitResult(uid, pattern);
-	}).catch(function (e) {
-		throw "submitAndWaitResult() : " + e;
+	return new Promise(function(resolve, reject){
+		submit(appName, cmdLineParam).then(function (uid) {
+			console.log("submitAndWait() submission done");
+			resolve (waitResult(uid, pattern));
+		}).catch(function (e) {
+			reject("submitAndWait() : " + e);
+		});
 	});
 }
 
@@ -609,9 +620,11 @@ function submitAndWait(appName, cmdLineParam, pattern) {
  * @exception is thrown if work status is ERROR
  */
 function waitResult(uid, pattern) {
+//	console.log("waitResult " + uid);
 	var status = "";
-	while (status != "COMPLETED") {
-		getstatus(uid).then(function (newStatus) {
+	while(status != "COMPLETED") {
+		getStatus(uid).then(function (newStatus) {
+			console.log("waitResult " + newStatus);
 
 			status = newStatus;
 
@@ -621,9 +634,8 @@ function waitResult(uid, pattern) {
 			case "COMPLETED":
 				return;
 			default:
-				sleep.sleep(30);
+				console.log("waitResult sleeping " + uid + " : " + status);
 			}
-
 		}).catch(function (e) {
 			throw "waitResult() : " + e;
 		});
@@ -724,29 +736,19 @@ function getApps() {
 	});
 }
 
-//register("ls").then(function (uid) {
-//console.log("uid = " + uid);
-//getStatus(uid).then(function (status) {
-//setParam(uid, "cmdline", "pouet").then(function () {
-//setPending(uid).then(function () {
-//getStatus(uid).then(function (status) {
-//console.log("status = " + status);
-//});
-//}).catch(function (msg) {
-//console.error(msg);
-//});
-//}).catch(function (msg) {
-//console.error(msg);
-//});
-//}).catch(function (msg) {
-//console.error(msg);
-//});
-//}).catch(function (msg) {
-//console.error(msg);
-//});
-
-
+/*
 submit("ls", "-Rals").then(function (uid) {
+	get(uid).then(function (xml) {
+		console.log(xml);
+	})
+//	remove(uid).then(function () {
+//	});
+}).catch(function (msg) {
+	console.error(msg);
+});
+ */
+
+submitAndWait("ls", "-Rals", "").then(function (uid) {
 	get(uid).then(function (xml) {
 		console.log(xml);
 	})
