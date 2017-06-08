@@ -545,10 +545,42 @@ function getStdout(uid) {
 
 /**
  * This removes the work
- * @param uid is the work unique identifier 
- * @return nothing
+ * @param uid is the uid of the object to retrieve
+ * @return a Promise
+ * @resolve undefined
  */
 function remove(uid) {
+	return new Promise(function(resolve, reject){
+		var getResponse = "";
+
+		var getPath = PATH_REMOVE + "/" + uid;
+		const options = {
+				hostname: SERVERNAME,
+				port: SERVERPORT,
+				path: getPath + CREDENTIALS,
+				method: 'GET',
+				rejectUnauthorized: false
+		};
+		console.debug(options.hostname + ":" + options.port + getPath);
+
+		const req = https.request(options, (res) => {
+
+			res.on('data', (d) => {
+				var strd = String.fromCharCode.apply(null, new Uint16Array(d));
+				getResponse += strd;
+			});
+
+			res.on('end', (d) => {
+				console.debug(getResponse);
+				resolve();
+			});
+		});
+
+		req.on('error', (e) => {
+			reject(e);
+		});
+		req.end();
+	});
 }
 
 /**
@@ -668,7 +700,6 @@ function getApps() {
 		});
 		req.end();
 	});
-
 }
 
 //register("ls").then(function (uid) {
@@ -697,6 +728,8 @@ submit("ls", "-Rals").then(function (uid) {
 	get(uid).then(function (xml) {
 		console.log(xml);
 	})
+	remove(uid).then(function () {
+	});
 }).catch(function (msg) {
 	console.error(msg);
 });
