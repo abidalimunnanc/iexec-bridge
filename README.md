@@ -10,3 +10,11 @@ The role of the bridge will be to connect the smart contract and the xtremWeb co
 ###inspiration    
 https://github.com/oraclize/ethereum-bridge    
 https://github.com/oraclize/ethereum-api     
+
+# Dependencies
+  *  npm install web3
+  *  npm install hmlparser
+  *  npm install hmlparser2
+  *  npm install xml2js
+  *  npm install uuid
+  *  npm install sequence
