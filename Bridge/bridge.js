@@ -1,4 +1,4 @@
-//#!/usr/bin/env node
+#!/usr/bin/env node
 /*
  * Promises introduction:
  * http://www.javascriptkit.com/javatutors/javascriptpromises.shtml
@@ -26,7 +26,6 @@ const fs = require('fs');
 const util = require('util');
 var parseString = require('xml2js').parseString;
 const uuidV4 = require('uuid/v4');
-var wait = require('wait-promise');
 
 
 /**
@@ -531,6 +530,37 @@ function setPending(uid) {
 }
 
 /**
+ * This retrieves the result of the work
+ * 
+ * @param uid is the work unique identifier 
+ * @return a new Promise
+ * @resolve the result uri or undefined, if not set
+ * @exception is thrown if work is not found
+ * @exception is thrown if work status is not COMPLETED
+ */
+function getResult(uid) {
+
+	return new Promise(function(resolve, reject){
+		get(uid).then(function(getResponse){
+			var jsonObject;
+			parseString(getResponse, function (err, result) {
+				jsonObject = JSON.parse(JSON.stringify(result));
+			});
+			if (jsonObject['xwhep']['work'] === undefined) {
+				reject("setParam(): Not a work : " + uid);
+			}
+
+			if (jsonObject['xwhep']['work'][0]['status'] != "COMPLETED") {
+				reject("getRestult(): Invalid status : " + jsonObject['xwhep']['work'][0]['status']);
+			}
+
+			resolve(jsonObject['xwhep']['work'][0]['resulturi']);
+		}).catch(function (err){
+			reject("getResult() error : " + err);
+		});
+	});
+}
+/**
  * This retrieves the result path
  * @param uid is the work unique identifier 
  * @return the work result path on local file system; "" if work has no result
@@ -735,7 +765,6 @@ function getApps() {
 		req.end();
 	});
 }
-
 /*
 submit("ls", "-Rals").then(function (uid) {
 	get(uid).then(function (xml) {
@@ -746,14 +775,14 @@ submit("ls", "-Rals").then(function (uid) {
 }).catch(function (msg) {
 	console.error(msg);
 });
- */
+*/
+//submitAndWait("ls", "-Rals", "").then(function (uid) {
+//get(uid).then(function (xml) {
+//console.log(xml);
+//})
 
-submitAndWait("ls", "-Rals", "").then(function (uid) {
-	get(uid).then(function (xml) {
-		console.log(xml);
-	})
-//	remove(uid).then(function () {
-//	});
+getResult("1a66e7d5-dad3-4f3a-8512-464b68ce5636").then(function (uri) {
+	console.log(uri);
 }).catch(function (msg) {
 	console.error(msg);
 });
