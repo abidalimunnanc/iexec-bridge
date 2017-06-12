@@ -451,16 +451,15 @@ function setParam(uid, paramName, paramValue) {
 function getParam(uid, paramName) {
 
 	return new Promise(function(resolve, reject){
-		console.log("getParam (" + uid + ", " + paramName + ")");
 		get(uid).then(function(getResponse){
-			console.log("getParam (" + uid + ", " + paramName + ") = " + getResponse);
+			console.debug("getParam (" + uid + ", " + paramName + ") = " + getResponse);
 
 			var jsonObject;
 			parseString(getResponse, function (err, result) {
 				jsonObject = JSON.parse(JSON.stringify(result));
 			});
 
-			console.log("getParam " + JSON.stringify(jsonObject));
+			console.debug("getParam " + JSON.stringify(jsonObject));
 
 			if (jsonObject['xwhep']['work'] === undefined) {
 				reject("getParam(): Not a work : " + uid);
@@ -470,7 +469,7 @@ function getParam(uid, paramName) {
 			if (paramValue == undefined) {
 				reject("getParam() : Invalid work parameter : " + paramName);
 			}
-			console.log("getParam " + paramValue);
+			console.debug("getParam " + paramValue);
 
 			resolve(paramValue);
 
@@ -537,7 +536,7 @@ function setPending(uid) {
  * 
  * @param uid is the work unique identifier 
  * @return a new Promise
- * @resolve a string containing the result uri or undefined, if not set
+ * @resolve a string containing xml representation of the result metadata or undefined, if not set
  * @exception is thrown if work is not found
  * @exception is thrown if work status is not COMPLETED
  */
@@ -550,14 +549,20 @@ function getResult(uid) {
 				jsonObject = JSON.parse(JSON.stringify(result));
 			});
 			if (jsonObject['xwhep']['work'] === undefined) {
-				reject("setParam(): Not a work : " + uid);
+				reject("getResult(): Not a work : " + uid);
 			}
 
 			if (jsonObject['xwhep']['work'][0]['status'] != "COMPLETED") {
 				reject("getRestult(): Invalid status : " + jsonObject['xwhep']['work'][0]['status']);
 			}
 
-			resolve(jsonObject['xwhep']['work'][0]['resulturi'].toString());
+			if (jsonObject['xwhep']['work'][0]['resulturi'] == undefined) {
+				resolve(undefined);
+			}
+			var uri = jsonObject['xwhep']['work'][0]['resulturi'].toString();
+			var resultUid = uri.substring(uri.lastIndexOf("/") + 1);
+
+			resolve(get(resultUid));
 		}).catch(function (err){
 			reject("getResult() error : " + err);
 		});
@@ -592,40 +597,26 @@ function download(uri, downloadedPath) {
 
 		process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
-		console.log("download() : " + options.hostname + ":" + options.port + downloadPath);
-		console.log("https://" + options.hostname + ":" + options.port + options.path)
+		console.debug("https://" + options.hostname + ":" + options.port + options.path)
 		request.get("https://" + options.hostname + ":" + options.port + options.path)
 		.on('response', function(response) {
-/*
+			/*
 			console.log(response.statusCode) // 200
 			console.log(response.headers) // 'image/png'
-*/
-			})
+			 */
+		})
 		.on('error', function(response) {
-			console.log("download() : request error " + response);
+			console.error("download() : request error " + response);
 			reject("download() : request error " + response);
 		})
 		.pipe(fs.createWriteStream(downloadedPath)).on('error', function(response) {
-			console.log("download(" + uri + ", " + downloadedPath + ") : pipe error " + response);
+			console.error("download(" + uri + ", " + downloadedPath + ") : pipe error " + response);
 			reject(response);
 		})
 
 
 		resolve();
 
-		/*
-		const req = https.request(options).
-		on('response', function(response) {
-			console.log(response.statusCode) // 200
-			console.log(response.headers['content-type']) // 'image/png'
-		})
-		.pipe(fs.createWriteStream("pouet2"));
-
-		req.on('error', (e) => {
-			reject(e);
-		});
-		req.end();
-		 */
 	});
 }
 
@@ -641,36 +632,42 @@ function download(uri, downloadedPath) {
 function downloadResult(uid) {
 
 	return new Promise(function(resolve, reject){
-		getResult(uid).then(function(resultUri){
-			var getResponse = "";
-
-			var getPath = PATH_DOWNLOADDATA + "/" + uid;
-			const options = {
-					hostname: SERVERNAME,
-					port: SERVERPORT,
-					path: getPath + CREDENTIALS,
-					method: 'GET',
-					rejectUnauthorized: false
-			};
-			console.debug("get() : " + options.hostname + ":" + options.port + getPath);
-
-			const req = https.request(options, (res) => {
-
-				res.on('data', (d) => {
-					var strd = String.fromCharCode.apply(null, new Uint16Array(d));
-					getResponse += strd;
-				});
-
-				res.on('end', (d) => {
-					console.debug("get() : " + getResponse);
-					resolve();
-				});
-			}).pipe(fs.createWriteStream("pouet"));
-
-			req.on('error', (e) => {
-				reject(e);
+		getResult(uid).then(function (getResponse) {
+			var jsonObject;
+			parseString(getResponse, function (err, result) {
+				jsonObject = JSON.parse(JSON.stringify(result));
 			});
-			req.end();
+			if (jsonObject['xwhep']['data'] === undefined) {
+				reject("downloadResult(): Not a data : " + uid);
+			}
+
+			if (jsonObject['xwhep']['data'][0]['status'] != "AVAILABLE") {
+				reject("downloadResult(): Invalid status : " + jsonObject['xwhep']['data'][0]['status']);
+			}
+
+			var resultPath = "result." + uid;
+			var dataName = jsonObject['xwhep']['data'][0]['name'];
+			if (dataName != undefined) {
+				resultPath += "." + dataName.toString().toLowerCase();
+			}
+			var dataType = jsonObject['xwhep']['data'][0]['type'];
+			if (dataType != undefined) {
+				resultPath += "." + dataType.toString().toLowerCase();
+			}
+			else {
+				resultPath += ".txt";
+			}
+			var dataUri = jsonObject['xwhep']['data'][0]['uri'];
+			if (dataUri == undefined) {
+				reject("downloadResult(): data uri not found : " + uid);
+			}
+			download(dataUri.toString(), resultPath).then(function () {
+				resolve(resultPath);
+			}).catch(function (msg) {
+				console.error(msg);
+			});
+		}).catch(function (msg) {
+			console.error(msg);
 		});
 	});
 }
@@ -683,6 +680,19 @@ function downloadResult(uid) {
  * @exception is thrown if work status is ERROR
  */
 function getResultPath(uid) {
+	return new Promise(function(resolve, reject){
+		fs.readdir(".", function (ferr, files) { // '/' denotes the root folder
+			if (ferr) reject(ferr);
+
+			files.forEach( function (file) {
+				if(file.indexOf(uid) != -1) {
+					resolve(file);
+				}
+			});
+		});
+	}).catch(function (msg) {
+		reject(msg);
+	});
 }
 
 /**
@@ -896,27 +906,25 @@ submit("ls", "-Rals").then(function (uid) {
 //console.log(xml);
 //})
 
-getResult("1a66e7d5-dad3-4f3a-8512-464b68ce5636").then(function (uri) { // result text file
-	console.log(uri);
-	download(uri, "result.txt").then(function () {
-		console.log("Downloaded to result.txt");
+downloadResult("1a66e7d5-dad3-4f3a-8512-464b68ce5636").then(function (path) { // result text file
+	getResultPath("1a66e7d5-dad3-4f3a-8512-464b68ce5636").then(function (path) { // result text file
+		console.log("Result path = " + path);
 	}).catch(function (msg) {
-		console.error(msg);
+		console.log(msg);
 	});
 }).catch(function (msg) {
-	console.error(msg);
+	console.log(msg);
 });
 
 
-getResult("a2a36fdb-e9b7-47d4-954a-ff6e6309511d").then(function (uri) { // result zip file
-	console.log(uri);
-	download(uri, "result.zip").then(function () {
-		console.log("Downloaded to result.zip");
+downloadResult("a2a36fdb-e9b7-47d4-954a-ff6e6309511d").then(function (path) { // result zip file
+	getResultPath("a2a36fdb-e9b7-47d4-954a-ff6e6309511d").then(function (path) { // result text file
+		console.log("Result path = " + path);
 	}).catch(function (msg) {
-		console.error(msg);
+		console.log(msg);
 	});
 }).catch(function (msg) {
-	console.error(msg);
+	console.log(msg);
 });
 
 
