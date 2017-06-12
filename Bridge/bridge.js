@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+//#!/usr/bin/env node
 /*
  * Promises introduction:
  * http://www.javascriptkit.com/javatutors/javascriptpromises.shtml
@@ -26,6 +26,7 @@ const fs = require('fs');
 const util = require('util');
 var parseString = require('xml2js').parseString;
 const uuidV4 = require('uuid/v4');
+const request = require('request');
 
 
 /**
@@ -63,6 +64,7 @@ var PATH_GETAPPS = "/getapps";
 var PATH_GET = "/get";
 var PATH_SENDWORK = "/sendwork";
 var PATH_REMOVE = "/remove";
+var PATH_DOWNLOADDATA = "/downloaddata";
 
 /**
  * API URI
@@ -71,6 +73,7 @@ var URI_GETAPPS = SERVERURI + PATH_GETAPPS;
 var URI_GET = SERVERURI + PATH_GET;
 var URI_SENDWORK = SERVERURI + PATH_SENDWORK;
 var URI_REMOVE = SERVERURI + PATH_REMOVE;
+var URI_DOWNLOADDATA = SERVERURI + PATH_DOWNLOADDATA;
 
 /**
  * Credentials
@@ -534,7 +537,7 @@ function setPending(uid) {
  * 
  * @param uid is the work unique identifier 
  * @return a new Promise
- * @resolve the result uri or undefined, if not set
+ * @resolve a string containing the result uri or undefined, if not set
  * @exception is thrown if work is not found
  * @exception is thrown if work status is not COMPLETED
  */
@@ -554,12 +557,124 @@ function getResult(uid) {
 				reject("getRestult(): Invalid status : " + jsonObject['xwhep']['work'][0]['status']);
 			}
 
-			resolve(jsonObject['xwhep']['work'][0]['resulturi']);
+			resolve(jsonObject['xwhep']['work'][0]['resulturi'].toString());
 		}).catch(function (err){
 			reject("getResult() error : " + err);
 		});
 	});
 }
+
+/**
+ * This downloads the result of the work
+ * 
+ * @param uri is the data uri 
+ * @param downloadedPath denotes a file in local fs 
+ * @return a new Promise
+ * @resolve undefined
+ * @exception is thrown if work is not found
+ * @exception is thrown if work result is not set
+ */
+function download(uri, downloadedPath) {
+
+	return new Promise(function(resolve, reject){
+
+		var uid = uri.substring(uri.lastIndexOf("/") + 1);
+
+		var downloadPath = PATH_DOWNLOADDATA + "/" + uid;
+
+		const options = {
+				hostname: SERVERNAME,
+				port: SERVERPORT,
+				path: downloadPath + CREDENTIALS,
+				method: 'GET',
+				rejectUnauthorized: false
+		};
+
+		process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+
+		console.log("download() : " + options.hostname + ":" + options.port + downloadPath);
+		console.log("https://" + options.hostname + ":" + options.port + options.path)
+		request.get("https://" + options.hostname + ":" + options.port + options.path)
+		.on('response', function(response) {
+/*
+			console.log(response.statusCode) // 200
+			console.log(response.headers) // 'image/png'
+*/
+			})
+		.on('error', function(response) {
+			console.log("download() : request error " + response);
+			reject("download() : request error " + response);
+		})
+		.pipe(fs.createWriteStream(downloadedPath)).on('error', function(response) {
+			console.log("download(" + uri + ", " + downloadedPath + ") : pipe error " + response);
+			reject(response);
+		})
+
+
+		resolve();
+
+		/*
+		const req = https.request(options).
+		on('response', function(response) {
+			console.log(response.statusCode) // 200
+			console.log(response.headers['content-type']) // 'image/png'
+		})
+		.pipe(fs.createWriteStream("pouet2"));
+
+		req.on('error', (e) => {
+			reject(e);
+		});
+		req.end();
+		 */
+	});
+}
+
+/**
+ * This downloads the result of the work
+ * 
+ * @param uid is the work uid 
+ * @return a new Promise
+ * @resolve a string containing the path of the downloaded result
+ * @exception is thrown if work is not found
+ * @exception is thrown if work result is not set
+ */
+function downloadResult(uid) {
+
+	return new Promise(function(resolve, reject){
+		getResult(uid).then(function(resultUri){
+			var getResponse = "";
+
+			var getPath = PATH_DOWNLOADDATA + "/" + uid;
+			const options = {
+					hostname: SERVERNAME,
+					port: SERVERPORT,
+					path: getPath + CREDENTIALS,
+					method: 'GET',
+					rejectUnauthorized: false
+			};
+			console.debug("get() : " + options.hostname + ":" + options.port + getPath);
+
+			const req = https.request(options, (res) => {
+
+				res.on('data', (d) => {
+					var strd = String.fromCharCode.apply(null, new Uint16Array(d));
+					getResponse += strd;
+				});
+
+				res.on('end', (d) => {
+					console.debug("get() : " + getResponse);
+					resolve();
+				});
+			}).pipe(fs.createWriteStream("pouet"));
+
+			req.on('error', (e) => {
+				reject(e);
+			});
+			req.end();
+		});
+	});
+}
+
 /**
  * This retrieves the result path
  * @param uid is the work unique identifier 
@@ -775,14 +890,31 @@ submit("ls", "-Rals").then(function (uid) {
 }).catch(function (msg) {
 	console.error(msg);
 });
-*/
+ */
 //submitAndWait("ls", "-Rals", "").then(function (uid) {
 //get(uid).then(function (xml) {
 //console.log(xml);
 //})
 
-getResult("1a66e7d5-dad3-4f3a-8512-464b68ce5636").then(function (uri) {
+getResult("1a66e7d5-dad3-4f3a-8512-464b68ce5636").then(function (uri) { // result text file
 	console.log(uri);
+	download(uri, "result.txt").then(function () {
+		console.log("Downloaded to result.txt");
+	}).catch(function (msg) {
+		console.error(msg);
+	});
+}).catch(function (msg) {
+	console.error(msg);
+});
+
+
+getResult("a2a36fdb-e9b7-47d4-954a-ff6e6309511d").then(function (uri) { // result zip file
+	console.log(uri);
+	download(uri, "result.zip").then(function () {
+		console.log("Downloaded to result.zip");
+	}).catch(function (msg) {
+		console.error(msg);
+	});
 }).catch(function (msg) {
 	console.error(msg);
 });
