@@ -532,44 +532,6 @@ function setPending(uid) {
 }
 
 /**
- * This retrieves the result of the work
- * 
- * @param uid is the work unique identifier 
- * @return a new Promise
- * @resolve a string containing xml representation of the result metadata or undefined, if not set
- * @exception is thrown if work is not found
- * @exception is thrown if work status is not COMPLETED
- */
-function getResult(uid) {
-
-	return new Promise(function(resolve, reject){
-		get(uid).then(function(getResponse){
-			var jsonObject;
-			parseString(getResponse, function (err, result) {
-				jsonObject = JSON.parse(JSON.stringify(result));
-			});
-			if (jsonObject['xwhep']['work'] === undefined) {
-				reject("getResult(): Not a work : " + uid);
-			}
-
-			if (jsonObject['xwhep']['work'][0]['status'] != "COMPLETED") {
-				reject("getRestult(): Invalid status : " + jsonObject['xwhep']['work'][0]['status']);
-			}
-
-			if (jsonObject['xwhep']['work'][0]['resulturi'] == undefined) {
-				resolve(undefined);
-			}
-			var uri = jsonObject['xwhep']['work'][0]['resulturi'].toString();
-			var resultUid = uri.substring(uri.lastIndexOf("/") + 1);
-
-			resolve(get(resultUid));
-		}).catch(function (err){
-			reject("getResult() error : " + err);
-		});
-	});
-}
-
-/**
  * This downloads the result of the work
  * 
  * @param uri is the data uri 
@@ -668,6 +630,44 @@ function downloadResult(uid) {
 			});
 		}).catch(function (msg) {
 			console.error(msg);
+		});
+	});
+}
+
+/**
+ * This retrieves the result of the work
+ * 
+ * @param uid is the work unique identifier 
+ * @return a new Promise
+ * @resolve a string containing xml representation of the result metadata or undefined, if not set
+ * @exception is thrown if work is not found
+ * @exception is thrown if work status is not COMPLETED
+ */
+function getResult(uid) {
+
+	return new Promise(function(resolve, reject){
+		get(uid).then(function(getResponse){
+			var jsonObject;
+			parseString(getResponse, function (err, result) {
+				jsonObject = JSON.parse(JSON.stringify(result));
+			});
+			if (jsonObject['xwhep']['work'] === undefined) {
+				reject("getResult(): Not a work : " + uid);
+			}
+
+			if (jsonObject['xwhep']['work'][0]['status'] != "COMPLETED") {
+				reject("getRestult(): Invalid status : " + jsonObject['xwhep']['work'][0]['status']);
+			}
+
+			if (jsonObject['xwhep']['work'][0]['resulturi'] == undefined) {
+				resolve(undefined);
+			}
+			var uri = jsonObject['xwhep']['work'][0]['resulturi'].toString();
+			var resultUid = uri.substring(uri.lastIndexOf("/") + 1);
+
+			resolve(get(resultUid));
+		}).catch(function (err){
+			reject("getResult() error : " + err);
 		});
 	});
 }
