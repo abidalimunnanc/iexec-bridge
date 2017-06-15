@@ -776,25 +776,27 @@ function submitAndWait(appName, cmdLineParam, pattern) {
  */
 function waitResult(uid, pattern) {
 //	console.log("waitResult " + uid);
-	var status = "";
-	while(status != "COMPLETED") {
-		getStatus(uid).then(function (newStatus) {
+	var theInterval = setInterval(function() {
+    	getStatus(uid).then(function (newStatus) {
 			console.log("waitResult " + newStatus);
 
-			status = newStatus;
-
-			switch(status) {
-			case "ERROR":
-				throw "waitResult() : work status is ERROR (" + uid + ")";
-			case "COMPLETED":
-				return;
-			default:
-				console.log("waitResult sleeping " + uid + " : " + status);
+			if (newStatus == "PENDING") {
+				console.log("waitResult is PENDING");
 			}
+			if (newStatus == "ERROR") {
+				console.log("waitResult is ERROR");
+				throw "waitResult() : work status is ERROR (" + uid + ")";
+			}
+			if (newStatus == "COMPLETED") {
+				console.log("waitResult is COMPLETED");
+				clearInterval(theInterval);
+				return;
+			}
+			console.log("waitResult sleeping " + uid + " : " + newStatus);
 		}).catch(function (e) {
 			throw "waitResult() : " + e;
 		});
-	}
+	}, 1000);
 }
 
 /**
@@ -890,17 +892,31 @@ function getApps() {
 		req.end();
 	});
 }
-/*
+
+
+
+
+
+
+
+/*********************************
+ * main
+ *********************************/
+
+
+
+
 submit("ls", "-Rals").then(function (uid) {
 	get(uid).then(function (xml) {
 		console.log(xml);
 	})
-//	remove(uid).then(function () {
-//	});
+	waitResult(uid).then(function () {
+		console.log("waitresult is done");
+	});
 }).catch(function (msg) {
 	console.error(msg);
 });
- */
+
 //submitAndWait("ls", "-Rals", "").then(function (uid) {
 //get(uid).then(function (xml) {
 //console.log(xml);
