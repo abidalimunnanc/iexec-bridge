@@ -56,6 +56,11 @@ var SERVERPORT = IEXECPORT;
 var SERVERURI = IEXECURI;
  */
 
+/*
+ * This is the delay between between two get status call
+ * This is in milliseconds
+ */
+var WAITSTATUSDELAY=1000
 
 /**
  * API PATH
@@ -391,7 +396,6 @@ function submit(appName, cmdLineParam) {
 
 /**
  * This sets a parameter for the provided work.
- * 
  * @param uid is the work unique identifier 
  * @param paramName contains the name of the work parameter to modify
  * @param paramValue contains the value of the work parameter
@@ -440,7 +444,6 @@ function setParam(uid, paramName, paramValue) {
 
 /**
  * This retrieves a parameter for the provided work.
- * 
  * @param uid is the work unique identifier 
  * @param paramName contains the name of the work parameter to modify
  * @return a new Promise
@@ -481,7 +484,6 @@ function getParam(uid, paramName) {
 
 /**
  * This retrieves the status for the provided work.
- * 
  * @param uid is the work unique identifier 
  * @return a new Promise
  * @resolve a String containing the parameter value 
@@ -533,7 +535,6 @@ function setPending(uid) {
 
 /**
  * This downloads the result of the work
- * 
  * @param uri is the data uri 
  * @param downloadedPath denotes a file in local fs 
  * @return a new Promise
@@ -584,7 +585,6 @@ function download(uri, downloadedPath) {
 
 /**
  * This downloads the result of the work
- * 
  * @param uid is the work uid 
  * @return a new Promise
  * @resolve a string containing the path of the downloaded result
@@ -636,7 +636,6 @@ function downloadResult(uid) {
 
 /**
  * This retrieves the result of the work
- * 
  * @param uid is the work unique identifier 
  * @return a new Promise
  * @resolve a string containing xml representation of the result metadata or undefined, if not set
@@ -757,9 +756,27 @@ function remove(uid) {
  */
 function submitAndWait(appName, cmdLineParam, pattern) {
 	return new Promise(function(resolve, reject){
+		var workuid;
 		submit(appName, cmdLineParam).then(function (uid) {
+			workuid = uid;
 			console.log("submitAndWait() submission done");
-			resolve (waitResult(uid, pattern));
+			waitCompleted(uid).then(function (uid) {
+				console.log("submitAndWait() submission done " + workuid);
+				downloadResult(workuid).then(function (path) { 
+					console.log("submitAndWait() download done " + workuid);
+					getResultPath(workuid).then(function (path) { // result text file
+						console.log("Result path = " + path);
+						resolve (path);
+					}).catch(function (msg) {
+						reject("submitAndWait() : " + e);
+					});
+				}).catch(function (msg) {
+					reject("submitAndWait() : " + e);
+				});
+
+			}).catch(function (e) {
+				reject("submitAndWait() : " + e);
+			});
 		}).catch(function (e) {
 			reject("submitAndWait() : " + e);
 		});
@@ -767,36 +784,39 @@ function submitAndWait(appName, cmdLineParam, pattern) {
 }
 
 /**
- * This waits the work result.
+ * This waits the work completion
  * @param uid is the work unique identifier 
- * @param pattern is a regexp to be found in stdout
- * @return the value of the found pattern
+ * @return a new Promise
+ * @resolve undefined
  * @exception is thrown if work is not found
  * @exception is thrown if work status is ERROR
  */
-function waitResult(uid, pattern) {
-//	console.log("waitResult " + uid);
-	var theInterval = setInterval(function() {
-    	getStatus(uid).then(function (newStatus) {
-			console.log("waitResult " + newStatus);
+function waitCompleted(uid) {
+	return new Promise(function(resolve, reject){
+		var theInterval = setInterval(function() {
+			getStatus(uid).then(function (newStatus) {
+				console.log("waitCompleted " + newStatus);
 
-			if (newStatus == "PENDING") {
-				console.log("waitResult is PENDING");
-			}
-			if (newStatus == "ERROR") {
-				console.log("waitResult is ERROR");
-				throw "waitResult() : work status is ERROR (" + uid + ")";
-			}
-			if (newStatus == "COMPLETED") {
-				console.log("waitResult is COMPLETED");
-				clearInterval(theInterval);
-				return;
-			}
-			console.log("waitResult sleeping " + uid + " : " + newStatus);
-		}).catch(function (e) {
-			throw "waitResult() : " + e;
-		});
-	}, 1000);
+				if (newStatus == "PENDING") {
+					console.log("waitCompleted is PENDING");
+				}
+				if (newStatus == "ERROR") {
+					reject("waitCompleted() : work ERROR (" + uid + ")");
+				}
+				if (newStatus == "COMPLETED") {
+					clearInterval(theInterval);
+					resolve();
+					return;
+				}
+				console.log("waitCompleted sleeping " + uid + " : " + newStatus);
+			}).catch(function (e) {
+				reject("waitCompleted() : " + e);
+			});
+		}, WAITSTATUSDELAY);
+	}).catch(function (e) {
+		reject("waitCompleted() : " + e);
+	});
+
 }
 
 /**
@@ -906,22 +926,13 @@ function getApps() {
 
 
 
-submit("ls", "-Rals").then(function (uid) {
-	get(uid).then(function (xml) {
-		console.log(xml);
-	})
-	waitResult(uid).then(function () {
-		console.log("waitresult is done");
-	});
+submitAndWait("ls", "-Rals").then(function (resulttext) {
+	console.log("Result = " + resulttext);
 }).catch(function (msg) {
 	console.error(msg);
 });
 
-//submitAndWait("ls", "-Rals", "").then(function (uid) {
-//get(uid).then(function (xml) {
-//console.log(xml);
-//})
-
+/*
 downloadResult("1a66e7d5-dad3-4f3a-8512-464b68ce5636").then(function (path) { // result text file
 	getResultPath("1a66e7d5-dad3-4f3a-8512-464b68ce5636").then(function (path) { // result text file
 		console.log("Result path = " + path);
@@ -944,3 +955,4 @@ downloadResult("a2a36fdb-e9b7-47d4-954a-ff6e6309511d").then(function (path) { //
 });
 
 
+ */
