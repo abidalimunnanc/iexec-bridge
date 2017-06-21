@@ -618,11 +618,13 @@ function download(uri, downloadedPath) {
         reject(`download() : request error ${response}`);
       })
       .pipe(fs.createWriteStream(downloadedPath))
-        .on('error', (response) => {
-          console.error(`download(${uri}, ${downloadedPath}) : pipe error ${response}`);
-          reject(response);
-        })
-    resolve();
+      .on('error', (response) => {
+        console.error(`download(${uri}, ${downloadedPath}) : pipe error ${response}`);
+        reject(response);
+      })
+      .on('end', () => {
+        resolve();
+      })
   });
 }
 
