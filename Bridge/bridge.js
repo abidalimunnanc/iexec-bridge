@@ -1,25 +1,4 @@
 #!/usr/bin/env node
-/*
- * Promises introduction:
- * http://www.javascriptkit.com/javatutors/javascriptpromises.shtml
-
-import Web3 from 'web3';
-//import { exec } from 'child_process';
-import config from './config.json';
-
-//instanciation web3
-let web3 = null;
-if (typeof web3 !== 'undefined') web3 = new Web3(web3.currentProvider);
-else web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'));
-
-//instanciation contract
-const vanitygenContract = web3.eth.contract(config.ContractAbi);
-const contractInstance = vanitygenContract.at(config.ContractAddress);
-
-//event watcher
-const launchEvent = contractInstance.Launch({});
-
- */
 
 import https from 'https';
 import { parseString } from 'xml2js';
@@ -27,7 +6,7 @@ import fs from 'fs';
 import uuidV4 from 'uuid/v4';
 import request from 'request';
 import json2xml from 'json2xml';
-// const util = require('util');
+import util from 'util';
 
 
 /**
@@ -589,7 +568,7 @@ function submit(appName, cmdLineParam) {
  * @param uri is the data uri
  * @param downloadedPath denotes a file in local fs
  * @return a new Promise
- * @resolve undefined
+ * @resolve downloadedPath
  * @exception is thrown if work is not found
  * @exception is thrown if work result is not set
  */
@@ -610,21 +589,58 @@ function download(uri, downloadedPath) {
     process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
     console.debug(`https://${options.hostname}:${options.port}${options.path}`)
+
+    const outputStream = fs.createWriteStream(downloadedPath);
+    outputStream.on('error', (e) => {
+      reject(`download() : pipe error ${e}`);
+    }).on('data', (d) => {
+      console.log(d);
+    }).on('finish', () => {
+      resolve(downloadedPath);
+    });
+
     request.get(`https://${options.hostname}:${options.port}${options.path}`)
-      .on('response', () => {
-      })
-      .on('error', (response) => {
-        console.error(`download() : request error ${response}`);
-        reject(`download() : request error ${response}`);
-      })
-      .pipe(fs.createWriteStream(downloadedPath))
-      .on('error', (response) => {
-        console.error(`download(${uri}, ${downloadedPath}) : pipe error ${response}`);
-        reject(response);
-      })
-      .on('end', () => {
-        resolve();
-      })
+       .on('response', () => {
+       })
+       .on('error', (response) => {
+         console.error(`download() : request error ${response}`);
+         reject(`download() : request error ${response}`);
+       })
+       .pipe(outputStream);
+  });
+}
+
+/**
+ * This downloads the provided url
+ * This is for testing only
+ * @param url is the url to downaload
+ * @param downloadedPath is the path to store the download
+ * @return a new PRomise
+ * @resolve downloadedPath
+ */
+function downloadURL(url, downloadedPath) {
+  return new Promise((resolve, reject) => {
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+
+    console.log(`${url}:${downloadedPath}`);
+
+    const outputStream = fs.createWriteStream(downloadedPath);
+    outputStream.on('error', (e) => {
+      reject(`download() : pipe error ${e}`);
+    }).on('data', (d) => {
+      console.log(d);
+    }).on('finish', () => {
+      resolve(downloadedPath);
+    });
+
+    request.get(url)
+       .on('response', () => {
+       })
+       .on('error', (response) => {
+         console.error(`download() : request error ${response}`);
+         reject(`download() : request error ${response}`);
+       })
+       .pipe(outputStream);
   });
 }
 
@@ -704,9 +720,10 @@ function downloadResult(uid) {
       if (dataUri === undefined) {
         reject(`downloadResult(): data uri not found : ${uid}`);
       }
-      console.log(`downloadResult() calling download(${dataUri.toString()}, ${resultPath})`);
-      download(dataUri.toString(), resultPath).then(() => {
-        resolve(resultPath);
+      console.debug(`downloadResult() calling download(${dataUri}, ${resultPath})`);
+      download(dataUri.toString(), resultPath).then((downloadedPath) => {
+        console.debug(`downloadResult() : ${downloadedPath}`);
+        resolve(downloadedPath);
       }).catch((msg) => {
         console.error(msg);
       });
@@ -715,7 +732,6 @@ function downloadResult(uid) {
     });
   });
 }
-
 
 /**
  * This retrieves the result path
@@ -740,18 +756,6 @@ function getResultPath(uid) {
       reject(`getResultPath() : file not found ${uid}`);
     });
   });
-}
-
-/**
- * This the content of the work stdout file
- * This is a public method implemented in the smart contract
- * @param uid is the work unique identifier
- * @return a String
- * @exception is thrown if work is not found
- * @exception is thrown if stdout file is not found
- */
-// eslint-disable-next-line
-function getStdout(uid) {
 }
 
 /**
@@ -792,28 +796,6 @@ function remove(uid) {
       reject(e);
     });
     req.end();
-  });
-}
-
-/*
-* This is a private method not implemented in the smart contract
-*/
-// eslint-disable-next-line
-function patternFromFile(path, pattern) {
-  return new Promise((resolve, reject) => {
-    const readableStream = fs.createReadStream(path);
-    let data = '';
-
-    readableStream.on('error', (err) => {
-      reject(err);
-    });
-    readableStream.on('data', (chunk) => {
-      data += chunk;
-    });
-
-    readableStream.on('end', () => {
-      resolve(data);
-    });
   });
 }
 
@@ -865,12 +847,13 @@ function submitAndWait(appName, cmdLineParam) {
     let workuid;
     submit(appName, cmdLineParam).then((uid) => {
       workuid = uid;
-      console.log('submitAndWait() submission done');
+      console.debug('submitAndWait() submission done');
       waitCompleted(uid).then(() => {
-        console.log(`submitAndWait() submission done ${workuid}`);
+        console.debug(`submitAndWait() COMPLETED ${workuid}`);
         downloadResult(workuid).then(() => {
-          console.log(`submitAndWait() download done ${workuid}`);
+          console.debug(`submitAndWait() downloaded ${workuid}`);
           getResultPath(workuid).then((resultPath) => {
+            console.debug(`submitAndWait() path ${resultPath}`);
             resolve(resultPath);
           }).catch((msg) => {
             reject(`submitAndWait() : ${msg}`);
@@ -887,49 +870,89 @@ function submitAndWait(appName, cmdLineParam) {
   });
 }
 
+/**
+ * This dumps a text file
+ * This is a private method not implemented in the smart contract
+ * @param path is the text file path
+ * @return a new Promise
+ * @resolve a String containing the text file content
+ */
+function dumpFile(path) {
+  return new Promise((resolve, reject) => {
+    const readableStream = fs.createReadStream(path);
+    let data = '';
+
+    readableStream.on('error', (err) => {
+      reject(err);
+    });
+    readableStream.on('data', (chunk) => {
+      data += chunk;
+    });
+
+    readableStream.on('end', () => {
+      resolve(data);
+    });
+  });
+}
+
+/**
+ * This the content of the work stdout file
+ * This is a public method implemented in the smart contract
+ * @param uid is the work uid
+ * @return a new Promise
+ * @resolve a String containing the text file content
+ * @exception is thrown if work is not found
+ * @exception is thrown if stdout file is not found
+ */
+function getStdout(uid) {
+  return new Promise((resolve, reject) => {
+    downloadResult(uid).then(() => {
+      console.debug(`getStdout() downloaded ${uid}`);
+      getResultPath(uid).then((resultPath) => {
+        console.debug(`getStdout() path ${resultPath}`);
+        dumpFile(resultPath).then((textContent) => {
+          resolve(textContent);
+        }).catch((msg) => {
+          reject(`getStdout() : ${msg}`);
+        });
+      }).catch((msg) => {
+        reject(`getStdout() : ${msg}`);
+      });
+    }).catch((msg) => {
+      reject(`getStdout() : ${msg}`);
+    });
+  });
+}
 
 /** *******************************
  * main
  *********************************/
-
-
-const filename = 'result.ff0d47e5-30f4-46bb-9c85-5371c1012fce.stdout.txt.text';
-patternFromFile(filename, /pouet/).then((resultValue) => {
-  console.log(`patternFromFile = ${resultValue}`);
-},
-).catch((e) => {
-  console.log(`ERROR : ${e}`);
+// next is a test only, independantly of xwhep
+/*
+downloadURL('http://www.liberation.fr/index.html', 'index.html').then(() => {
+  dumpFile('index.html').then((resultValue) => {
+    console.log(`liberation/index.html = ${resultValue}`);
+  }).catch((e) => {
+    console.log(`ERROR : ${e}`);
+  });
+}).catch((msg) => {
+  console.log(msg);
 });
-
-
+*/
+// this tests xwhep. 'ls' application must be registered
 submitAndWait('ls', '-Rals').then((resultPath) => {
   console.log(`resultPath = ${resultPath}`);
-  patternFromFile(resultPath, /pouet/).then((resultValue) => {
-    console.log(`patternFromFile = ${resultValue}`);
+  dumpFile(resultPath).then((resultValue) => {
+    console.log(`ls -Rals = ${resultValue}`);
   }).catch((e) => {
     console.log(`ERROR : ${e}`);
   });
 }).catch((msg) => {
   console.log(`ERROR = ${msg}`);
 });
-
-
-downloadResult('9ef2d4e9-ad2a-4453-a704-f6c0bdf529d2').then(() => {
-  getResultPath('9ef2d4e9-ad2a-4453-a704-f6c0bdf529d2').then((path) => { // result text file
-    console.log(`Result path = ${path}`);
-  }).catch((msg) => {
-    console.log(msg);
-  });
+// this tests xwhep. 'ls' application must be registered
+getStdout('d3e2dbe9-cd04-49d6-995f-637cf12f5e61').then((resultPath) => {
+  console.log(`stdout = ${resultPath}`);
 }).catch((msg) => {
-  console.log(msg);
-});
-
-downloadResult('0e6e4541-0dd7-4762-8ec1-0482a71a7021').then(() => {
-  getResultPath('0e6e4541-0dd7-4762-8ec1-0482a71a7021').then((path) => { // result zip file
-    console.log(`Result path = ${path}`);
-  }).catch((msg) => {
-    console.log(msg);
-  });
-}).catch((msg) => {
-  console.log(msg);
+  console.log(`ERROR = ${msg}`);
 });

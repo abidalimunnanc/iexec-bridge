@@ -6,8 +6,7 @@
   "scripts": {
     "dev": "nodemon --exec 'babel-node ./bridge.js'",
     "babel-node": "babel-node --presets=latest",
-    "prod": "babel-node -- ./bridge.js",
-    "download": "babel-node -- ./downloadAndCat.js"
+    "prod": "babel-node -- ./bridge.js"
   },
   "repository": {
     "type": "git",
