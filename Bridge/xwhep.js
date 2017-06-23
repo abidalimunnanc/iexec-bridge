@@ -853,7 +853,7 @@ function submitAndWait(appName, cmdLineParam) {
         downloadResult(workuid).then(() => {
           console.debug(`submitAndWait() downloaded ${workuid}`);
           getResultPath(workuid).then((resultPath) => {
-            console.debug(`submitAndWait() path ${resultPath}`);
+            console.log(`submitAndWait() path ${resultPath}`);
             resolve(resultPath);
           }).catch((msg) => {
             reject(`submitAndWait() : ${msg}`);
