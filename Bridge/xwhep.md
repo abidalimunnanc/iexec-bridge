@@ -1,22 +1,22 @@
 # XtremWeb-HEP Bridge
- 
+
 This bridge permits to write a generic oracle, bridging blockchain and off-chain networks.
 
 ## Dev Team
-Ishak
-Mehdi
-Oleg
-Jorge
+- Ishak
+- Jorge
+- Mehdi
+- Oleg
 
 
 # Methods
 
 ## SendWork
 This sends a new work.
-void sendWork (String xml)
-xml: the work representation
-Exception thrown if:
-connection error
+
+- void sendWork (String xml)
+  - xml: the work representation
+  -Exception thrown on connection error
 
 ## Get
 This retrieves a work.
@@ -26,7 +26,7 @@ returns a String containing the work representation
 Exception thrown if:
 work is not found
 connection error
- 
+
 ## Register
 This registers a new work for the provided application. The job status is set to UNAVAILABLE so that it is not schedulable. This lets a chance to set some parameters. To make the work schedulable, setPending() must be called.
 UID register (String appName)
@@ -64,7 +64,7 @@ void setPending (UID uid)
 uid: work UID
 Exception is thrown if:
 work is not found
- 
+
 ## GetParam
 This retrieves a parameter from work.
 String getParam (UID uid, String paramName)
@@ -118,13 +118,13 @@ waitResult(uid, pattern)
 
 ## WaitResult
 This waits for the work to be completed and searches the provided pattern in the work result.
- 
+
 String waitResult(UID uid,
 		  String pattern)
 uid: work UID
 pattern: the pattern to be retrieved in the work stdout
 returns the value of the found pattern
-Exception is thrown 
+Exception is thrown
 application is not found
 submission failed
 work status is ERROR (see status() )
@@ -135,17 +135,17 @@ Typical workflows.
 
 ## Asynchronized
 This is the simplest case where work is submitted without any parameter but the command line, eventually. User does not want to wait for result and may come later to retrieve its results asynchronously.
- 
+
 submit(appName, commandLineParameters, pattern)
 
 ## Synchronized
 This is the synchronized case where the user waits its results. This is how the PoC used to work.
- 
+
 submitAndWait(appName, commandLineParameters, pattern)
 
 ## Asynchronized with parameters
 This case permits to set some work parameters. User does not want to wait for result and may come later to retrieve its results asynchronously.
- 
+
 register(appName)
 for each parameter
 setParam(uid, paramName, paramValue)
@@ -153,10 +153,9 @@ setPending(uid)
 
 ## Synchronized with parameters
 This is the synchronized case permitting to set some parameters. Here the user waits its results.
- 
+
 register(appName)
 for each parameter
 setParam(uid, paramName, paramValue)
 setPending(uid)
 wait(uid, pattern)
-
