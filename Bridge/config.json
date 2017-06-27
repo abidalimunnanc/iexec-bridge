@@ -1,4 +1,302 @@
 {
-  "ContractAbi": "",
-  "ContractAddress": ""
+  "ContractAbi": [
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "UID",
+          "type": "uint256"
+        }
+      ],
+      "name": "stdout",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "UID",
+          "type": "uint256"
+        }
+      ],
+      "name": "result",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "UID",
+          "type": "uint256"
+        }
+      ],
+      "name": "status",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "appName",
+          "type": "string"
+        },
+        {
+          "name": "param",
+          "type": "string"
+        },
+        {
+          "name": "pattern",
+          "type": "string"
+        }
+      ],
+      "name": "submitAndWait",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_UID",
+          "type": "uint256"
+        },
+        {
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "name": "_stdout",
+          "type": "string"
+        }
+      ],
+      "name": "pushResult",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "UID",
+          "type": "uint256"
+        },
+        {
+          "name": "pattern",
+          "type": "string"
+        }
+      ],
+      "name": "waitResult",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "UID",
+          "type": "uint256"
+        },
+        {
+          "name": "_stdout",
+          "type": "string"
+        },
+        {
+          "name": "owner",
+          "type": "address"
+        }
+      ],
+      "name": "setStdout",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "appName",
+          "type": "string"
+        },
+        {
+          "name": "param",
+          "type": "string"
+        }
+      ],
+      "name": "submit",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "UID",
+          "type": "uint256"
+        },
+        {
+          "name": "paramName",
+          "type": "string"
+        },
+        {
+          "name": "paramValue",
+          "type": "string"
+        }
+      ],
+      "name": "setParam",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "UID",
+          "type": "uint256"
+        }
+      ],
+      "name": "setPending",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "UID",
+          "type": "uint256"
+        }
+      ],
+      "name": "toDelete",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "name": "_UID",
+          "type": "uint256"
+        },
+        {
+          "name": "_appName",
+          "type": "string"
+        },
+        {
+          "name": "_timestamp",
+          "type": "string"
+        },
+        {
+          "name": "_status",
+          "type": "uint8"
+        }
+      ],
+      "name": "addUID",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "bridge",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "appName",
+          "type": "string"
+        }
+      ],
+      "name": "register",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "payable": false,
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "name": "functionName",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "name": "param1",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "name": "param2",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "name": "param3",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "name": "UID",
+          "type": "uint256"
+        }
+      ],
+      "name": "Launch",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "name": "status",
+          "type": "string"
+        },
+        {
+          "indexed": true,
+          "name": "user",
+          "type": "address"
+        }
+      ],
+      "name": "Logs",
+      "type": "event"
+    }
+  ],
+  "ContractAddress": "0x4a1cdfbd30a9e4ac4992dee62c87ceb49bbcbf1a"
 }

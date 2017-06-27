@@ -1,17 +1,18 @@
-#!/usr/bin/env node
+// #!/usr/bin/env node
 import Web3 from 'web3';
 // import { exec } from 'child_process';
 import config from './config.json';
 
+import { submit } from './xwhep';
 // instanciation web3
 let web3 = null;
-if (typeof web3 !== 'undefined') web3 = new Web3(web3.currentProvider);
-else web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'));
+web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'));
 
 // instanciation contract
-const vanitygenContract = web3.eth.contract(config.ContractAbi);
-const contractInstance = vanitygenContract.at(config.ContractAddress);
 
+const XtremWebInterface = web3.eth.contract(config.ContractAbi);
+const contractInstance = XtremWebInterface.at(config.ContractAddress);
+console.log('start', contractInstance);
 // event watcher
 const launchEvent = contractInstance.Launch({});
 
@@ -21,17 +22,21 @@ const launchEvent = contractInstance.Launch({});
  */
 
 // return UID
-function submit(user, appName, param) {
+function bSubmit(user, appName, param) {
   console.log('Submit', appName, param);
+  submit(appName, param).then((res, err) => {
+    if (!err) console.log(res);
+    else console.log(err);
+  });
   // CALL XTREMWEB
 }
-
+/*
 // return pattern
 function submitAndWait(user, appName, param, pattern) {
   console.log('Submit and Wait ', appName, param, pattern);
   // CALL XTREMWEB
 }
-
+*/
 function setParam(user, paramName, paramValue, UID) {
   console.log('setParam', UID, paramName, paramValue);
   // CALL XTREMWEB
@@ -85,9 +90,9 @@ launchEvent.watch((err, res) => {
   }
   console.log(`Parse ${res.args.user} ${res.args.functionName} ${res.args.param1} ${res.args.param2} ${res.args.param3} ${res.args.UID}`);
   if (res.args.functionName === 'submitAndWait') {
-    submitAndWait(res.args.user, res.args.param1, res.args.param2, res.args.param3);
+    // submitAndWait(res.args.user, res.args.param1, res.args.param2, res.args.param3);
   } else if (res.args.functionName === 'submit') {
-    submit(res.args.user, res.args.param1, res.args.param2);
+    bSubmit(res.args.user, res.args.param1, res.args.param2);
   } else if (res.args.functionName === 'setParam') {
     setParam(res.args.user, res.args.param1, res.args.param2, res.args.UID)
   } else if (res.args.functionName === 'status') {
