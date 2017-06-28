@@ -20,22 +20,21 @@ const LOCALHOSTURI = `https://${LOCALHOSTNAME}:${LOCALHOSTPORT}`;
 /**
  * This are the iExec server informations
  */
-const IEXECHOSTNAME = 'iexec';
+const IEXECHOSTNAME = 'xw.iex.ec';
 const IEXECPORT = 443;
 const IEXECURI = `https://${IEXECHOSTNAME}:${IEXECPORT}`;
 
 /**
  * These are the used configuration
  */
+/*
 const SERVERNAME = LOCALHOSTNAME;
 const SERVERPORT = LOCALHOSTPORT;
 const SERVERURI = LOCALHOSTURI;
-
-/*
-var SERVERNAME = IEXECHOSTNAME;
-var SERVERPORT = IEXECPORT;
-var SERVERURI = IEXECURI;
- */
+*/
+const SERVERNAME = IEXECHOSTNAME;
+const SERVERPORT = IEXECPORT;
+const SERVERURI = IEXECURI;
 
 /*
  * This is the delay between between two get status calls
@@ -64,8 +63,8 @@ const URI_DOWNLOADDATA = SERVERURI + PATH_DOWNLOADDATA;
 /**
  * Credentials
  */
-const LOGIN = 'admin';
-const PASSWD = 'adminp';
+const LOGIN = '';
+const PASSWD = '';
 const CREDENTIALS = `?XWLOGIN=${LOGIN}&XWPASSWD=${PASSWD}`;
 
 
@@ -304,22 +303,28 @@ function getApps() {
     const options = {
       hostname: SERVERNAME,
       port: SERVERPORT,
-      path: PATH_GETAPPS + CREDENTIALS,
+      path: `${PATH_GETAPPS + CREDENTIALS}`,
       method: 'GET',
       rejectUnauthorized: false,
     };
 
-    console.debug(`${options.hostname}:${options.port}${PATH_GETAPPS}`);
+//    console.log(`${options.hostname}:${options.port}${PATH_GETAPPS}`);
 
     const req = https.request(options, (res) => {
       res.on('data', (d) => {
         const strd = String.fromCharCode.apply(null, new Uint16Array(d));
         getAppsResponse += strd;
       });
-
       res.on('end', () => {
         parseString(getAppsResponse, (err, result) => {
+          console.log(`result = "${result}"`);
+          if ((result === null) || (result === '') || (result === undefined)) {
+            reject('getApps() : connection Error');
+          }
           const jsonData = JSON.parse(JSON.stringify(result));
+          if (jsonData === null) {
+            reject('getApps() : connection Error');
+          }
           const appsCount = jsonData.xwhep.XMLVector[0].XMLVALUE.length;
           const appuids = [];
           console.debug(`appsCount ${appsCount}`);
