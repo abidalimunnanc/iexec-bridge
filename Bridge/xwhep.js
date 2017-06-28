@@ -20,22 +20,23 @@ const LOCALHOSTURI = `https://${LOCALHOSTNAME}:${LOCALHOSTPORT}`;
 /**
  * This are the iExec server informations
  */
-const IEXECHOSTNAME = 'iexec';
+const IEXECHOSTNAME = 'xw.iex.ec';
 const IEXECPORT = 443;
-// const IEXECURI = `https://${IEXECHOSTNAME}:${IEXECPORT}`;
+const IEXECURI = `https://${IEXECHOSTNAME}:${IEXECPORT}`;
 
 /**
  * These are the used configuration
  */
+/*
 const SERVERNAME = LOCALHOSTNAME;
 const SERVERPORT = LOCALHOSTPORT;
 const SERVERURI = LOCALHOSTURI;
+*/
 
-/*
-var SERVERNAME = IEXECHOSTNAME;
-var SERVERPORT = IEXECPORT;
-var SERVERURI = IEXECURI;
- */
+const SERVERNAME = IEXECHOSTNAME;
+const SERVERPORT = IEXECPORT;
+const SERVERURI = IEXECURI;
+
 
 /*
  * This is the delay between between two get status calls
@@ -64,8 +65,8 @@ const URI_DOWNLOADDATA = SERVERURI + PATH_DOWNLOADDATA;
 /**
  * Credentials
  */
-const LOGIN = 'admin';
-const PASSWD = 'adminp';
+const LOGIN = 'bridge';
+const PASSWD = '4288aaec5454a8b434291bc4e89404001a22fbd9';
 const CREDENTIALS = `?XWLOGIN=${LOGIN}&XWPASSWD=${PASSWD}`;
 
 
@@ -939,11 +940,12 @@ downloadURL('http://www.liberation.fr/index.html', 'index.html').then(() => {
 });
 */
 // this tests xwhep. 'ls' application must be registered
-/*
-submitAndWait('ls', '-Rals').then((resultPath) => {
-  console.log(`resultPath = ${resultPath}`);
+
+//submitAndWait('ls', '-Rals').then((resultPath) => {
+submitAndWait('vanitygen', 'love').then((resultPath) => {
+     console.log(`resultPath = ${resultPath}`);
   dumpFile(resultPath).then((resultValue) => {
-    console.log(`ls -Rals = ${resultValue}`);
+   // console.log(`ls -Rals = ${resultValue}`);
   }).catch((e) => {
     console.log(`ERROR : ${e}`);
   });
@@ -956,4 +958,4 @@ getStdout('d3e2dbe9-cd04-49d6-995f-637cf12f5e61').then((resultPath) => {
 }).catch((msg) => {
   console.log(`ERROR = ${msg}`);
 });
-*/
+
