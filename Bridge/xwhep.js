@@ -552,7 +552,7 @@ function setPending(uid) {
  */
 function submit(appName, cmdLineParam) {
   return new Promise((resolve, reject) => {
-    register('ls').then((uid) => {
+    register(appName).then((uid) => {
       setParam(uid, 'cmdline', cmdLineParam).then(() => {
         setPending(uid).then(() => {
           resolve(uid);
