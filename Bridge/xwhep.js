@@ -688,7 +688,7 @@ function getResult(uid) {
 
 /**
  * This downloads the result of the work
- * This is a private method not implemented in the smart contract
+ * This is a public method not implemented in the smart contract
  * @param uid is the work uid
  * @return a new Promise
  * @resolve a string containing the path of the downloaded result
@@ -740,7 +740,7 @@ function downloadResult(uid) {
 
 /**
  * This retrieves the result path
- * This is a private method not implemented in the smart contract
+ * This is a public method not implemented in the smart contract
  * @param uid is the work unique identifier
  * @return a new Promise
  * @resolve the work result path on local file system; undefined if work has no result
@@ -806,7 +806,7 @@ function remove(uid) {
 
 /**
  * This waits the work completion
- * This is a private method not implemented in the smart contract
+ * This is a public method not implemented in the smart contract
  * @param uid is the work unique identifier
  * @return a new Promise
  * @resolve undefined

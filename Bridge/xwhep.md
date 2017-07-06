@@ -135,4 +135,4 @@ This is the synchronized case permitting to set some parameters. Here the user w
 1. register(appName)
 2. for each parameter setParam(uid, paramName, paramValue)
 3. setPending(uid)
-4. wait(uid, pattern)
+4. waitCompleted(uid)
