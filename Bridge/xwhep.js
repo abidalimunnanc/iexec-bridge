@@ -65,8 +65,8 @@ const URI_DOWNLOADDATA = SERVERURI + PATH_DOWNLOADDATA;
 /**
  * Credentials
  */
-const LOGIN = 'bridge';
-const PASSWD = '4288aaec5454a8b434291bc4e89404001a22fbd9';
+const LOGIN = '';
+const PASSWD = '';
 const CREDENTIALS = `?XWLOGIN=${LOGIN}&XWPASSWD=${PASSWD}`;
 
 
