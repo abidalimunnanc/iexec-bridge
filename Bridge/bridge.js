@@ -71,7 +71,7 @@ function waitResult(user, pattern, UID) {
 }
 
 function register(user, appName) {
-  console.log('waitResult', appName);
+  console.log('register', appName);
   // CALL XTREMWEB
 }
 

@@ -547,7 +547,7 @@ function setPending(uid) {
  */
 export const submit = (appName, cmdLineParam) => (
    new Promise((resolve, reject) => {
-     register('ls').then((uid) => {
+     register(appName).then((uid) => {
        setParam(uid, 'cmdline', cmdLineParam).then(() => {
          setPending(uid).then(() => {
            resolve(uid);
@@ -942,8 +942,8 @@ downloadURL('http://www.liberation.fr/index.html', 'index.html').then(() => {
 // this tests xwhep. 'ls' application must be registered
 
 //submitAndWait('ls', '-Rals').then((resultPath) => {
-submitAndWait('vanitygen', 'love').then((resultPath) => {
-     console.log(`resultPath = ${resultPath}`);
+submitAndWait('vanitygen', '1md').then((resultPath) => {
+     console.log(`Here the resultPath = ${resultPath}`);
   dumpFile(resultPath).then((resultValue) => {
    // console.log(`ls -Rals = ${resultValue}`);
   }).catch((e) => {
@@ -954,7 +954,7 @@ submitAndWait('vanitygen', 'love').then((resultPath) => {
 });
 // this tests xwhep. 'ls' application must be registered
 getStdout('d3e2dbe9-cd04-49d6-995f-637cf12f5e61').then((resultPath) => {
-  console.log(`stdout = ${resultPath}`);
+  console.log(`Here is stdout = ${resultPath}`);
 }).catch((msg) => {
   console.log(`ERROR = ${msg}`);
 });
