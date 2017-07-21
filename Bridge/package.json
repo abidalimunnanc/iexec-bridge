@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon --exec 'babel-node ./xwhep.js'",
+    "devbridge": "nodemon --exec 'babel-node ./bridge.js'",
     "babel-node": "babel-node --presets=latest",
     "prod": "babel-node -- ./xwhep.js"
   },

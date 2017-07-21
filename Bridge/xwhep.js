@@ -6,7 +6,7 @@ import fs from 'fs';
 import uuidV4 from 'uuid/v4';
 import request from 'request';
 import json2xml from 'json2xml';
-import util from 'util';
+// import util from 'util';
 
 
 /**
@@ -192,12 +192,12 @@ function sendWork(xmlWork) {
       method: 'GET',
       rejectUnauthorized: false,
     };
-    console.debug(`${options.hostname}:${options.port}${sendWorkPath}`);
+    console.log(`${options.hostname}:${options.port}${sendWorkPath}`);
 
     const req = https.request(options, (res) => {
       res.on('data', (d) => {
         const strd = String.fromCharCode.apply(null, new Uint16Array(d));
-        console.debug(strd);
+        console.log(strd);
       });
 
       res.on('end', () => {
@@ -219,8 +219,8 @@ function sendWork(xmlWork) {
  * @return a Promise
  * @resolve a String containing the XML representation of the retrieved object
  */
-function get(uid) {
-  return new Promise((resolve, reject) => {
+export const get = uid => (
+  new Promise((resolve, reject) => {
     let getResponse = '';
 
     const getPath = `${PATH_GET}/${uid}`;
@@ -231,7 +231,7 @@ function get(uid) {
       method: 'GET',
       rejectUnauthorized: false,
     };
-    console.debug(`get() : ${options.hostname}:${options.port}${getPath}`);
+    console.log(`get() : ${options.hostname}:${options.port}${getPath}`);
 
     const req = https.request(options, (res) => {
       res.on('data', (d) => {
@@ -240,7 +240,7 @@ function get(uid) {
       });
 
       res.on('end', () => {
-        console.debug(`get() : ${getResponse}`);
+        console.log(`get() : ${getResponse}`);
         resolve(getResponse);
       });
     });
@@ -249,8 +249,7 @@ function get(uid) {
       reject(e);
     });
     req.end();
-  });
-}
+  }));
 /**
  * This retrieves an application
  * This is a private method not implemented in the smart contract
@@ -267,20 +266,20 @@ function getApp(appUid) {
         jsonObject = JSON.parse(JSON.stringify(result));
       });
 
-      console.debug(JSON.stringify(jsonObject));
+      console.log(JSON.stringify(jsonObject));
 
       if (jsonObject.xwhep.app === undefined) {
         reject(`getApp() : Not an application : ${appUid}`);
       }
 
       const appName = jsonObject.xwhep.app[0].name;
-      console.debug(`${appUid} ; ${appName}`);
+      console.log(`${appUid} ; ${appName}`);
 
       if (!(appName in hashtableAppNames)) {
         hashtableAppNames[appName] = appUid;
       }
 
-      console.debug(`hashtableAppNames[${appName}] = ${hashtableAppNames[appName]}`)
+      console.log(`hashtableAppNames[${appName}] = ${hashtableAppNames[appName]}`)
 
       resolve(getResponse);
     }).catch((e) => {
@@ -327,14 +326,14 @@ function getApps() {
           }
           const appsCount = jsonData.xwhep.XMLVector[0].XMLVALUE.length;
           const appuids = [];
-          console.debug(`appsCount ${appsCount}`);
+          console.log(`appsCount ${appsCount}`);
           for (let i = 0; i < appsCount; i += 1) {
             const appuid = JSON.stringify(jsonData.xwhep.XMLVector[0].XMLVALUE[i].$.value).replace(/"/g, '');
             appuids[i] = appuid;
           }
           const apppUidPromises = appuids.map(getApp);
           Promise.all(apppUidPromises).then((xmlStr) => {
-            console.debug(xmlStr);
+            console.log(xmlStr);
             resolve();
           }).catch((e) => {
             reject(`getApps() : ${e}`)
@@ -363,7 +362,7 @@ function getApps() {
  * @see #setPending(uid)
  */
 function register(appName) {
-  console.debug(`register ; ${appName}`);
+  console.log(`register ; ${appName}`);
 
   return new Promise((resolve, reject) => {
     if (!(appName in hashtableAppNames)) {
@@ -373,10 +372,10 @@ function register(appName) {
         }
 
         const workUid = uuidV4();
-        console.debug(`work uid = ${workUid}`);
+        console.log(`work uid = ${workUid}`);
 
         const appUid = hashtableAppNames[appName];
-        console.debug(`${appName} = ${appUid}`);
+        console.log(`${appName} = ${appUid}`);
 
         const workDescription = `<work><uid>${workUid}</uid><accessrights>0x755</accessrights><appuid>${
 appUid}</appuid><status>UNAVAILABLE</status></work>`;
@@ -457,14 +456,14 @@ function setParam(uid, paramName, paramValue) {
 function getParam(uid, paramName) {
   return new Promise((resolve, reject) => {
     get(uid).then((getResponse) => {
-      console.debug(`getParam (${uid}, ${paramName}) = ${getResponse}`);
+      console.log(`getParam (${uid}, ${paramName}) = ${getResponse}`);
 
       let jsonObject;
       parseString(getResponse, (err, result) => {
         jsonObject = JSON.parse(JSON.stringify(result));
       });
 
-      console.debug(`getParam ${JSON.stringify(jsonObject)}`);
+      console.log(`getParam ${JSON.stringify(jsonObject)}`);
 
       if (jsonObject.xwhep.work === undefined) {
         reject(`getParam(): Not a work : ${uid}`);
@@ -474,7 +473,7 @@ function getParam(uid, paramName) {
       if (paramValue === undefined) {
         reject(`getParam() : Invalid work parameter : ${paramName}`);
       }
-      console.debug(`getParam ${paramValue}`);
+      console.log(`getParam ${paramValue}`);
 
       resolve(paramValue);
     }).catch((e) => {
@@ -527,7 +526,7 @@ function setPending(uid) {
       }
 
       jsonObject.xwhep.work[0].status = 'PENDING';
-      console.debug(`setPending() : ${JSON.stringify(jsonObject)}`);
+      console.log(`setPending() : ${JSON.stringify(jsonObject)}`);
 
       sendWork(json2xml(jsonObject, false)).then(() => {
         resolve();
@@ -550,23 +549,24 @@ function setPending(uid) {
  * @resolve the new work uid
  * @exception is thrown if application is not found
  */
-function submit(appName, cmdLineParam) {
-  return new Promise((resolve, reject) => {
-    register(appName).then((uid) => {
-      setParam(uid, 'cmdline', cmdLineParam).then(() => {
-        setPending(uid).then(() => {
-          resolve(uid);
-        }).catch((msg) => {
-          reject(msg);
-        });
-      }).catch((msg) => {
-        reject(msg);
-      });
-    }).catch((msg) => {
-      reject(msg);
-    });
-  });
-}
+export const submit = (appName, cmdLineParam) => (
+   new Promise((resolve, reject) => {
+     register(appName).then((uid) => {
+       setParam(uid, 'cmdline', cmdLineParam).then(() => {
+         setPending(uid).then(() => {
+           resolve(uid);
+         }).catch((msg) => {
+           reject(msg);
+         });
+       }).catch((msg) => {
+         reject(msg);
+       });
+     }).catch((msg) => {
+       reject(msg);
+     });
+   })
+);
+
 /**
  * This downloads a data
  * This is a private method not implemented in the smart contract
@@ -593,7 +593,7 @@ function download(uri, downloadedPath) {
 
     process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
-    console.debug(`https://${options.hostname}:${options.port}${options.path}`)
+    console.log(`https://${options.hostname}:${options.port}${options.path}`)
 
     const outputStream = fs.createWriteStream(downloadedPath);
     outputStream.on('error', (e) => {
@@ -725,9 +725,9 @@ function downloadResult(uid) {
       if (dataUri === undefined) {
         reject(`downloadResult(): data uri not found : ${uid}`);
       }
-      console.debug(`downloadResult() calling download(${dataUri}, ${resultPath})`);
+      console.log(`downloadResult() calling download(${dataUri}, ${resultPath})`);
       download(dataUri.toString(), resultPath).then((downloadedPath) => {
-        console.debug(`downloadResult() : ${downloadedPath}`);
+        console.log(`downloadResult() : ${downloadedPath}`);
         resolve(downloadedPath);
       }).catch((msg) => {
         console.error(msg);
@@ -783,7 +783,7 @@ function remove(uid) {
       method: 'GET',
       rejectUnauthorized: false,
     };
-    console.debug(`${options.hostname}:${options.port}${getPath}`);
+    console.log(`${options.hostname}:${options.port}${getPath}`);
 
     const req = https.request(options, (res) => {
       res.on('data', (d) => {
@@ -792,7 +792,7 @@ function remove(uid) {
       });
 
       res.on('end', () => {
-        console.debug(getResponse);
+        console.log(getResponse);
         resolve();
       });
     });
@@ -817,7 +817,7 @@ function waitCompleted(uid) {
   return new Promise((resolve, reject) => {
     const theInterval = setInterval(() => {
       getStatus(uid).then((newStatus) => {
-        console.debug(`waitCompleted ${newStatus}`);
+        console.log(`waitCompleted ${newStatus}`);
 
         if (newStatus.toString() === 'ERROR') {
           clearInterval(theInterval);
@@ -852,11 +852,11 @@ function submitAndWait(appName, cmdLineParam) {
     let workuid;
     submit(appName, cmdLineParam).then((uid) => {
       workuid = uid;
-      console.debug('submitAndWait() submission done');
+      console.log('submitAndWait() submission done');
       waitCompleted(uid).then(() => {
-        console.debug(`submitAndWait() COMPLETED ${workuid}`);
+        console.log(`submitAndWait() COMPLETED ${workuid}`);
         downloadResult(workuid).then(() => {
-          console.debug(`submitAndWait() downloaded ${workuid}`);
+          console.log(`submitAndWait() downloaded ${workuid}`);
           getResultPath(workuid).then((resultPath) => {
             console.log(`submitAndWait() path ${resultPath}`);
             resolve(resultPath);
@@ -912,9 +912,9 @@ function dumpFile(path) {
 function getStdout(uid) {
   return new Promise((resolve, reject) => {
     downloadResult(uid).then(() => {
-      console.debug(`getStdout() downloaded ${uid}`);
+      console.log(`getStdout() downloaded ${uid}`);
       getResultPath(uid).then((resultPath) => {
-        console.debug(`getStdout() path ${resultPath}`);
+        console.log(`getStdout() path ${resultPath}`);
         dumpFile(resultPath).then((textContent) => {
           resolve(textContent);
         }).catch((msg) => {
@@ -945,10 +945,12 @@ downloadURL('http://www.liberation.fr/index.html', 'index.html').then(() => {
 });
 */
 // this tests xwhep. 'ls' application must be registered
-submitAndWait('ls', '-Rals').then((resultPath) => {
-  console.log(`resultPath = ${resultPath}`);
+
+//submitAndWait('ls', '-Rals').then((resultPath) => {
+submitAndWait('vanitygen', '1md').then((resultPath) => {
+     console.log(`Here the resultPath = ${resultPath}`);
   dumpFile(resultPath).then((resultValue) => {
-    console.log(`ls -Rals = ${resultValue}`);
+   // console.log(`ls -Rals = ${resultValue}`);
   }).catch((e) => {
     console.log(`ERROR : ${e}`);
   });
@@ -957,7 +959,8 @@ submitAndWait('ls', '-Rals').then((resultPath) => {
 });
 // this tests xwhep. 'ls' application must be registered
 getStdout('d3e2dbe9-cd04-49d6-995f-637cf12f5e61').then((resultPath) => {
-  console.log(`stdout = ${resultPath}`);
+  console.log(`Here is stdout = ${resultPath}`);
 }).catch((msg) => {
   console.log(`ERROR = ${msg}`);
 });
+

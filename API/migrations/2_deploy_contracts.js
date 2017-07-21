@@ -1,7 +1,5 @@
-var AppInterface = artifacts.require("./AppInterface.sol");
-var WorkInterface = artifacts.require("./WorkInterface.sol");
+var XtremWebInterface = artifacts.require("./XtremWebInterface.sol");
 
 module.exports = function(deployer) {
-  deployer.deploy(WorkInterface);
-  deployer.deploy(AppInterface);
+  deployer.deploy(XtremWebInterface);
 };

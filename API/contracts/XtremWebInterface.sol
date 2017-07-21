@@ -1,28 +1,25 @@
-pragma solidity ^0.4.11,
+pragma solidity ^0.4.11;
 
 contract XtremWebInterface {
 
     address public bridge;
-
-    function XtremWebInterface() {
-        bridge = msg.sender;
-    }
-
     enum Status {Completed, Pending, Running, Waiting, Error}
-
+    struct XWObject {
+  		string name;        // application name
+  		string timestamp;
+  		Status status;
+  		string stdout;
+  		string pattern;
+        // param[] params;
+	  }
+	  mapping (address => mapping (uint => XWObject)) workRegisteries;
+    mapping (string => string) param;
     /*
      * XWObject aims is to reproduce XWEB Object in solidity
      */
-		struct XWObject {
-			string name;        // application name
-			string timestamp;
-			Status status;
-			string stdout;
-			string pattern;
-      param[] params;
-		}
-		mapping (address => mapping (uint => XWObject)) public workRegisteries;
-    mapping (string => string) public param;
+    function XtremWebInterface () {
+        bridge = msg.sender;
+    }
 
     /*
      * LAUNCHER FUNCTIONS
@@ -42,7 +39,7 @@ contract XtremWebInterface {
 		    Launch(msg.sender,"setParam", paramName, paramValue, "", UID);
 		}
 		function setPending(uint UID) {
-		    Launch(msg.sender,"setParam", "status", "pending", UID);
+		    Launch(msg.sender,"setParam", "status", "pending", "",UID);
 		}
 		function status(uint UID) {
 		    Launch(msg.sender,"status", "", "", "", UID);
@@ -60,11 +57,6 @@ contract XtremWebInterface {
         Launch(msg.sender,"waitResult", pattern, "", "", UID);
 		}
 
-    // GETTER
-    function getParam(uint UID, string paramName) {
-        Launch(msg.sender, "getParam")
-    }
-
     /*
      * ONLY BY BRIDGE
      * The following functions are called only by the bridge, to modify the state of the XWObject
@@ -75,11 +67,11 @@ contract XtremWebInterface {
 		    workRegisteries[owner][_UID].timestamp = _timestamp;
 		    workRegisteries[owner][_UID].status = _status;
 		}
-
+/*
     function setStdout(uint UID, string _stdout, address owner) onlyBy(bridge) {
     }
-
-    function pushResult(uint UID, address owner, string _stdout) onlyBy(bridge) {
+*/
+    function pushResult(uint _UID, address owner, string _stdout) onlyBy(bridge) {
       workRegisteries[owner][_UID].stdout = _stdout;
       workRegisteries[owner][_UID].status = Status.Completed;
     }
