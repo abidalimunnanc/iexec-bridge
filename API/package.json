@@ -1,0 +1,22 @@
+{
+  "name": "xtremwebinterface",
+  "version": "1.0.0",
+  "description": "",
+  "main": "truffle.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "truffle": "3.2.1"
+  },
+  "dependencies": {
+    "bluebird": "3.5.0",
+    "truffle-contract": "2.0.0",
+    "web3": "0.18.4"
+  }
+}

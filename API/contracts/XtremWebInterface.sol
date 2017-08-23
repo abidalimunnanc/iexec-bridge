@@ -1,89 +1,135 @@
 pragma solidity ^0.4.11;
 
+
 contract XtremWebInterface {
 
     address public bridge;
-    enum Status {Completed, Pending, Running, Waiting, Error}
-    struct XWObject {
-  		string name;        // application name
-  		string timestamp;
-  		Status status;
-  		string stdout;
-  		string pattern;
-        // param[] params;
-	  }
-	  mapping (address => mapping (uint => XWObject)) workRegisteries;
-    mapping (string => string) param;
+
+    enum StatusEnum {UNSET, UNAVAILABLE, PENDING, RUNNING, COMPLETED, ERROR}
+
     /*
      * XWObject aims is to reproduce XWEB Object in solidity
      */
-    function XtremWebInterface () {
+    struct XWObject {
+      string name;
+      uint256 timestamp;
+      StatusEnum status;
+      string stdout;
+      string stderr;
+    }
+    // mapping (user => mapping(owner => mapping (uid => XWObject))) workRegisteries;
+    mapping (address => mapping (address => mapping (uint256 => XWObject))) workRegisteries;
+
+    //constructor
+    function XtremWebInterface() {
         bridge = msg.sender;
     }
+
+
+    function getWork(address user, address owner, uint256 uid) constant returns (string, uint256, StatusEnum, string, string) {
+        return (
+        workRegisteries[user][owner][uid].name,
+        workRegisteries[user][owner][uid].timestamp,
+        workRegisteries[user][owner][uid].status,
+        workRegisteries[user][owner][uid].stdout,
+        workRegisteries[user][owner][uid].stderr
+        );
+    }
+
+    function getWorkName(address user, address owner, uint256 uid) constant returns (string) {
+        return workRegisteries[user][owner][uid].name;
+    }
+
+    function getWorkTimestamp(address user, address owner, uint256 uid) constant returns (uint256) {
+        return workRegisteries[user][owner][uid].timestamp;
+    }
+
+    function getWorkStatus(address user, address owner, uint256 uid) constant returns (StatusEnum) {
+        return workRegisteries[user][owner][uid].status;
+    }
+
+    function getWorkStdout(address user, address owner, uint256 uid) constant returns (string) {
+        return workRegisteries[user][owner][uid].stdout;
+    }
+
+    function getWorkStderr(address user, address owner, uint256 uid) constant returns (string) {
+        return workRegisteries[user][owner][uid].stderr;
+    }
+
+
 
     /*
      * LAUNCHER FUNCTIONS
      * These functions are launcher functions, the launch Event wich are called by the bridge,
      * and then the bridge call XTREMweb job, wait for result then modify the smart contract.
      */
-		function register(string appName) {
-        Launch(msg.sender,"register", appName, "", "", 0);
-		}
-		function submit(string appName, string param) { 		// param = commandline
-        Launch(msg.sender,"submit", param, "", "", 0);
-		}
-		function submitAndWait(string appName, string param, string pattern) {
-		    Launch(msg.sender,"submitAndWait", pattern, "", "", 0);
-		}
-		function setParam(uint UID, string paramName, string paramValue) {
-		    Launch(msg.sender,"setParam", paramName, paramValue, "", UID);
-		}
-		function setPending(uint UID) {
-		    Launch(msg.sender,"setParam", "status", "pending", "",UID);
-		}
-		function status(uint UID) {
-		    Launch(msg.sender,"status", "", "", "", UID);
-		}
-		function result(uint UID) {
-		    Launch(msg.sender,"result", "", "", "", UID);
-		}
-		function stdout(uint UID) {
-		    Launch(msg.sender,"stdout", "", "", "", UID);
-		}
-		function toDelete(uint UID) {
-		    Launch(msg.sender,"toDelete", "", "", "", UID);
-		}
-		function waitResult(uint UID, string pattern) {
-        Launch(msg.sender,"waitResult", pattern, "", "", UID);
-		}
+    function register(string appName) {
+        Launch(tx.origin, msg.sender, "register", appName, "", "", 0);
+    }
+
+    function submit(string appName, string param) {// param = commandline
+        Launch(tx.origin, msg.sender, "submit", param, "", "", 0);
+    }
+
+    function submitAndWait(string appName, string param, string pattern) {
+        Launch(tx.origin, msg.sender, "submitAndWait", pattern, "", "", 0);
+    }
+
+    function setParam(uint256 uid, string paramName, string paramValue) {
+        Launch(tx.origin, msg.sender, "setParam", paramName, paramValue, "", uid);
+    }
+
+    function setPending(uint256 uid) {
+        Launch(tx.origin, msg.sender, "setParam", "status", "pending", "", uid);
+    }
+
+    function status(uint256 uid) {
+        Launch(tx.origin, msg.sender, "status", "", "", "", uid);
+    }
+
+    function result(uint256 uid) {
+        Launch(tx.origin, msg.sender, "result", "", "", "", uid);
+    }
+
+    function stdout(uint256 uid) {
+        Launch(tx.origin, msg.sender, "stdout", "", "", "", uid);
+    }
+
+    function toDelete(uint256 uid) {
+        Launch(tx.origin, msg.sender, "toDelete", "", "", "", uid);
+    }
+
+    function waitResult(uint256 uid, string pattern) {
+        Launch(tx.origin, msg.sender, "waitResult", pattern, "", "", uid);
+    }
 
     /*
      * ONLY BY BRIDGE
      * The following functions are called only by the bridge, to modify the state of the XWObject
      */
-		function addUID(address owner, uint _UID, string _appName, string _timestamp, Status _status) onlyBy(bridge) {
-		    //workRegisteries[owner].push(XWObject({UID : _UID, name : _appName, timestamp : _timestamp, status : _status, stdout: "", pattern: ""}));
-		    workRegisteries[owner][_UID].name = _appName;
-		    workRegisteries[owner][_UID].timestamp = _timestamp;
-		    workRegisteries[owner][_UID].status = _status;
-		}
-/*
-    function setStdout(uint UID, string _stdout, address owner) onlyBy(bridge) {
-    }
-*/
-    function pushResult(uint _UID, address owner, string _stdout) onlyBy(bridge) {
-      workRegisteries[owner][_UID].stdout = _stdout;
-      workRegisteries[owner][_UID].status = Status.Completed;
+    function registerCallback(address user, address owner, string appName, uint256 uid, string errorMsg) onlyBy(bridge) {
+        if (workRegisteries[user][owner][uid].status == StatusEnum.UNSET) {
+            workRegisteries[user][owner][uid].name = appName;
+            workRegisteries[user][owner][uid].timestamp=now;
+            bytes memory errorMsgEmptyStringTest = bytes(errorMsg); // Uses memory
+            if (errorMsgEmptyStringTest.length == 0) {
+              workRegisteries[user][owner][uid].status = StatusEnum.UNAVAILABLE;
+            } else {
+              workRegisteries[user][owner][uid].status = StatusEnum.ERROR;
+              workRegisteries[user][owner][uid].stderr = errorMsg;
+            }
+            Register(user, owner, appName, uid, workRegisteries[user][owner][uid].status, errorMsg);
+        }
     }
 
     /*
      * EVENTS AND MODIFIERS
      */
-    event Launch( address indexed user, string functionName, string param1, string param2, string param3,uint UID); // special log to launch process
-    event Logs(string status, address indexed user); // logs for the front-end or smart contract to react correctly
+    event Launch(address indexed user, address indexed owner, string functionName, string param1, string param2, string param3, uint256 uid); // special log to launch process
+    event Register(address indexed user, address indexed owner, string appName, uint256 uid, StatusEnum status, string errorMsg);
 
- 	  modifier onlyBy(address a){
-	      if (msg.sender != a) throw;
-	      _;
-	  }
+    modifier onlyBy(address a){
+        if (msg.sender != a) throw;
+        _;
+    }
 }
