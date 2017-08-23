@@ -3,7 +3,7 @@ import Web3 from 'web3';
 // import { exec } from 'child_process';
 import config from './config.json';
 
-import { submit } from './xwhep';
+import * as xwhep from './xwhep';
 // instanciation web3
 let web3 = null;
 web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'));
@@ -71,8 +71,13 @@ function waitResult(user, pattern, UID) {
 }
 
 function register(user, appName) {
-  console.log('register', appName);
-  // CALL XTREMWEB
+  xwhep.register('ls').then((workUid) => {
+     console.log(`Here the workUid = ${workUid}`);
+     let datetime = new Date();
+     let utcdatetime = datetime.toUTCString();
+     console.log(utcdatetime);
+     contractInstance.registerCallback(user,workUid,appName,utcdatetime,1);
+  });
 }
 
 function getParam(user, paramName, UID) {
@@ -111,3 +116,5 @@ launchEvent.watch((err, res) => {
     getParam(res.args.user, res.args.param1, res.args.UID)
   }
 });
+
+//register('address !!!', 'ls');

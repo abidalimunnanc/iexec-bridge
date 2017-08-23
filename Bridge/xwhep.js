@@ -12,8 +12,8 @@ import json2xml from 'json2xml';
 /**
  * This are the local XWHEP server informations, for testing only
  */
-const LOCALHOSTNAME = 'localhost';
-const LOCALHOSTPORT = 4430;
+const LOCALHOSTNAME = 'server';
+const LOCALHOSTPORT = 443;
 // var LOCALHOSTURI  = "https://" + LOCALHOSTNAME + ":" + LOCALHOSTPORT;
 const LOCALHOSTURI = `https://${LOCALHOSTNAME}:${LOCALHOSTPORT}`;
 
@@ -27,14 +27,14 @@ const IEXECURI = `https://${IEXECHOSTNAME}:${IEXECPORT}`;
 /**
  * These are the used configuration
  */
-/*
 const SERVERNAME = LOCALHOSTNAME;
 const SERVERPORT = LOCALHOSTPORT;
 const SERVERURI = LOCALHOSTURI;
-*/
-const SERVERNAME = IEXECHOSTNAME;
+
+/*const SERVERNAME = IEXECHOSTNAME;
 const SERVERPORT = IEXECPORT;
 const SERVERURI = IEXECURI;
+*/
 
 /*
  * This is the delay between between two get status calls
@@ -63,8 +63,8 @@ const URI_DOWNLOADDATA = SERVERURI + PATH_DOWNLOADDATA;
 /**
  * Credentials
  */
-const LOGIN = '';
-const PASSWD = '';
+const LOGIN = 'admin';
+const PASSWD = 'adminp';
 const CREDENTIALS = `?XWLOGIN=${LOGIN}&XWPASSWD=${PASSWD}`;
 
 
@@ -269,7 +269,7 @@ function getApp(appUid) {
       console.log(JSON.stringify(jsonObject));
 
       if (jsonObject.xwhep.app === undefined) {
-        reject(`getApp() : Not an application : ${appUid}`);
+        return reject(`getApp() : Not an application : ${appUid}`);
       }
 
       const appName = jsonObject.xwhep.app[0].name;
@@ -296,6 +296,7 @@ function getApp(appUid) {
  * @see getApp(appUid)
  */
 function getApps() {
+  let rand = Math.random();
   return new Promise((resolve, reject) => {
     let getAppsResponse = '';
 
@@ -318,11 +319,11 @@ function getApps() {
         parseString(getAppsResponse, (err, result) => {
           console.log(`result = "${result}"`);
           if ((result === null) || (result === '') || (result === undefined)) {
-            reject('getApps() : connection Error');
+            return reject('getApps() : connection Error');
           }
           const jsonData = JSON.parse(JSON.stringify(result));
           if (jsonData === null) {
-            reject('getApps() : connection Error');
+            return reject('getApps() : connection Error');
           }
           const appsCount = jsonData.xwhep.XMLVector[0].XMLVALUE.length;
           const appuids = [];
@@ -361,7 +362,7 @@ function getApps() {
  * @exception is thrown if application is not found
  * @see #setPending(uid)
  */
-function register(appName) {
+export function register(appName) {
   console.log(`register ; ${appName}`);
 
   return new Promise((resolve, reject) => {
@@ -424,10 +425,10 @@ function setParam(uid, paramName, paramValue) {
       });
 
       if (jsonObject.xwhep.work === undefined) {
-        reject(`setParam(): Not a work : ${uid}`);
+        return reject(`setParam(): Not a work : ${uid}`);
       }
       if (jsonObject.xwhep.work[0].status.toString() !== 'UNAVAILABLE') {
-        reject(`setParam(): Invalid status : ${jsonObject.xwhep.work[0].status}`);
+        return reject(`setParam(): Invalid status : ${jsonObject.xwhep.work[0].status}`);
       }
 
       jsonObject.xwhep.work[0][paramName] = paramValue;
@@ -466,12 +467,12 @@ function getParam(uid, paramName) {
       console.log(`getParam ${JSON.stringify(jsonObject)}`);
 
       if (jsonObject.xwhep.work === undefined) {
-        reject(`getParam(): Not a work : ${uid}`);
+        return reject(`getParam(): Not a work : ${uid}`);
       }
 
       const paramValue = jsonObject.xwhep.work[0][paramName];
       if (paramValue === undefined) {
-        reject(`getParam() : Invalid work parameter : ${paramName}`);
+        return reject(`getParam() : Invalid work parameter : ${paramName}`);
       }
       console.log(`getParam ${paramValue}`);
 
@@ -518,11 +519,11 @@ function setPending(uid) {
       });
 
       if (jsonObject.xwhep.work === undefined) {
-        reject(`setPending(): Not a work : ${uid}`);
+        return reject(`setPending(): Not a work : ${uid}`);
       }
 
       if (jsonObject.xwhep.work[0].status.toString() !== 'UNAVAILABLE') {
-        reject(`setPending(): Invalid status : ${jsonObject.xwhep.work[0].status}`);
+        return reject(`setPending(): Invalid status : ${jsonObject.xwhep.work[0].status}`);
       }
 
       jsonObject.xwhep.work[0].status = 'PENDING';
@@ -666,11 +667,11 @@ function getResult(uid) {
         jsonObject = JSON.parse(JSON.stringify(result));
       });
       if (jsonObject.xwhep.work === undefined) {
-        reject(`getResult(): Not a work : ${uid}`);
+        return reject(`getResult(): Not a work : ${uid}`);
       }
 
       if (jsonObject.xwhep.work[0].status.toString() !== 'COMPLETED') {
-        reject(`getRestult(): Invalid status : ${jsonObject.xwhep.work[0].status}`);
+        return reject(`getRestult(): Invalid status : ${jsonObject.xwhep.work[0].status}`);
       }
 
       if (jsonObject.xwhep.work[0].resulturi === undefined) {
@@ -703,11 +704,11 @@ function downloadResult(uid) {
         jsonObject = JSON.parse(JSON.stringify(result));
       });
       if (jsonObject.xwhep.data === undefined) {
-        reject(`downloadResult(): Not a data : ${uid}`);
+        return reject(`downloadResult(): Not a data : ${uid}`);
       }
 
       if (jsonObject.xwhep.data[0].status.toString() !== 'AVAILABLE') {
-        reject(`downloadResult(): Invalid status : ${jsonObject.xwhep.data[0].status}`);
+        return reject(`downloadResult(): Invalid status : ${jsonObject.xwhep.data[0].status}`);
       }
 
       let resultPath = `result.${uid}`;
@@ -723,7 +724,7 @@ function downloadResult(uid) {
       }
       const dataUri = jsonObject.xwhep.data[0].uri;
       if (dataUri === undefined) {
-        reject(`downloadResult(): data uri not found : ${uid}`);
+        return reject(`downloadResult(): data uri not found : ${uid}`);
       }
       console.log(`downloadResult() calling download(${dataUri}, ${resultPath})`);
       download(dataUri.toString(), resultPath).then((downloadedPath) => {
@@ -750,7 +751,7 @@ function getResultPath(uid) {
   return new Promise((resolve, reject) => {
     fs.readdir('.', (ferr, files) => { // '/' denotes the root folder
       if (ferr) {
-        reject(ferr);
+        return reject(ferr);
       }
 
       files.forEach((file) => {
@@ -758,7 +759,7 @@ function getResultPath(uid) {
           resolve(file);
         }
       });
-      reject(`getResultPath() : file not found ${uid}`);
+      return reject(`getResultPath() : file not found ${uid}`);
     });
   });
 }
@@ -821,7 +822,7 @@ function waitCompleted(uid) {
 
         if (newStatus.toString() === 'ERROR') {
           clearInterval(theInterval);
-          reject(`waitCompleted() : work ERROR (${uid})`);
+          return reject(`waitCompleted() : work ERROR (${uid})`);
         }
         if (newStatus.toString() === 'COMPLETED') {
           clearInterval(theInterval);
@@ -946,8 +947,8 @@ downloadURL('http://www.liberation.fr/index.html', 'index.html').then(() => {
 */
 // this tests xwhep. 'ls' application must be registered
 
-//submitAndWait('ls', '-Rals').then((resultPath) => {
-submitAndWait('vanitygen', '1md').then((resultPath) => {
+/*submitAndWait('ls', '-Rals').then((resultPath) => {
+//submitAndWait('vanitygen', '1md').then((resultPath) => {
      console.log(`Here the resultPath = ${resultPath}`);
   dumpFile(resultPath).then((resultValue) => {
    // console.log(`ls -Rals = ${resultValue}`);
@@ -956,11 +957,16 @@ submitAndWait('vanitygen', '1md').then((resultPath) => {
   });
 }).catch((msg) => {
   console.log(`ERROR = ${msg}`);
-});
+});*/
+
+// register('ls').then((workUid) => {
+//   console.log(`Here the workUid = ${workUid}`);
+// });
+
 // this tests xwhep. 'ls' application must be registered
-getStdout('d3e2dbe9-cd04-49d6-995f-637cf12f5e61').then((resultPath) => {
+/*getStdout('d3e2dbe9-cd04-49d6-995f-637cf12f5e61').then((resultPath) => {
   console.log(`Here is stdout = ${resultPath}`);
 }).catch((msg) => {
   console.log(`ERROR = ${msg}`);
 });
-
+*/
