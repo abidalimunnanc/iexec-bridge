@@ -8,6 +8,17 @@ contract XtremWebInterface {
     enum StatusEnum {UNSET, UNAVAILABLE, PENDING, RUNNING, COMPLETED, ERROR}
 
     /*
+     * EVENTS AND MODIFIERS
+     */
+    event Launch(address indexed user, address indexed owner, string functionName, string param1, string param2, string param3, uint256 uid); // special log to launch process
+    event Register(address indexed user, address indexed owner, string appName, uint256 uid, StatusEnum status, string errorMsg);
+
+    modifier onlyBy(address a){
+        if (msg.sender != a) throw;
+        _;
+    }
+
+    /*
      * XWObject aims is to reproduce XWEB Object in solidity
      */
     struct XWObject {
@@ -120,16 +131,5 @@ contract XtremWebInterface {
             }
             Register(user, owner, appName, uid, workRegisteries[user][owner][uid].status, errorMsg);
         }
-    }
-
-    /*
-     * EVENTS AND MODIFIERS
-     */
-    event Launch(address indexed user, address indexed owner, string functionName, string param1, string param2, string param3, uint256 uid); // special log to launch process
-    event Register(address indexed user, address indexed owner, string appName, uint256 uid, StatusEnum status, string errorMsg);
-
-    modifier onlyBy(address a){
-        if (msg.sender != a) throw;
-        _;
     }
 }

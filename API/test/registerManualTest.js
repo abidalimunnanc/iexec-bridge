@@ -5,7 +5,7 @@ contract('XtremWebInterface', function(accounts) {
   it("should submit", function() {
 
     var XtremWebInterfaceInstance;
-    return XtremWebInterface.at("0x141034a565abba754e9b3f64f847051f4e17a63f").then(function(instance) {
+    return XtremWebInterface.at("0x7845273b8ca53acd2d8c78f22718c70cc5b08431").then(function(instance) {
       XtremWebInterfaceInstance = instance;
       console.log(instance);
       return XtremWebInterfaceInstance.register("ls");
