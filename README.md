@@ -27,6 +27,8 @@ A truffle repository with contract which reproduce XTREMWEB API.
 TODO:
 Add test 
 
+JIRA integration
+
 ###inspiration    
 https://github.com/oraclize/ethereum-bridge    
 https://github.com/oraclize/ethereum-api     
