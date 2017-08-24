@@ -10,8 +10,8 @@ contract XtremWebInterface {
     /*
      * EVENTS AND MODIFIERS
      */
-    event Launch(address indexed user, address indexed owner, string functionName, string param1, string param2, string param3, string uid); // special log to launch process
-    event Register(address indexed user, address indexed owner, string appName, string uid, StatusEnum status, string errorMsg);
+    event Launch(address indexed user, address indexed provider, string functionName, string param1, string param2, string param3, string uid); // special log to launch process
+    event Register(address indexed user, address indexed provider, string appName, string uid, StatusEnum status, string errorMsg);
 
     modifier onlyBy(address a){
         if (msg.sender != a) throw;
@@ -28,7 +28,7 @@ contract XtremWebInterface {
       string stdout;
       string stderr;
     }
-    // mapping (user => mapping(owner => mapping (uid => XWObject))) workRegisteries;
+    // mapping (user => mapping(provider => mapping (uid => XWObject))) workRegisteries;
     mapping (address => mapping (address => mapping (string => XWObject))) workRegisteries;
 
     //constructor
@@ -37,34 +37,34 @@ contract XtremWebInterface {
     }
 
 
-    function getWork(address user, address owner, string uid) constant returns (string, uint256, StatusEnum, string, string) {
+    function getWork(address user, address provider, string uid) constant returns (string, uint256, StatusEnum, string, string) {
         return (
-        workRegisteries[user][owner][uid].name,
-        workRegisteries[user][owner][uid].timestamp,
-        workRegisteries[user][owner][uid].status,
-        workRegisteries[user][owner][uid].stdout,
-        workRegisteries[user][owner][uid].stderr
+        workRegisteries[user][provider][uid].name,
+        workRegisteries[user][provider][uid].timestamp,
+        workRegisteries[user][provider][uid].status,
+        workRegisteries[user][provider][uid].stdout,
+        workRegisteries[user][provider][uid].stderr
         );
     }
 
-    function getWorkName(address user, address owner, string uid) constant returns (string) {
-        return workRegisteries[user][owner][uid].name;
+    function getWorkName(address user, address provider, string uid) constant returns (string) {
+        return workRegisteries[user][provider][uid].name;
     }
 
-    function getWorkTimestamp(address user, address owner, string uid) constant returns (uint256) {
-        return workRegisteries[user][owner][uid].timestamp;
+    function getWorkTimestamp(address user, address provider, string uid) constant returns (uint256) {
+        return workRegisteries[user][provider][uid].timestamp;
     }
 
-    function getWorkStatus(address user, address owner, string uid) constant returns (StatusEnum) {
-        return workRegisteries[user][owner][uid].status;
+    function getWorkStatus(address user, address provider, string uid) constant returns (StatusEnum) {
+        return workRegisteries[user][provider][uid].status;
     }
 
-    function getWorkStdout(address user, address owner, string uid) constant returns (string) {
-        return workRegisteries[user][owner][uid].stdout;
+    function getWorkStdout(address user, address provider, string uid) constant returns (string) {
+        return workRegisteries[user][provider][uid].stdout;
     }
 
-    function getWorkStderr(address user, address owner, string uid) constant returns (string) {
-        return workRegisteries[user][owner][uid].stderr;
+    function getWorkStderr(address user, address provider, string uid) constant returns (string) {
+        return workRegisteries[user][provider][uid].stderr;
     }
 
 
@@ -118,18 +118,18 @@ contract XtremWebInterface {
      * ONLY BY BRIDGE
      * The following functions are called only by the bridge, to modify the state of the XWObject
      */
-    function registerCallback(address user, address owner, string appName, string uid, string errorMsg) onlyBy(bridge) {
-        if (workRegisteries[user][owner][uid].status == StatusEnum.UNSET) {
-            workRegisteries[user][owner][uid].name = appName;
-            workRegisteries[user][owner][uid].timestamp=now;
+    function registerCallback(address user, address provider, string appName, string uid, string errorMsg) onlyBy(bridge) {
+        if (workRegisteries[user][provider][uid].status == StatusEnum.UNSET) {
+            workRegisteries[user][provider][uid].name = appName;
+            workRegisteries[user][provider][uid].timestamp=now;
             bytes memory errorMsgEmptyStringTest = bytes(errorMsg); // Uses memory
             if (errorMsgEmptyStringTest.length == 0) {
-              workRegisteries[user][owner][uid].status = StatusEnum.UNAVAILABLE;
+              workRegisteries[user][provider][uid].status = StatusEnum.UNAVAILABLE;
             } else {
-              workRegisteries[user][owner][uid].status = StatusEnum.ERROR;
-              workRegisteries[user][owner][uid].stderr = errorMsg;
+              workRegisteries[user][provider][uid].status = StatusEnum.ERROR;
+              workRegisteries[user][provider][uid].stderr = errorMsg;
             }
-            Register(user, owner, appName, uid, workRegisteries[user][owner][uid].status, errorMsg);
+            Register(user, provider, appName, uid, workRegisteries[user][provider][uid].status, errorMsg);
         }
     }
 }

@@ -18,7 +18,7 @@ Extensions.init(web3, assert);
 
 contract('XtremWebInterface', function(accounts) {
 
-  var owner, bridge, user;
+  var provider, bridge, user;
   var amountGazProvided = 3000000;
   let isTestRPC;
 
@@ -33,17 +33,17 @@ contract('XtremWebInterface', function(accounts) {
 
   before("should prepare accounts and check TestRPC Mode", function() {
     assert.isAtLeast(accounts.length, 4, "should have at least 4 accounts");
-    owner = accounts[0];
+    provider = accounts[0];
     bridge = accounts[1];
     user = accounts[2];
     return Extensions.makeSureAreUnlocked(
-        [owner, bridge, user])
-      .then(() => web3.eth.getBalancePromise(owner))
+        [provider, bridge, user])
+      .then(() => web3.eth.getBalancePromise(provider))
       .then(balance => assert.isTrue(
         web3.toWei(web3.toBigNumber(90), "ether").lessThan(balance),
-        "owner should have at least 35 ether, not " + web3.fromWei(balance, "ether")))
-      .then(() => Extensions.refillAccount(owner, user, 30))
-      .then(() => Extensions.refillAccount(owner, bridge, 30))
+        "provider should have at least 35 ether, not " + web3.fromWei(balance, "ether")))
+      .then(() => Extensions.refillAccount(provider, user, 30))
+      .then(() => Extensions.refillAccount(provider, bridge, 30))
       .then(() => web3.version.getNodePromise())
       .then(node => isTestRPC = node.indexOf("EthereumJS TestRPC") >= 0);
   });
@@ -71,7 +71,7 @@ contract('XtremWebInterface', function(accounts) {
         .then(txMined => {
           assert.isBelow(txMined.receipt.gasUsed, amountGazProvided, "should not use all gas");
           assert.strictEqual(txMined.logs[0].event, "Launch", "event");
-          assert.strictEqual(txMined.logs[0].args.owner, user, "owner");
+          assert.strictEqual(txMined.logs[0].args.provider, user, "provider");
           assert.strictEqual(txMined.logs[0].args.user, user, "user");
           assert.strictEqual(txMined.logs[0].args.functionName, "register", "functionName");
           assert.strictEqual(txMined.logs[0].args.param1, "ls", "param1");
@@ -101,7 +101,7 @@ contract('XtremWebInterface', function(accounts) {
         .then(txMined => {
           assert.isBelow(txMined.receipt.gasUsed, amountGazProvided, "should not use all gas");
           assert.strictEqual(txMined.logs[0].event, "Launch", "event");
-          assert.strictEqual(txMined.logs[0].args.owner, user, "owner");
+          assert.strictEqual(txMined.logs[0].args.provider, user, "provider");
           assert.strictEqual(txMined.logs[0].args.user, user, "user");
           assert.strictEqual(txMined.logs[0].args.functionName, "register", "functionName");
           assert.strictEqual(txMined.logs[0].args.param1, "ls", "param1");
@@ -119,7 +119,7 @@ contract('XtremWebInterface', function(accounts) {
       return Extensions.getCurrentBlockTime()
         .then(now => {
           previousBlockTime = now;
-          return aXtremWebInterfaceInstance.registerCallback(user, owner, "ls", "1234", "", {
+          return aXtremWebInterfaceInstance.registerCallback(user, provider, "ls", "1234", "", {
             from: bridge,
             gas: amountGazProvided
           });
@@ -128,13 +128,13 @@ contract('XtremWebInterface', function(accounts) {
           assert.isBelow(txMined.receipt.gasUsed, amountGazProvided, "should not use all gas");
           assert.strictEqual(txMined.logs[0].event, "Register", "event");
           assert.strictEqual(txMined.logs[0].args.user, user, "user");
-          assert.strictEqual(txMined.logs[0].args.owner, owner, "owner");
+          assert.strictEqual(txMined.logs[0].args.provider, provider, "provider");
           assert.strictEqual(txMined.logs[0].args.uid, "1234", "uid");
           //assert.strictEqual(txMined.logs[0].args.timestamp, "time");
           assert.strictEqual(txMined.logs[0].args.status.toNumber(), XtremWebInterface.Status.UNAVAILABLE, "status");
           assert.strictEqual(txMined.logs[0].args.errorMsg, "", "errorMsg");
           return Promise.all([
-            aXtremWebInterfaceInstance.getWork(user, owner, txMined.logs[0].args.uid),
+            aXtremWebInterfaceInstance.getWork(user, provider, txMined.logs[0].args.uid),
             Extensions.getCurrentBlockTime()
           ]);
         })
@@ -159,7 +159,7 @@ contract('XtremWebInterface', function(accounts) {
       return Extensions.getCurrentBlockTime()
         .then(now => {
           previousBlockTime = now;
-          return aXtremWebInterfaceInstance.registerCallback(user, owner, "ls", "1234", "bridge crash", {
+          return aXtremWebInterfaceInstance.registerCallback(user, provider, "ls", "1234", "bridge crash", {
             from: bridge,
             gas: amountGazProvided
           });
@@ -167,13 +167,13 @@ contract('XtremWebInterface', function(accounts) {
         .then(txMined => {
           assert.isBelow(txMined.receipt.gasUsed, amountGazProvided, "should not use all gas");
           assert.strictEqual(txMined.logs[0].event, "Register", "event");
-          assert.strictEqual(txMined.logs[0].args.owner, owner, "owner");
+          assert.strictEqual(txMined.logs[0].args.provider, provider, "provider");
           assert.strictEqual(txMined.logs[0].args.user, user, "user");
           assert.strictEqual(txMined.logs[0].args.uid, "1234", "uid");
           assert.strictEqual(txMined.logs[0].args.status.toNumber(), XtremWebInterface.Status.ERROR, "status");
           assert.strictEqual(txMined.logs[0].args.errorMsg, "bridge crash", "errorMsg");
           return Promise.all([
-            aXtremWebInterfaceInstance.getWork(user, owner, txMined.logs[0].args.uid),
+            aXtremWebInterfaceInstance.getWork(user, provider, txMined.logs[0].args.uid),
             Extensions.getCurrentBlockTime()
           ]);
         })
@@ -193,7 +193,7 @@ contract('XtremWebInterface', function(accounts) {
 
     it("Only bridge can call registerCallback fonction", function() {
       return Extensions.expectedExceptionPromise(function() {
-          return aXtremWebInterfaceInstance.registerCallback(user, owner, "ls", "1234", "", {
+          return aXtremWebInterfaceInstance.registerCallback(user, provider, "ls", "1234", "", {
             from: user,
             gas: amountGazProvided
           });
@@ -203,18 +203,18 @@ contract('XtremWebInterface', function(accounts) {
 
     it("Simulate bridge registerCallback and test event Register, then next registerCallback call do not generate event Register", function() {
       //simulate bridge response
-      return aXtremWebInterfaceInstance.registerCallback(user, owner, "ls", "1234", "", {
+      return aXtremWebInterfaceInstance.registerCallback(user, provider, "ls", "1234", "", {
         from: bridge,
         gas: amountGazProvided
       }).then(txMined => {
         assert.isBelow(txMined.receipt.gasUsed, amountGazProvided, "should not use all gas");
         assert.strictEqual(txMined.logs[0].event, "Register", "event");
-        assert.strictEqual(txMined.logs[0].args.owner, owner, "owner");
+        assert.strictEqual(txMined.logs[0].args.provider, provider, "provider");
         assert.strictEqual(txMined.logs[0].args.user, user, "user");
         assert.strictEqual(txMined.logs[0].args.uid, "1234", "uid");
         //assert.strictEqual(txMined.logs[0].args.timestamp, 0);
         assert.strictEqual(txMined.logs[0].args.status.toNumber(), XtremWebInterface.Status.UNAVAILABLE, "status");
-        return aXtremWebInterfaceInstance.registerCallback(user, owner, "ls", "1234", "", {
+        return aXtremWebInterfaceInstance.registerCallback(user, provider, "ls", "1234", "", {
           from: bridge,
           gas: amountGazProvided
         });

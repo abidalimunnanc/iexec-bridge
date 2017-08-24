@@ -90,7 +90,7 @@ contract('LS', function(accounts) {
         .then(events => {
           assert.strictEqual(events[0].event, "Launch");
           assert.strictEqual(events[0].args.user, user, "user"); //tx.origin
-          assert.strictEqual(events[0].args.owner, aLSInstance.address, "owner"); //msg.sender
+          assert.strictEqual(events[0].args.provider, aLSInstance.address, "provider"); //msg.sender
           assert.strictEqual(events[0].args.functionName, "register", "functionName");
           assert.strictEqual(events[0].args.param1, "ls", "param1");
           assert.strictEqual(events[0].args.param2, "", "param2");
@@ -106,7 +106,7 @@ contract('LS', function(accounts) {
           assert.isBelow(txMined.receipt.gasUsed, amountGazProvided, "should not use all gas");
           assert.strictEqual(txMined.logs[0].event, "Register", "event");
           assert.strictEqual(txMined.logs[0].args.user, user, "user");
-          assert.strictEqual(txMined.logs[0].args.owner, aLSInstance.address, "owner");
+          assert.strictEqual(txMined.logs[0].args.provider, aLSInstance.address, "provider");
           assert.strictEqual(txMined.logs[0].args.uid, "1234", "uid");
           assert.strictEqual(txMined.logs[0].args.status.toNumber(), XtremWebInterface.Status.UNAVAILABLE, "status");
         });
