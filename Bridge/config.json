@@ -1,10 +1,88 @@
 {
-  "ContractAbi": [
+  "ContractAbi":[
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "name": "uid",
+          "type": "uint256"
+        }
+      ],
+      "name": "getWorkStatus",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "name": "uid",
+          "type": "uint256"
+        }
+      ],
+      "name": "getWorkTimestamp",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "name": "uid",
+          "type": "uint256"
+        }
+      ],
+      "name": "getWorkName",
+      "outputs": [
+        {
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
     {
       "constant": false,
       "inputs": [
         {
-          "name": "UID",
+          "name": "uid",
           "type": "uint256"
         }
       ],
@@ -17,7 +95,7 @@
       "constant": false,
       "inputs": [
         {
-          "name": "UID",
+          "name": "uid",
           "type": "uint256"
         }
       ],
@@ -30,7 +108,7 @@
       "constant": false,
       "inputs": [
         {
-          "name": "UID",
+          "name": "uid",
           "type": "uint256"
         }
       ],
@@ -61,23 +139,44 @@
       "type": "function"
     },
     {
-      "constant": false,
+      "constant": true,
       "inputs": [
         {
-          "name": "_UID",
-          "type": "uint256"
+          "name": "user",
+          "type": "address"
         },
         {
           "name": "owner",
           "type": "address"
         },
         {
-          "name": "_stdout",
+          "name": "uid",
+          "type": "uint256"
+        }
+      ],
+      "name": "getWork",
+      "outputs": [
+        {
+          "name": "",
+          "type": "string"
+        },
+        {
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "name": "",
+          "type": "uint8"
+        },
+        {
+          "name": "",
+          "type": "string"
+        },
+        {
+          "name": "",
           "type": "string"
         }
       ],
-      "name": "pushResult",
-      "outputs": [],
       "payable": false,
       "type": "function"
     },
@@ -85,7 +184,7 @@
       "constant": false,
       "inputs": [
         {
-          "name": "UID",
+          "name": "uid",
           "type": "uint256"
         },
         {
@@ -99,23 +198,28 @@
       "type": "function"
     },
     {
-      "constant": false,
+      "constant": true,
       "inputs": [
         {
-          "name": "UID",
-          "type": "uint256"
-        },
-        {
-          "name": "_stdout",
-          "type": "string"
+          "name": "user",
+          "type": "address"
         },
         {
           "name": "owner",
           "type": "address"
+        },
+        {
+          "name": "uid",
+          "type": "uint256"
         }
       ],
-      "name": "setStdout",
-      "outputs": [],
+      "name": "getWorkStderr",
+      "outputs": [
+        {
+          "name": "",
+          "type": "string"
+        }
+      ],
       "payable": false,
       "type": "function"
     },
@@ -140,7 +244,7 @@
       "constant": false,
       "inputs": [
         {
-          "name": "UID",
+          "name": "uid",
           "type": "uint256"
         },
         {
@@ -161,7 +265,7 @@
       "constant": false,
       "inputs": [
         {
-          "name": "UID",
+          "name": "uid",
           "type": "uint256"
         }
       ],
@@ -174,7 +278,7 @@
       "constant": false,
       "inputs": [
         {
-          "name": "UID",
+          "name": "uid",
           "type": "uint256"
         }
       ],
@@ -187,27 +291,27 @@
       "constant": false,
       "inputs": [
         {
+          "name": "user",
+          "type": "address"
+        },
+        {
           "name": "owner",
           "type": "address"
         },
         {
-          "name": "_UID",
+          "name": "appName",
+          "type": "string"
+        },
+        {
+          "name": "uid",
           "type": "uint256"
         },
         {
-          "name": "_appName",
+          "name": "errorMsg",
           "type": "string"
-        },
-        {
-          "name": "_timestamp",
-          "type": "string"
-        },
-        {
-          "name": "_status",
-          "type": "uint8"
         }
       ],
-      "name": "addUID",
+      "name": "registerCallback",
       "outputs": [],
       "payable": false,
       "type": "function"
@@ -220,6 +324,32 @@
         {
           "name": "",
           "type": "address"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "name": "uid",
+          "type": "uint256"
+        }
+      ],
+      "name": "getWorkStdout",
+      "outputs": [
+        {
+          "name": "",
+          "type": "string"
         }
       ],
       "payable": false,
@@ -252,6 +382,11 @@
           "type": "address"
         },
         {
+          "indexed": true,
+          "name": "owner",
+          "type": "address"
+        },
+        {
           "indexed": false,
           "name": "functionName",
           "type": "string"
@@ -273,7 +408,7 @@
         },
         {
           "indexed": false,
-          "name": "UID",
+          "name": "uid",
           "type": "uint256"
         }
       ],
@@ -284,19 +419,39 @@
       "anonymous": false,
       "inputs": [
         {
-          "indexed": false,
-          "name": "status",
-          "type": "string"
-        },
-        {
           "indexed": true,
           "name": "user",
           "type": "address"
+        },
+        {
+          "indexed": true,
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "name": "appName",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "name": "uid",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "status",
+          "type": "uint8"
+        },
+        {
+          "indexed": false,
+          "name": "errorMsg",
+          "type": "string"
         }
       ],
-      "name": "Logs",
+      "name": "Register",
       "type": "event"
     }
   ],
-  "ContractAddress": "0x4a1cdfbd30a9e4ac4992dee62c87ceb49bbcbf1a"
+  "ContractAddress": "0x23e8addd7f92275573d9a2949705174841e02c75"
 }
