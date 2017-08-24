@@ -95,9 +95,9 @@ contract('LS', function(accounts) {
           assert.strictEqual(events[0].args.param1, "ls", "param1");
           assert.strictEqual(events[0].args.param2, "", "param2");
           assert.strictEqual(events[0].args.param3, "", "param3");
-          assert.strictEqual(events[0].args.uid.toNumber(), 0, "uid");
+          assert.strictEqual(events[0].args.uid, "", "uid");
           //Simulate bridge response and test event Register
-          return aXtremWebInterfaceInstance.registerCallback(user, aLSInstance.address, "ls", 1234, "", {
+          return aXtremWebInterfaceInstance.registerCallback(user, aLSInstance.address, "ls", "1234", "", {
             from: bridge,
             gas: amountGazProvided
           });
@@ -107,7 +107,7 @@ contract('LS', function(accounts) {
           assert.strictEqual(txMined.logs[0].event, "Register", "event");
           assert.strictEqual(txMined.logs[0].args.user, user, "user");
           assert.strictEqual(txMined.logs[0].args.owner, aLSInstance.address, "owner");
-          assert.strictEqual(txMined.logs[0].args.uid.toNumber(), 1234, "uid");
+          assert.strictEqual(txMined.logs[0].args.uid, "1234", "uid");
           assert.strictEqual(txMined.logs[0].args.status.toNumber(), XtremWebInterface.Status.UNAVAILABLE, "status");
         });
     });

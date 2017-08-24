@@ -10,8 +10,8 @@ contract XtremWebInterface {
     /*
      * EVENTS AND MODIFIERS
      */
-    event Launch(address indexed user, address indexed owner, string functionName, string param1, string param2, string param3, uint256 uid); // special log to launch process
-    event Register(address indexed user, address indexed owner, string appName, uint256 uid, StatusEnum status, string errorMsg);
+    event Launch(address indexed user, address indexed owner, string functionName, string param1, string param2, string param3, string uid); // special log to launch process
+    event Register(address indexed user, address indexed owner, string appName, string uid, StatusEnum status, string errorMsg);
 
     modifier onlyBy(address a){
         if (msg.sender != a) throw;
@@ -29,7 +29,7 @@ contract XtremWebInterface {
       string stderr;
     }
     // mapping (user => mapping(owner => mapping (uid => XWObject))) workRegisteries;
-    mapping (address => mapping (address => mapping (uint256 => XWObject))) workRegisteries;
+    mapping (address => mapping (address => mapping (string => XWObject))) workRegisteries;
 
     //constructor
     function XtremWebInterface() {
@@ -37,7 +37,7 @@ contract XtremWebInterface {
     }
 
 
-    function getWork(address user, address owner, uint256 uid) constant returns (string, uint256, StatusEnum, string, string) {
+    function getWork(address user, address owner, string uid) constant returns (string, uint256, StatusEnum, string, string) {
         return (
         workRegisteries[user][owner][uid].name,
         workRegisteries[user][owner][uid].timestamp,
@@ -47,23 +47,23 @@ contract XtremWebInterface {
         );
     }
 
-    function getWorkName(address user, address owner, uint256 uid) constant returns (string) {
+    function getWorkName(address user, address owner, string uid) constant returns (string) {
         return workRegisteries[user][owner][uid].name;
     }
 
-    function getWorkTimestamp(address user, address owner, uint256 uid) constant returns (uint256) {
+    function getWorkTimestamp(address user, address owner, string uid) constant returns (uint256) {
         return workRegisteries[user][owner][uid].timestamp;
     }
 
-    function getWorkStatus(address user, address owner, uint256 uid) constant returns (StatusEnum) {
+    function getWorkStatus(address user, address owner, string uid) constant returns (StatusEnum) {
         return workRegisteries[user][owner][uid].status;
     }
 
-    function getWorkStdout(address user, address owner, uint256 uid) constant returns (string) {
+    function getWorkStdout(address user, address owner, string uid) constant returns (string) {
         return workRegisteries[user][owner][uid].stdout;
     }
 
-    function getWorkStderr(address user, address owner, uint256 uid) constant returns (string) {
+    function getWorkStderr(address user, address owner, string uid) constant returns (string) {
         return workRegisteries[user][owner][uid].stderr;
     }
 
@@ -75,42 +75,42 @@ contract XtremWebInterface {
      * and then the bridge call XTREMweb job, wait for result then modify the smart contract.
      */
     function register(string appName) {
-        Launch(tx.origin, msg.sender, "register", appName, "", "", 0);
+        Launch(tx.origin, msg.sender, "register", appName, "", "", "");
     }
 
     function submit(string appName, string param) {// param = commandline
-        Launch(tx.origin, msg.sender, "submit", param, "", "", 0);
+        Launch(tx.origin, msg.sender, "submit", param, "", "", "");
     }
 
     function submitAndWait(string appName, string param, string pattern) {
-        Launch(tx.origin, msg.sender, "submitAndWait", pattern, "", "", 0);
+        Launch(tx.origin, msg.sender, "submitAndWait", pattern, "", "", "");
     }
 
-    function setParam(uint256 uid, string paramName, string paramValue) {
+    function setParam(string uid, string paramName, string paramValue) {
         Launch(tx.origin, msg.sender, "setParam", paramName, paramValue, "", uid);
     }
 
-    function setPending(uint256 uid) {
+    function setPending(string uid) {
         Launch(tx.origin, msg.sender, "setParam", "status", "pending", "", uid);
     }
 
-    function status(uint256 uid) {
+    function status(string uid) {
         Launch(tx.origin, msg.sender, "status", "", "", "", uid);
     }
 
-    function result(uint256 uid) {
+    function result(string uid) {
         Launch(tx.origin, msg.sender, "result", "", "", "", uid);
     }
 
-    function stdout(uint256 uid) {
+    function stdout(string uid) {
         Launch(tx.origin, msg.sender, "stdout", "", "", "", uid);
     }
 
-    function toDelete(uint256 uid) {
+    function toDelete(string uid) {
         Launch(tx.origin, msg.sender, "toDelete", "", "", "", uid);
     }
 
-    function waitResult(uint256 uid, string pattern) {
+    function waitResult(string uid, string pattern) {
         Launch(tx.origin, msg.sender, "waitResult", pattern, "", "", uid);
     }
 
@@ -118,7 +118,7 @@ contract XtremWebInterface {
      * ONLY BY BRIDGE
      * The following functions are called only by the bridge, to modify the state of the XWObject
      */
-    function registerCallback(address user, address owner, string appName, uint256 uid, string errorMsg) onlyBy(bridge) {
+    function registerCallback(address user, address owner, string appName, string uid, string errorMsg) onlyBy(bridge) {
         if (workRegisteries[user][owner][uid].status == StatusEnum.UNSET) {
             workRegisteries[user][owner][uid].name = appName;
             workRegisteries[user][owner][uid].timestamp=now;

@@ -77,7 +77,7 @@ contract('XtremWebInterface', function(accounts) {
           assert.strictEqual(txMined.logs[0].args.param1, "ls", "param1");
           assert.strictEqual(txMined.logs[0].args.param2, "", "param2");
           assert.strictEqual(txMined.logs[0].args.param3, "", "param3");
-          assert.strictEqual(txMined.logs[0].args.uid.toNumber(), 0, "uid");
+          assert.strictEqual(txMined.logs[0].args.uid, "", "uid");
         });
     });
   });
@@ -107,7 +107,7 @@ contract('XtremWebInterface', function(accounts) {
           assert.strictEqual(txMined.logs[0].args.param1, "ls", "param1");
           assert.strictEqual(txMined.logs[0].args.param2, "", "param2");
           assert.strictEqual(txMined.logs[0].args.param3, "", "param3");
-          assert.strictEqual(txMined.logs[0].args.uid.toNumber(), 0, "uid");
+          assert.strictEqual(txMined.logs[0].args.uid, "", "uid");
         });
     });
 
@@ -119,7 +119,7 @@ contract('XtremWebInterface', function(accounts) {
       return Extensions.getCurrentBlockTime()
         .then(now => {
           previousBlockTime = now;
-          return aXtremWebInterfaceInstance.registerCallback(user, owner, "ls", 1234, "", {
+          return aXtremWebInterfaceInstance.registerCallback(user, owner, "ls", "1234", "", {
             from: bridge,
             gas: amountGazProvided
           });
@@ -129,12 +129,12 @@ contract('XtremWebInterface', function(accounts) {
           assert.strictEqual(txMined.logs[0].event, "Register", "event");
           assert.strictEqual(txMined.logs[0].args.user, user, "user");
           assert.strictEqual(txMined.logs[0].args.owner, owner, "owner");
-          assert.strictEqual(txMined.logs[0].args.uid.toNumber(), 1234, "uid");
+          assert.strictEqual(txMined.logs[0].args.uid, "1234", "uid");
           //assert.strictEqual(txMined.logs[0].args.timestamp, "time");
           assert.strictEqual(txMined.logs[0].args.status.toNumber(), XtremWebInterface.Status.UNAVAILABLE, "status");
           assert.strictEqual(txMined.logs[0].args.errorMsg, "", "errorMsg");
           return Promise.all([
-            aXtremWebInterfaceInstance.getWork(user, owner, txMined.logs[0].args.uid.toNumber()),
+            aXtremWebInterfaceInstance.getWork(user, owner, txMined.logs[0].args.uid),
             Extensions.getCurrentBlockTime()
           ]);
         })
@@ -159,7 +159,7 @@ contract('XtremWebInterface', function(accounts) {
       return Extensions.getCurrentBlockTime()
         .then(now => {
           previousBlockTime = now;
-          return aXtremWebInterfaceInstance.registerCallback(user, owner, "ls", 1234, "bridge crash", {
+          return aXtremWebInterfaceInstance.registerCallback(user, owner, "ls", "1234", "bridge crash", {
             from: bridge,
             gas: amountGazProvided
           });
@@ -169,11 +169,11 @@ contract('XtremWebInterface', function(accounts) {
           assert.strictEqual(txMined.logs[0].event, "Register", "event");
           assert.strictEqual(txMined.logs[0].args.owner, owner, "owner");
           assert.strictEqual(txMined.logs[0].args.user, user, "user");
-          assert.strictEqual(txMined.logs[0].args.uid.toNumber(), 1234, "uid");
+          assert.strictEqual(txMined.logs[0].args.uid, "1234", "uid");
           assert.strictEqual(txMined.logs[0].args.status.toNumber(), XtremWebInterface.Status.ERROR, "status");
           assert.strictEqual(txMined.logs[0].args.errorMsg, "bridge crash", "errorMsg");
           return Promise.all([
-            aXtremWebInterfaceInstance.getWork(user, owner, txMined.logs[0].args.uid.toNumber()),
+            aXtremWebInterfaceInstance.getWork(user, owner, txMined.logs[0].args.uid),
             Extensions.getCurrentBlockTime()
           ]);
         })
@@ -193,7 +193,7 @@ contract('XtremWebInterface', function(accounts) {
 
     it("Only bridge can call registerCallback fonction", function() {
       return Extensions.expectedExceptionPromise(function() {
-          return aXtremWebInterfaceInstance.registerCallback(user, owner, "ls", 1234, "", {
+          return aXtremWebInterfaceInstance.registerCallback(user, owner, "ls", "1234", "", {
             from: user,
             gas: amountGazProvided
           });
@@ -203,7 +203,7 @@ contract('XtremWebInterface', function(accounts) {
 
     it("Simulate bridge registerCallback and test event Register, then next registerCallback call do not generate event Register", function() {
       //simulate bridge response
-      return aXtremWebInterfaceInstance.registerCallback(user, owner, "ls", 1234, "", {
+      return aXtremWebInterfaceInstance.registerCallback(user, owner, "ls", "1234", "", {
         from: bridge,
         gas: amountGazProvided
       }).then(txMined => {
@@ -211,10 +211,10 @@ contract('XtremWebInterface', function(accounts) {
         assert.strictEqual(txMined.logs[0].event, "Register", "event");
         assert.strictEqual(txMined.logs[0].args.owner, owner, "owner");
         assert.strictEqual(txMined.logs[0].args.user, user, "user");
-        assert.strictEqual(txMined.logs[0].args.uid.toNumber(), 1234, "uid");
+        assert.strictEqual(txMined.logs[0].args.uid, "1234", "uid");
         //assert.strictEqual(txMined.logs[0].args.timestamp, 0);
         assert.strictEqual(txMined.logs[0].args.status.toNumber(), XtremWebInterface.Status.UNAVAILABLE, "status");
-        return aXtremWebInterfaceInstance.registerCallback(user, owner, "ls", 1234, "", {
+        return aXtremWebInterfaceInstance.registerCallback(user, owner, "ls", "1234", "", {
           from: bridge,
           gas: amountGazProvided
         });
