@@ -192,7 +192,7 @@ contract('IexecWorksGateway', function(accounts) {
     });
 
     it("Only bridge can call registerCallback fonction", function() {
-      return Extensions.expectedExceptionPromise(function() {
+      return Extensions.expectedExceptionPromise(() => {
           return aIexecWorksGatewayInstance.registerCallback(user, provider, "ls", "1234", "", {
             from: user,
             gas: amountGazProvided

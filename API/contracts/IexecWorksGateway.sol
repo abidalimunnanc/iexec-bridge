@@ -28,12 +28,23 @@ contract IexecWorksGateway {
     }
     // mapping (user => mapping(provider => mapping (uid => Work))) workRegistry;
     mapping (address => mapping (address => mapping (string => Work))) workRegistry;
+    //mapping (provider => creator)
+    mapping (address => address ) creatorByProvider;
 
     //constructor
     function IexecWorksGateway() {
         bridge = msg.sender;
     }
 
+    function registerConsumerSmartContract() {
+        require(creatorByProvider[msg.sender] == 0x0);
+        require(msg.sender != tx.origin);
+        creatorByProvider[msg.sender]=tx.origin;
+    }
+
+    function getCreator(address provider) constant returns (address) {
+        return creatorByProvider[provider];
+    }
 
     function getWork(address user, address provider, string uid) constant returns (string, uint256, StatusEnum, string, string) {
         return (

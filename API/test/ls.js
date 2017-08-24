@@ -19,7 +19,7 @@ Extensions.init(web3, assert);
 
 contract('LS', function(accounts) {
 
-  var owner, bridge, user;
+  var provider, bridge, user;
   var amountGazProvided = 3000000;
   let isTestRPC;
 
@@ -34,17 +34,17 @@ contract('LS', function(accounts) {
 
   before("should prepare accounts and check TestRPC Mode", function() {
     assert.isAtLeast(accounts.length, 4, "should have at least 4 accounts");
-    owner = accounts[0];
+    provider = accounts[0];
     bridge = accounts[1];
     user = accounts[2];
     return Extensions.makeSureAreUnlocked(
-        [owner, bridge, user])
-      .then(() => web3.eth.getBalancePromise(owner))
+        [provider, bridge, user])
+      .then(() => web3.eth.getBalancePromise(provider))
       .then(balance => assert.isTrue(
         web3.toWei(web3.toBigNumber(90), "ether").lessThan(balance),
-        "owner should have at least 35 ether, not " + web3.fromWei(balance, "ether")))
-      .then(() => Extensions.refillAccount(owner, user, 30))
-      .then(() => Extensions.refillAccount(owner, bridge, 30))
+        "provider should have at least 35 ether, not " + web3.fromWei(balance, "ether")))
+      .then(() => Extensions.refillAccount(provider, user, 30))
+      .then(() => Extensions.refillAccount(provider, bridge, 30))
       .then(() => web3.version.getNodePromise())
       .then(node => isTestRPC = node.indexOf("EthereumJS TestRPC") >= 0);
   });
@@ -61,7 +61,7 @@ contract('LS', function(accounts) {
         .then(instance => {
           aIexecWorksGatewayInstance = instance;
           return LS.new(aIexecWorksGatewayInstance.address, {
-            from: owner,
+            from: provider,
             gas: amountGazProvided
           });
         }).then(instance => {
