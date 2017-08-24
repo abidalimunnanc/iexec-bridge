@@ -1,7 +1,7 @@
 pragma solidity ^0.4.11;
 
 
-contract XtremWebInterface {
+contract IexecWorksGateway {
 
     address public bridge;
 
@@ -18,53 +18,51 @@ contract XtremWebInterface {
         _;
     }
 
-    /*
-     * XWObject aims is to reproduce XWEB Object in solidity
-     */
-    struct XWObject {
+
+    struct Work {
       string name;
       uint256 timestamp;
       StatusEnum status;
       string stdout;
       string stderr;
     }
-    // mapping (user => mapping(provider => mapping (uid => XWObject))) workRegisteries;
-    mapping (address => mapping (address => mapping (string => XWObject))) workRegisteries;
+    // mapping (user => mapping(provider => mapping (uid => Work))) workRegistry;
+    mapping (address => mapping (address => mapping (string => Work))) workRegistry;
 
     //constructor
-    function XtremWebInterface() {
+    function IexecWorksGateway() {
         bridge = msg.sender;
     }
 
 
     function getWork(address user, address provider, string uid) constant returns (string, uint256, StatusEnum, string, string) {
         return (
-        workRegisteries[user][provider][uid].name,
-        workRegisteries[user][provider][uid].timestamp,
-        workRegisteries[user][provider][uid].status,
-        workRegisteries[user][provider][uid].stdout,
-        workRegisteries[user][provider][uid].stderr
+        workRegistry[user][provider][uid].name,
+        workRegistry[user][provider][uid].timestamp,
+        workRegistry[user][provider][uid].status,
+        workRegistry[user][provider][uid].stdout,
+        workRegistry[user][provider][uid].stderr
         );
     }
 
     function getWorkName(address user, address provider, string uid) constant returns (string) {
-        return workRegisteries[user][provider][uid].name;
+        return workRegistry[user][provider][uid].name;
     }
 
     function getWorkTimestamp(address user, address provider, string uid) constant returns (uint256) {
-        return workRegisteries[user][provider][uid].timestamp;
+        return workRegistry[user][provider][uid].timestamp;
     }
 
     function getWorkStatus(address user, address provider, string uid) constant returns (StatusEnum) {
-        return workRegisteries[user][provider][uid].status;
+        return workRegistry[user][provider][uid].status;
     }
 
     function getWorkStdout(address user, address provider, string uid) constant returns (string) {
-        return workRegisteries[user][provider][uid].stdout;
+        return workRegistry[user][provider][uid].stdout;
     }
 
     function getWorkStderr(address user, address provider, string uid) constant returns (string) {
-        return workRegisteries[user][provider][uid].stderr;
+        return workRegistry[user][provider][uid].stderr;
     }
 
 
@@ -119,17 +117,17 @@ contract XtremWebInterface {
      * The following functions are called only by the bridge, to modify the state of the XWObject
      */
     function registerCallback(address user, address provider, string appName, string uid, string errorMsg) onlyBy(bridge) {
-        if (workRegisteries[user][provider][uid].status == StatusEnum.UNSET) {
-            workRegisteries[user][provider][uid].name = appName;
-            workRegisteries[user][provider][uid].timestamp=now;
+        if (workRegistry[user][provider][uid].status == StatusEnum.UNSET) {
+            workRegistry[user][provider][uid].name = appName;
+            workRegistry[user][provider][uid].timestamp=now;
             bytes memory errorMsgEmptyStringTest = bytes(errorMsg); // Uses memory
             if (errorMsgEmptyStringTest.length == 0) {
-              workRegisteries[user][provider][uid].status = StatusEnum.UNAVAILABLE;
+              workRegistry[user][provider][uid].status = StatusEnum.UNAVAILABLE;
             } else {
-              workRegisteries[user][provider][uid].status = StatusEnum.ERROR;
-              workRegisteries[user][provider][uid].stderr = errorMsg;
+              workRegistry[user][provider][uid].status = StatusEnum.ERROR;
+              workRegistry[user][provider][uid].stderr = errorMsg;
             }
-            Register(user, provider, appName, uid, workRegisteries[user][provider][uid].status, errorMsg);
+            Register(user, provider, appName, uid, workRegistry[user][provider][uid].status, errorMsg);
         }
     }
 }

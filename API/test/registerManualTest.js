@@ -1,14 +1,14 @@
-var XtremWebInterface = artifacts.require("./XtremWebInterface.sol");
-contract('XtremWebInterface', function(accounts) {
+var IexecWorksGateway = artifacts.require("./IexecWorksGateway.sol");
+contract('IexecWorksGateway', function(accounts) {
   // need the bridge to have the right contract, so you have to migrate before test
   console.log("test start");
   it("should submit", function() {
 
-    var XtremWebInterfaceInstance;
-    return XtremWebInterface.at("0x7845273b8ca53acd2d8c78f22718c70cc5b08431").then(function(instance) {
-      XtremWebInterfaceInstance = instance;
+    var IexecWorksGatewayInstance;
+    return IexecWorksGateway.at("0x7845273b8ca53acd2d8c78f22718c70cc5b08431").then(function(instance) {
+      IexecWorksGatewayInstance = instance;
       console.log(instance);
-      return XtremWebInterfaceInstance.register("ls");
+      return IexecWorksGatewayInstance.register("ls");
     }).then(txMined => {
       console.log(txMined);
       // do something

@@ -1,4 +1,4 @@
-var XtremWebInterface = artifacts.require("./XtremWebInterface.sol");
+var IexecWorksGateway = artifacts.require("./IexecWorksGateway.sol");
 var LS = artifacts.require("./LS.sol");
 const Promise = require("bluebird");
 //extensions.js : credit to : https://github.com/coldice/dbh-b9lab-hackathon/blob/development/truffle/utils/extensions.js
@@ -23,7 +23,7 @@ contract('LS', function(accounts) {
   var amountGazProvided = 3000000;
   let isTestRPC;
 
-  XtremWebInterface.Status = {
+  IexecWorksGateway.Status = {
     UNSET: 0,
     UNAVAILABLE: 1,
     PENDING: 2,
@@ -51,16 +51,16 @@ contract('LS', function(accounts) {
 
 
   describe("Test Register function call", function() {
-    var aXtremWebInterfaceInstance;
+    var aIexecWorksGatewayInstance;
     var aLSInstance;
     beforeEach("create a new contract instance", function() {
-      return XtremWebInterface.new({
+      return IexecWorksGateway.new({
           from: bridge,
           gas: amountGazProvided
         })
         .then(instance => {
-          aXtremWebInterfaceInstance = instance;
-          return LS.new(aXtremWebInterfaceInstance.address, {
+          aIexecWorksGatewayInstance = instance;
+          return LS.new(aIexecWorksGatewayInstance.address, {
             from: owner,
             gas: amountGazProvided
           });
@@ -82,7 +82,7 @@ contract('LS', function(accounts) {
         .then(txMined => {
           assert.isBelow(txMined.receipt.gasUsed, amountGazProvided, "should not use all gas");
           return Extensions.getEventsPromise(
-            aXtremWebInterfaceInstance.Launch({}, {
+            aIexecWorksGatewayInstance.Launch({}, {
               fromBlock: currentBlockNumber,
               toBlock: "latest"
             }));
@@ -97,7 +97,7 @@ contract('LS', function(accounts) {
           assert.strictEqual(events[0].args.param3, "", "param3");
           assert.strictEqual(events[0].args.uid, "", "uid");
           //Simulate bridge response and test event Register
-          return aXtremWebInterfaceInstance.registerCallback(user, aLSInstance.address, "ls", "1234", "", {
+          return aIexecWorksGatewayInstance.registerCallback(user, aLSInstance.address, "ls", "1234", "", {
             from: bridge,
             gas: amountGazProvided
           });
@@ -108,7 +108,7 @@ contract('LS', function(accounts) {
           assert.strictEqual(txMined.logs[0].args.user, user, "user");
           assert.strictEqual(txMined.logs[0].args.provider, aLSInstance.address, "provider");
           assert.strictEqual(txMined.logs[0].args.uid, "1234", "uid");
-          assert.strictEqual(txMined.logs[0].args.status.toNumber(), XtremWebInterface.Status.UNAVAILABLE, "status");
+          assert.strictEqual(txMined.logs[0].args.status.toNumber(), IexecWorksGateway.Status.UNAVAILABLE, "status");
         });
     });
   });

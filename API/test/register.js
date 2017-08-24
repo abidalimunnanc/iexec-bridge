@@ -1,4 +1,4 @@
-var XtremWebInterface = artifacts.require("./XtremWebInterface.sol");
+var IexecWorksGateway = artifacts.require("./IexecWorksGateway.sol");
 const Promise = require("bluebird");
 //extensions.js : credit to : https://github.com/coldice/dbh-b9lab-hackathon/blob/development/truffle/utils/extensions.js
 const Extensions = require("../utils/extensions.js");
@@ -16,13 +16,13 @@ Promise.promisifyAll(web3.evm, {
 Extensions.init(web3, assert);
 
 
-contract('XtremWebInterface', function(accounts) {
+contract('IexecWorksGateway', function(accounts) {
 
   var provider, bridge, user;
   var amountGazProvided = 3000000;
   let isTestRPC;
 
-  XtremWebInterface.Status = {
+  IexecWorksGateway.Status = {
     UNSET: 0,
     UNAVAILABLE: 1,
     PENDING: 2,
@@ -51,20 +51,20 @@ contract('XtremWebInterface', function(accounts) {
 
   describe("Test Register function call", function() {
 
-    var aXtremWebInterfaceInstance;
+    var aIexecWorksGatewayInstance;
 
     beforeEach("create a new contract instance", function() {
-      return XtremWebInterface.new({
+      return IexecWorksGateway.new({
           from: bridge,
           gas: amountGazProvided
         })
         .then(instance => {
-          aXtremWebInterfaceInstance = instance;
+          aIexecWorksGatewayInstance = instance;
         });
     });
 
     it("Test register function and check event Launch", function() {
-      return aXtremWebInterfaceInstance.register("ls", {
+      return aIexecWorksGatewayInstance.register("ls", {
           from: user,
           gas: amountGazProvided
         })
@@ -85,15 +85,15 @@ contract('XtremWebInterface', function(accounts) {
 
   describe("Test Register function call then simulate bridge response", function() {
 
-    var aXtremWebInterfaceInstance;
+    var aIexecWorksGatewayInstance;
 
     beforeEach("create a new contract instance", function() {
-      return XtremWebInterface.new({
+      return IexecWorksGateway.new({
           from: bridge
         })
         .then(instance => {
-          aXtremWebInterfaceInstance = instance;
-          return aXtremWebInterfaceInstance.register("ls", {
+          aIexecWorksGatewayInstance = instance;
+          return aIexecWorksGatewayInstance.register("ls", {
             from: user,
             gas: amountGazProvided
           });
@@ -119,7 +119,7 @@ contract('XtremWebInterface', function(accounts) {
       return Extensions.getCurrentBlockTime()
         .then(now => {
           previousBlockTime = now;
-          return aXtremWebInterfaceInstance.registerCallback(user, provider, "ls", "1234", "", {
+          return aIexecWorksGatewayInstance.registerCallback(user, provider, "ls", "1234", "", {
             from: bridge,
             gas: amountGazProvided
           });
@@ -131,10 +131,10 @@ contract('XtremWebInterface', function(accounts) {
           assert.strictEqual(txMined.logs[0].args.provider, provider, "provider");
           assert.strictEqual(txMined.logs[0].args.uid, "1234", "uid");
           //assert.strictEqual(txMined.logs[0].args.timestamp, "time");
-          assert.strictEqual(txMined.logs[0].args.status.toNumber(), XtremWebInterface.Status.UNAVAILABLE, "status");
+          assert.strictEqual(txMined.logs[0].args.status.toNumber(), IexecWorksGateway.Status.UNAVAILABLE, "status");
           assert.strictEqual(txMined.logs[0].args.errorMsg, "", "errorMsg");
           return Promise.all([
-            aXtremWebInterfaceInstance.getWork(user, provider, txMined.logs[0].args.uid),
+            aIexecWorksGatewayInstance.getWork(user, provider, txMined.logs[0].args.uid),
             Extensions.getCurrentBlockTime()
           ]);
         })
@@ -145,7 +145,7 @@ contract('XtremWebInterface', function(accounts) {
           workTimestamp = timestamp.toNumber();
           assert.isAtLeast(workTimestamp, previousBlockTime, "work timestamp >= previousBlockTime");
           assert.isAtLeast(nextBlockTime, workTimestamp, "work timestamp <= nextBlockTime");
-          assert.strictEqual(status.toNumber(), XtremWebInterface.Status.UNAVAILABLE, "work status");
+          assert.strictEqual(status.toNumber(), IexecWorksGateway.Status.UNAVAILABLE, "work status");
           assert.strictEqual(stdout, "", "work stdout");
           assert.strictEqual(stderr, "", "work stderr");
         });
@@ -159,7 +159,7 @@ contract('XtremWebInterface', function(accounts) {
       return Extensions.getCurrentBlockTime()
         .then(now => {
           previousBlockTime = now;
-          return aXtremWebInterfaceInstance.registerCallback(user, provider, "ls", "1234", "bridge crash", {
+          return aIexecWorksGatewayInstance.registerCallback(user, provider, "ls", "1234", "bridge crash", {
             from: bridge,
             gas: amountGazProvided
           });
@@ -170,10 +170,10 @@ contract('XtremWebInterface', function(accounts) {
           assert.strictEqual(txMined.logs[0].args.provider, provider, "provider");
           assert.strictEqual(txMined.logs[0].args.user, user, "user");
           assert.strictEqual(txMined.logs[0].args.uid, "1234", "uid");
-          assert.strictEqual(txMined.logs[0].args.status.toNumber(), XtremWebInterface.Status.ERROR, "status");
+          assert.strictEqual(txMined.logs[0].args.status.toNumber(), IexecWorksGateway.Status.ERROR, "status");
           assert.strictEqual(txMined.logs[0].args.errorMsg, "bridge crash", "errorMsg");
           return Promise.all([
-            aXtremWebInterfaceInstance.getWork(user, provider, txMined.logs[0].args.uid),
+            aIexecWorksGatewayInstance.getWork(user, provider, txMined.logs[0].args.uid),
             Extensions.getCurrentBlockTime()
           ]);
         })
@@ -184,7 +184,7 @@ contract('XtremWebInterface', function(accounts) {
           workTimestamp = timestamp.toNumber();
           assert.isAtLeast(workTimestamp, previousBlockTime, "work timestamp >= previousBlockTime");
           assert.isAtLeast(nextBlockTime, workTimestamp, "work timestamp <= nextBlockTime");
-          assert.strictEqual(status.toNumber(), XtremWebInterface.Status.ERROR, "work status");
+          assert.strictEqual(status.toNumber(), IexecWorksGateway.Status.ERROR, "work status");
           assert.strictEqual(stdout, "", "work stdout");
           assert.strictEqual(stderr, "bridge crash", "work stderr");
         });
@@ -193,7 +193,7 @@ contract('XtremWebInterface', function(accounts) {
 
     it("Only bridge can call registerCallback fonction", function() {
       return Extensions.expectedExceptionPromise(function() {
-          return aXtremWebInterfaceInstance.registerCallback(user, provider, "ls", "1234", "", {
+          return aIexecWorksGatewayInstance.registerCallback(user, provider, "ls", "1234", "", {
             from: user,
             gas: amountGazProvided
           });
@@ -203,7 +203,7 @@ contract('XtremWebInterface', function(accounts) {
 
     it("Simulate bridge registerCallback and test event Register, then next registerCallback call do not generate event Register", function() {
       //simulate bridge response
-      return aXtremWebInterfaceInstance.registerCallback(user, provider, "ls", "1234", "", {
+      return aIexecWorksGatewayInstance.registerCallback(user, provider, "ls", "1234", "", {
         from: bridge,
         gas: amountGazProvided
       }).then(txMined => {
@@ -213,8 +213,8 @@ contract('XtremWebInterface', function(accounts) {
         assert.strictEqual(txMined.logs[0].args.user, user, "user");
         assert.strictEqual(txMined.logs[0].args.uid, "1234", "uid");
         //assert.strictEqual(txMined.logs[0].args.timestamp, 0);
-        assert.strictEqual(txMined.logs[0].args.status.toNumber(), XtremWebInterface.Status.UNAVAILABLE, "status");
-        return aXtremWebInterfaceInstance.registerCallback(user, provider, "ls", "1234", "", {
+        assert.strictEqual(txMined.logs[0].args.status.toNumber(), IexecWorksGateway.Status.UNAVAILABLE, "status");
+        return aIexecWorksGatewayInstance.registerCallback(user, provider, "ls", "1234", "", {
           from: bridge,
           gas: amountGazProvided
         });

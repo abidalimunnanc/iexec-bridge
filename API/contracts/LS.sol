@@ -1,15 +1,15 @@
 pragma solidity ^0.4.11;
-import "./XtremWebInterface.sol";
+import "./IexecWorksGateway.sol";
 contract LS {
 
-  address xtremWebInterface;
+  address iexecWorksGateway;
 
-  function LS (address _xtremWebInterface){
-    xtremWebInterface=_xtremWebInterface;
+  function LS (address _iexecWorksGateway){
+    iexecWorksGateway=_iexecWorksGateway;
   }
 
   function iexecLS(){
-    XtremWebInterface iexecInterface = XtremWebInterface(xtremWebInterface);
+    IexecWorksGateway iexecInterface = IexecWorksGateway(iexecWorksGateway);
     iexecInterface.register("ls");
   }
 
