@@ -1,8 +1,8 @@
 pragma solidity ^0.4.11;
-import "./IexecWorksConsumer.sol";
-contract LS is IexecWorksConsumer{
+import "./IexecOracleAPI.sol";
+contract LS is IexecOracleAPI{
 
-  function LS (address _iexecWorksGateway) IexecWorksConsumer(_iexecWorksGateway){
+  function LS (address _iexecOracleAddress) IexecOracleAPI(_iexecOracleAddress){
 
   }
 

@@ -1,5 +1,5 @@
-var IexecWorksGateway = artifacts.require("./IexecWorksGateway.sol");
-var IexecWorksConsumer = artifacts.require("./IexecWorksConsumer.sol");
+var IexecOracle = artifacts.require("./IexecOracle.sol");
+var IexecOracleAPI = artifacts.require("./IexecOracleAPI.sol");
 
 const Promise = require("bluebird");
 //extensions.js : credit to : https://github.com/coldice/dbh-b9lab-hackathon/blob/development/truffle/utils/extensions.js
@@ -18,7 +18,7 @@ Promise.promisifyAll(web3.evm, {
 Extensions.init(web3, assert);
 
 
-contract('IexecWorksConsumer', function(accounts) {
+contract('IexecOracleAPI', function(accounts) {
 
   var creator, bridge, user;
   var amountGazProvided = 3000000;
@@ -42,14 +42,14 @@ contract('IexecWorksConsumer', function(accounts) {
   });
 
   it("Test call registerConsumerSmartContract with tx.origin = msg.sender", function() {
-    return IexecWorksGateway.new({
+    return IexecOracle.new({
         from: bridge,
         gas: amountGazProvided
       })
       .then(instance => {
-        aIexecWorksGatewayInstance = instance;
+        aIexecOracleInstance = instance;
         return Extensions.expectedExceptionPromise(() => {
-            return aIexecWorksGatewayInstance.registerConsumerSmartContract({
+            return aIexecOracleInstance.registerConsumerSmartContract({
               from: creator,
               gas: amountGazProvided
             });
@@ -58,35 +58,35 @@ contract('IexecWorksConsumer', function(accounts) {
       });
   });
 
-  describe("Test IexecWorksConsumer", function() {
-    var aIexecWorksGatewayInstance;
-    var aIexecWorksConsumer;
+  describe("Test IexecOracleAPI", function() {
+    var aIexecOracleInstance;
+    var aIexecOracleAPI;
     beforeEach("create a new contract instance", function() {
-      return IexecWorksGateway.new({
+      return IexecOracle.new({
           from: bridge,
           gas: amountGazProvided
         })
         .then(instance => {
-          aIexecWorksGatewayInstance = instance;
-          return IexecWorksConsumer.new(aIexecWorksGatewayInstance.address, {
+          aIexecOracleInstance = instance;
+          return IexecOracleAPI.new(aIexecOracleInstance.address, {
             from: creator,
             gas: amountGazProvided
           });
         }).then(instance => {
-          aIexecWorksConsumer = instance;
+          aIexecOracleAPI = instance;
         });
     });
 
-    it("Test creator and creator of IexecWorksConsumer are set correctly in IexecWorksGateway", function() {
-      return aIexecWorksGatewayInstance.getCreator(aIexecWorksConsumer.address)
+    it("Test creator and creator of IexecOracleAPI are set correctly in IexecOracle", function() {
+      return aIexecOracleInstance.getCreator(aIexecOracleAPI.address)
         .then(creatorStored => {
           assert.strictEqual(creator, creatorStored, "creator check");
         });
     });
 
-    it("Cannot change creator in aIexecWorksGatewayInstance after first call by IexecWorksConsumer constructor", function() {
+    it("Cannot change creator in aIexecOracleInstance after first call by IexecOracleAPI constructor", function() {
       return Extensions.expectedExceptionPromise(() => {
-          return aIexecWorksConsumer.impossible(aIexecWorksGatewayInstance.address, {
+          return aIexecOracleAPI.impossible(aIexecOracleInstance.address, {
             from: user,
             gas: amountGazProvided
           });

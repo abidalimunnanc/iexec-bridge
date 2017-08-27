@@ -1,7 +1,7 @@
 pragma solidity ^0.4.11;
 
 
-contract IexecWorksGateway {
+contract IexecOracle {
 
     address public bridge;
 
@@ -32,7 +32,7 @@ contract IexecWorksGateway {
     mapping (address => address ) creatorByProvider;
 
     //constructor
-    function IexecWorksGateway() {
+    function IexecOracle() {
         bridge = msg.sender;
     }
 
