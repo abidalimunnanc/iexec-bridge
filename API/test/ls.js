@@ -20,7 +20,7 @@ Extensions.init(web3, assert);
 contract('LS', function(accounts) {
 
   var provider, bridge, user;
-  var amountGazProvided = 3000000;
+  var amountGazProvided = 4000000;
   let isTestRPC;
 
   IexecOracle.Status = {

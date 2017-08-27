@@ -9,7 +9,7 @@ contract IexecOracleAPI{
     function IexecOracleAPI(address _iexecOracleAddress) {
         iexecOracleAddress=_iexecOracleAddress;
         IexecOracle iexecOracle = IexecOracle(iexecOracleAddress);
-        iexecOracle.registerConsumerSmartContract();
+        iexecOracle.registerSmartContractAndCreator();
     }
 
     function iexecRegister(string appName) {
@@ -19,7 +19,7 @@ contract IexecOracleAPI{
 
     function impossible(address _iexecOracleAddress) {
         IexecOracle iexecOracle = IexecOracle(_iexecOracleAddress);
-        iexecOracle.registerConsumerSmartContract();
+        iexecOracle.registerSmartContractAndCreator();
     }
 
 }

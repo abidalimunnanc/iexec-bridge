@@ -19,7 +19,7 @@ Extensions.init(web3, assert);
 contract('IexecOracle', function(accounts) {
 
   var provider, bridge, user;
-  var amountGazProvided = 3000000;
+  var amountGazProvided = 4000000;
   let isTestRPC;
 
   IexecOracle.Status = {
@@ -227,6 +227,7 @@ contract('IexecOracle', function(accounts) {
 
   // TODO test bridge call register ?
   // TODO limit register call
+  // TODO test all stats counters
 
 
 });

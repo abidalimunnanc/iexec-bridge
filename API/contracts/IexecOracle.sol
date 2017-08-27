@@ -1,12 +1,10 @@
 pragma solidity ^0.4.11;
 
+import './SafeMath.sol';
 
 contract IexecOracle {
 
-    address public bridge;
-
-    enum StatusEnum {UNSET, UNAVAILABLE, PENDING, RUNNING, COMPLETED, ERROR}
-
+    using SafeMath for uint;
     /*
      * EVENTS AND MODIFIERS
      */
@@ -18,6 +16,9 @@ contract IexecOracle {
         _;
     }
 
+    address public bridge;
+
+    enum StatusEnum {UNSET, UNAVAILABLE, PENDING, RUNNING, COMPLETED, ERROR}
 
     struct Work {
       string name;
@@ -31,15 +32,46 @@ contract IexecOracle {
     //mapping (provider => creator)
     mapping (address => address ) creatorByProvider;
 
+    // stats
+    uint256 public providersCount;
+    uint256 public usersCount;
+    uint256 public worksCount;
+
+
+    mapping (address => uint256 ) creatorProvidersCount;
+
+    mapping (address => uint256 ) userWorksCount;
+
+    mapping (address => uint256 ) userProvidersCount;
+
+    //mapping (user => mapping (provider => UsageCount ))
+    mapping (address => mapping (address => uint256 )) userProviderUsageCount;
+
+    mapping (address => uint256 ) providerWorksCount;
+
+    mapping (address => uint256 ) providerUsersCount;
+
+    //mapping (provider => mapping (user => UsageCount ))
+    mapping (address => mapping (address => uint256 )) providerUserUsageCount;
+
+    mapping (address => uint256 ) creatorWorksCount;
+
+
     //constructor
     function IexecOracle() {
         bridge = msg.sender;
     }
 
-    function registerConsumerSmartContract() {
+    function registerSmartContractAndCreator() {
         require(creatorByProvider[msg.sender] == 0x0);
         require(msg.sender != tx.origin);
         creatorByProvider[msg.sender]=tx.origin;
+        creatorProvidersCount[tx.origin]=creatorProvidersCount[tx.origin].add(1);
+        providersCount=providersCount.add(1);
+    }
+
+    function getCreatorProvidersCount(address provider) constant returns (uint256) {
+        return creatorProvidersCount[provider];
     }
 
     function getCreator(address provider) constant returns (address) {
@@ -138,6 +170,31 @@ contract IexecOracle {
               workRegistry[user][provider][uid].status = StatusEnum.ERROR;
               workRegistry[user][provider][uid].stderr = errorMsg;
             }
+
+            // TODO test all stats counters
+            //increment stats
+            worksCount=worksCount.add(1);
+            if (userWorksCount[user] == 0x0) {
+              //new user, increment users count
+              usersCount=usersCount.add(1);
+            }
+            userWorksCount[user]=userWorksCount[user].add(1);
+            providerWorksCount[provider]=providerWorksCount[provider].add(1);
+
+            if (providerUserUsageCount[provider][user] == 0x0) {
+              //new user for this provider
+              providerUsersCount[provider]=providerUsersCount[provider].add(1);
+            }
+            providerUserUsageCount[provider][user]=providerUserUsageCount[provider][user].add(1);
+
+            if (  userProviderUsageCount[user][provider]== 0x0) {
+              //new provider used by this user
+              userProvidersCount[user]=userProvidersCount[user].add(1);
+            }
+            userProviderUsageCount[user][provider]=userProviderUsageCount[user][provider].add(1);
+
+            creatorWorksCount[creatorByProvider[provider]]=creatorWorksCount[creatorByProvider[provider]].add(1);
+
             Register(user, provider, appName, uid, workRegistry[user][provider][uid].status, errorMsg);
         }
     }
