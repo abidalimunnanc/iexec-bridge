@@ -8,8 +8,8 @@ contract IexecOracle {
     /*
      * EVENTS AND MODIFIERS
      */
-    event Launch(address indexed user, address indexed provider, string functionName, string param1, string param2, string param3, string uid); // special log to launch process
-    event Register(address indexed user, address indexed provider, string appName, string uid, StatusEnum status, string errorMsg);
+    event Launch(address indexed user, address indexed provider, address indexed creator, string functionName, string param1, string param2, string param3, string uid); // special log to launch process
+    event Register(address indexed user, address indexed provider, address indexed creator, string appName, string uid, StatusEnum status, string errorMsg);
 
     modifier onlyBy(address a){
         if (msg.sender != a) throw;
@@ -116,43 +116,43 @@ contract IexecOracle {
      * and then the bridge call XTREMweb job, wait for result then modify the smart contract.
      */
     function register(string appName) {
-        Launch(tx.origin, msg.sender, "register", appName, "", "", "");
+        Launch(tx.origin, msg.sender, creatorByProvider[msg.sender],"register", appName, "", "", "");
     }
 
     function submit(string appName, string param) {// param = commandline
-        Launch(tx.origin, msg.sender, "submit", param, "", "", "");
+        Launch(tx.origin, msg.sender,creatorByProvider[msg.sender], "submit", param, "", "", "");
     }
 
     function submitAndWait(string appName, string param, string pattern) {
-        Launch(tx.origin, msg.sender, "submitAndWait", pattern, "", "", "");
+        Launch(tx.origin, msg.sender,creatorByProvider[msg.sender], "submitAndWait", pattern, "", "", "");
     }
 
     function setParam(string uid, string paramName, string paramValue) {
-        Launch(tx.origin, msg.sender, "setParam", paramName, paramValue, "", uid);
+        Launch(tx.origin, msg.sender,creatorByProvider[msg.sender], "setParam", paramName, paramValue, "", uid);
     }
 
     function setPending(string uid) {
-        Launch(tx.origin, msg.sender, "setParam", "status", "pending", "", uid);
+        Launch(tx.origin, msg.sender,creatorByProvider[msg.sender], "setParam", "status", "pending", "", uid);
     }
 
     function status(string uid) {
-        Launch(tx.origin, msg.sender, "status", "", "", "", uid);
+        Launch(tx.origin, msg.sender,creatorByProvider[msg.sender], "status", "", "", "", uid);
     }
 
     function result(string uid) {
-        Launch(tx.origin, msg.sender, "result", "", "", "", uid);
+        Launch(tx.origin, msg.sender, creatorByProvider[msg.sender],"result", "", "", "", uid);
     }
 
     function stdout(string uid) {
-        Launch(tx.origin, msg.sender, "stdout", "", "", "", uid);
+        Launch(tx.origin, msg.sender, creatorByProvider[msg.sender], "stdout", "", "", "", uid);
     }
 
     function toDelete(string uid) {
-        Launch(tx.origin, msg.sender, "toDelete", "", "", "", uid);
+        Launch(tx.origin, msg.sender, creatorByProvider[msg.sender], "toDelete", "", "", "", uid);
     }
 
     function waitResult(string uid, string pattern) {
-        Launch(tx.origin, msg.sender, "waitResult", pattern, "", "", uid);
+        Launch(tx.origin, msg.sender, creatorByProvider[msg.sender], "waitResult", pattern, "", "", uid);
     }
 
     /*
@@ -195,7 +195,7 @@ contract IexecOracle {
 
             creatorWorksCount[creatorByProvider[provider]]=creatorWorksCount[creatorByProvider[provider]].add(1);
 
-            Register(user, provider, appName, uid, workRegistry[user][provider][uid].status, errorMsg);
+            Register(user, provider, creatorByProvider[provider], appName, uid, workRegistry[user][provider][uid].status, errorMsg);
         }
     }
 }

@@ -1,60 +1,75 @@
 // credit to : https://github.com/coldice/dbh-b9lab-hackathon/blob/development/truffle/utils/extensions.js
+var _ = require("lodash");
 module.exports = {
 
-  init: function (web3, assert) {
-      // From https://gist.github.com/xavierlepretre/88682e871f4ad07be4534ae560692ee6
-      web3.eth.getTransactionReceiptMined = function (txnHash, interval) {
-          var transactionReceiptAsync;
-          interval = interval ? interval : 500;
-          transactionReceiptAsync = function(txnHash, resolve, reject) {
-              try {
-                  web3.eth.getTransactionReceiptPromise(txnHash)
-                      .then(function (receipt) {
-                          if (receipt == null) {
-                              setTimeout(function () {
-                                  transactionReceiptAsync(txnHash, resolve, reject);
-                              }, interval);
-                          } else {
-                              resolve(receipt);
-                          }
-                      });
-              } catch(e) {
-                  reject(e);
+  init: function(web3, assert) {
+    // From https://gist.github.com/xavierlepretre/88682e871f4ad07be4534ae560692ee6
+    web3.eth.getTransactionReceiptMined = function(txnHash, interval) {
+      var transactionReceiptAsync;
+      interval = interval ? interval : 500;
+      transactionReceiptAsync = function(txnHash, resolve, reject) {
+        try {
+          web3.eth.getTransactionReceiptPromise(txnHash)
+            .then(function(receipt) {
+              if (receipt == null) {
+                setTimeout(function() {
+                  transactionReceiptAsync(txnHash, resolve, reject);
+                }, interval);
+              } else {
+                resolve(receipt);
               }
-          };
-
-          if (Array.isArray(txnHash)) {
-              var promises = [];
-              txnHash.forEach(function (oneTxHash) {
-                  promises.push(web3.eth.getTransactionReceiptMined(oneTxHash, interval));
-              });
-              return Promise.all(promises);
-          } else {
-              return new Promise(function (resolve, reject) {
-                      transactionReceiptAsync(txnHash, resolve, reject);
-                  });
-          }
+            });
+        } catch (e) {
+          reject(e);
+        }
       };
 
-      assert.isTxHash = function (txnHash, message) {
-          assert(typeof txnHash === "string",
-              'expected #{txnHash} to be a string',
-              'expected #{txnHash} to not be a string');
-          assert(txnHash.length === 66,
-              'expected #{txnHash} to be a 66 character transaction hash (0x...)',
-              'expected #{txnHash} to not be a 66 character transaction hash (0x...)');
+      if (Array.isArray(txnHash)) {
+        var promises = [];
+        txnHash.forEach(function(oneTxHash) {
+          promises.push(web3.eth.getTransactionReceiptMined(oneTxHash, interval));
+        });
+        return Promise.all(promises);
+      } else {
+        return new Promise(function(resolve, reject) {
+          transactionReceiptAsync(txnHash, resolve, reject);
+        });
+      }
+    };
 
-          // Convert txnHash to a number. Make sure it's not zero.
-          // Controversial: Technically there is that edge case where
-          // all zeroes could be a valid address. But: This catches all
-          // those cases where Ethereum returns 0x0000... if something fails.
-          var number = web3.toBigNumber(txnHash, 16);
-          assert(number.equals(0) === false,
-              'expected address #{txnHash} to not be zero',
-              'you shouldn\'t ever see this.');
-      };
+    assert.isTxHash = function(txnHash, message) {
+      assert(typeof txnHash === "string",
+        'expected #{txnHash} to be a string',
+        'expected #{txnHash} to not be a string');
+      assert(txnHash.length === 66,
+        'expected #{txnHash} to be a 66 character transaction hash (0x...)',
+        'expected #{txnHash} to not be a 66 character transaction hash (0x...)');
+
+      // Convert txnHash to a number. Make sure it's not zero.
+      // Controversial: Technically there is that edge case where
+      // all zeroes could be a valid address. But: This catches all
+      // those cases where Ethereum returns 0x0000... if something fails.
+      var number = web3.toBigNumber(txnHash, 16);
+      assert(number.equals(0) === false,
+        'expected address #{txnHash} to not be zero',
+        'you shouldn\'t ever see this.');
+    };
   },
-
+  assertEvent: function(contract, filter) {
+    return new Promise((resolve, reject) => {
+      var event = contract[filter.event]();
+      event.watch();
+      event.get((error, logs) => {
+        var log = _.filter(logs, filter);
+        if (log && log.length > 0) {
+          resolve(log);
+        } else {
+          throw Error("Failed to find filtered event for " + filter.event);
+        }
+      });
+      event.stopWatching();
+    });
+  },
   // From https://gist.github.com/xavierlepretre/afab5a6ca65e0c52eaf902b50b807401
   getEventsPromise: function(myFilter, count, timeOut) {
     timeOut = timeOut ? timeOut : 30000;
@@ -177,8 +192,8 @@ module.exports = {
   },
   getCurrentBlockTime: function() {
     return web3.eth.getBlockNumberPromise()
-    .then(blockNumber => web3.eth.getBlockPromise(blockNumber))
-    .then(block =>block.timestamp);
+      .then(blockNumber => web3.eth.getBlockPromise(blockNumber))
+      .then(block => block.timestamp);
   },
   sleep: function(time) {
     console.log("wait " + time + " burning cpu")
