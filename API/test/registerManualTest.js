@@ -1,14 +1,14 @@
-var IexecWorksGateway = artifacts.require("./IexecWorksGateway.sol");
-contract('IexecWorksGateway', function(accounts) {
+var LS = artifacts.require("./LS");
+contract('LS', function(accounts) {
   // need the bridge to have the right contract, so you have to migrate before test
   console.log("test start");
   it("should submit", function() {
 
-    var IexecWorksGatewayInstance;
-    return IexecWorksGateway.at("0x7845273b8ca53acd2d8c78f22718c70cc5b08431").then(function(instance) {
-      IexecWorksGatewayInstance = instance;
+    var LSInstance;
+    return LS.at("0x412d294d5894f7038f083788bea1f102ed135d21").then(function(instance) {
+      LSInstance = instance;
       console.log(instance);
-      return IexecWorksGatewayInstance.register("ls");
+      return LSInstance.iexecLS();
     }).then(txMined => {
       console.log(txMined);
       // do something
