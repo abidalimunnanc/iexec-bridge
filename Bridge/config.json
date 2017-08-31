@@ -1,102 +1,11 @@
 {
   "ContractAbi":[
     {
-      "constant": true,
+      "constant": false,
       "inputs": [
         {
-          "name": "user",
-          "type": "address"
-        },
-        {
-          "name": "owner",
-          "type": "address"
-        },
-        {
           "name": "uid",
-          "type": "uint256"
-        }
-      ],
-      "name": "getWorkStatus",
-      "outputs": [
-        {
-          "name": "",
-          "type": "uint8"
-        }
-      ],
-      "payable": false,
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [
-        {
-          "name": "user",
-          "type": "address"
-        },
-        {
-          "name": "owner",
-          "type": "address"
-        },
-        {
-          "name": "uid",
-          "type": "uint256"
-        }
-      ],
-      "name": "getWorkTimestamp",
-      "outputs": [
-        {
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "payable": false,
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [
-        {
-          "name": "user",
-          "type": "address"
-        },
-        {
-          "name": "owner",
-          "type": "address"
-        },
-        {
-          "name": "uid",
-          "type": "uint256"
-        }
-      ],
-      "name": "getWorkName",
-      "outputs": [
-        {
-          "name": "",
           "type": "string"
-        }
-      ],
-      "payable": false,
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "uid",
-          "type": "uint256"
-        }
-      ],
-      "name": "stdout",
-      "outputs": [],
-      "payable": false,
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "uid",
-          "type": "uint256"
         }
       ],
       "name": "result",
@@ -109,11 +18,50 @@
       "inputs": [
         {
           "name": "uid",
+          "type": "string"
+        }
+      ],
+      "name": "toDelete",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "worksCount",
+      "outputs": [
+        {
+          "name": "",
           "type": "uint256"
         }
       ],
-      "name": "status",
-      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "name": "provider",
+          "type": "address"
+        },
+        {
+          "name": "uid",
+          "type": "string"
+        }
+      ],
+      "name": "getWorkTimestamp",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
       "payable": false,
       "type": "function"
     },
@@ -139,6 +87,27 @@
       "type": "function"
     },
     {
+      "constant": false,
+      "inputs": [],
+      "name": "registerSmartContractAndCreator",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "usersCount",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
       "constant": true,
       "inputs": [
         {
@@ -146,12 +115,154 @@
           "type": "address"
         },
         {
-          "name": "owner",
+          "name": "provider",
           "type": "address"
         },
         {
           "name": "uid",
-          "type": "uint256"
+          "type": "string"
+        }
+      ],
+      "name": "getWorkName",
+      "outputs": [
+        {
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "name": "provider",
+          "type": "address"
+        },
+        {
+          "name": "appName",
+          "type": "string"
+        },
+        {
+          "name": "uid",
+          "type": "string"
+        },
+        {
+          "name": "errorMsg",
+          "type": "string"
+        }
+      ],
+      "name": "registerCallback",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "name": "provider",
+          "type": "address"
+        },
+        {
+          "name": "uid",
+          "type": "string"
+        }
+      ],
+      "name": "getWorkStderr",
+      "outputs": [
+        {
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "provider",
+          "type": "address"
+        }
+      ],
+      "name": "getCreator",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "appName",
+          "type": "string"
+        },
+        {
+          "name": "param",
+          "type": "string"
+        }
+      ],
+      "name": "submit",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "name": "provider",
+          "type": "address"
+        },
+        {
+          "name": "uid",
+          "type": "string"
+        }
+      ],
+      "name": "getWorkStdout",
+      "outputs": [
+        {
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "name": "provider",
+          "type": "address"
+        },
+        {
+          "name": "uid",
+          "type": "string"
         }
       ],
       "name": "getWork",
@@ -181,11 +292,24 @@
       "type": "function"
     },
     {
+      "constant": true,
+      "inputs": [],
+      "name": "providersCount",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
       "constant": false,
       "inputs": [
         {
           "name": "uid",
-          "type": "uint256"
+          "type": "string"
         },
         {
           "name": "pattern",
@@ -199,25 +323,12 @@
     },
     {
       "constant": true,
-      "inputs": [
-        {
-          "name": "user",
-          "type": "address"
-        },
-        {
-          "name": "owner",
-          "type": "address"
-        },
-        {
-          "name": "uid",
-          "type": "uint256"
-        }
-      ],
-      "name": "getWorkStderr",
+      "inputs": [],
+      "name": "bridge",
       "outputs": [
         {
           "name": "",
-          "type": "string"
+          "type": "address"
         }
       ],
       "payable": false,
@@ -227,15 +338,11 @@
       "constant": false,
       "inputs": [
         {
-          "name": "appName",
-          "type": "string"
-        },
-        {
-          "name": "param",
+          "name": "uid",
           "type": "string"
         }
       ],
-      "name": "submit",
+      "name": "status",
       "outputs": [],
       "payable": false,
       "type": "function"
@@ -245,7 +352,7 @@
       "inputs": [
         {
           "name": "uid",
-          "type": "uint256"
+          "type": "string"
         },
         {
           "name": "paramName",
@@ -265,105 +372,81 @@
       "constant": false,
       "inputs": [
         {
-          "name": "uid",
-          "type": "uint256"
-        }
-      ],
-      "name": "setPending",
-      "outputs": [],
-      "payable": false,
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "uid",
-          "type": "uint256"
-        }
-      ],
-      "name": "toDelete",
-      "outputs": [],
-      "payable": false,
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "user",
-          "type": "address"
-        },
-        {
-          "name": "owner",
-          "type": "address"
-        },
-        {
-          "name": "appName",
-          "type": "string"
-        },
-        {
-          "name": "uid",
-          "type": "uint256"
-        },
-        {
-          "name": "errorMsg",
-          "type": "string"
-        }
-      ],
-      "name": "registerCallback",
-      "outputs": [],
-      "payable": false,
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [],
-      "name": "bridge",
-      "outputs": [
-        {
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "payable": false,
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [
-        {
-          "name": "user",
-          "type": "address"
-        },
-        {
-          "name": "owner",
-          "type": "address"
-        },
-        {
-          "name": "uid",
-          "type": "uint256"
-        }
-      ],
-      "name": "getWorkStdout",
-      "outputs": [
-        {
-          "name": "",
-          "type": "string"
-        }
-      ],
-      "payable": false,
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
           "name": "appName",
           "type": "string"
         }
       ],
       "name": "register",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "name": "provider",
+          "type": "address"
+        },
+        {
+          "name": "uid",
+          "type": "string"
+        }
+      ],
+      "name": "getWorkStatus",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "uid",
+          "type": "string"
+        }
+      ],
+      "name": "stdout",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "provider",
+          "type": "address"
+        }
+      ],
+      "name": "getCreatorProvidersCount",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "uid",
+          "type": "string"
+        }
+      ],
+      "name": "setPending",
       "outputs": [],
       "payable": false,
       "type": "function"
@@ -383,7 +466,12 @@
         },
         {
           "indexed": true,
-          "name": "owner",
+          "name": "provider",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "name": "creator",
           "type": "address"
         },
         {
@@ -409,7 +497,7 @@
         {
           "indexed": false,
           "name": "uid",
-          "type": "uint256"
+          "type": "string"
         }
       ],
       "name": "Launch",
@@ -425,7 +513,12 @@
         },
         {
           "indexed": true,
-          "name": "owner",
+          "name": "provider",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "name": "creator",
           "type": "address"
         },
         {
@@ -436,7 +529,7 @@
         {
           "indexed": false,
           "name": "uid",
-          "type": "uint256"
+          "type": "string"
         },
         {
           "indexed": false,
