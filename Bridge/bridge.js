@@ -10,6 +10,9 @@ web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'));
 
 // instanciation contract
 
+
+web3.eth.defaultAccount = web3.eth.accounts[0];
+
 const XtremWebInterface = web3.eth.contract(config.ContractAbi);
 const contractInstance = XtremWebInterface.at(config.ContractAddress);
 console.log('start', contractInstance);
@@ -70,14 +73,14 @@ function waitResult(user, pattern, UID) {
   // CALL XTREMWEB
 }
 
-function register(user, owner, appName) {
+function register(user, provider, appName) {
   try {
     xwhep.register(appName).then((workUid) => {
        console.log(`Here the workUid = ${workUid}`);
-       contractInstance.registerCallback(user,owner,appName,workUid,'');
+       contractInstance.registerCallback(user,provider,appName,workUid,'',{gas:500000});
     });
   } catch (error) {
-    contractInstance.registerCallback(user,owner,appName,workUid,error);
+    contractInstance.registerCallback(user,provider,appName,workUid,error);
   }
 }
 
@@ -94,27 +97,27 @@ launchEvent.watch((err, res) => {
     console.log(`Erreur event ${err}`);
     return;
   }
-  console.log(`Parse ${res.args.user} ${res.args.owner} ${res.args.functionName} ${res.args.param1} ${res.args.param2} ${res.args.param3} ${res.args.UID}`);
+  console.log(`Parse ${res.args.user} ${res.args.provider} ${res.args.functionName} ${res.args.param1} ${res.args.param2} ${res.args.param3} ${res.args.UID}`);
   if (res.args.functionName === 'submitAndWait') {
-    // submitAndWait(res.args.user, res.args.owner, res.args.param1, res.args.param2, res.args.param3);
+    // submitAndWait(res.args.user, res.args.provider, res.args.param1, res.args.param2, res.args.param3);
   } else if (res.args.functionName === 'submit') {
-    bSubmit(res.args.user, res.args.owner, res.args.param1, res.args.param2);
+    bSubmit(res.args.user, res.args.provider, res.args.param1, res.args.param2);
   } else if (res.args.functionName === 'setParam') {
-    setParam(res.args.user, res.args.owner, res.args.param1, res.args.param2, res.args.UID);
+    setParam(res.args.user, res.args.provider, res.args.param1, res.args.param2, res.args.UID);
   } else if (res.args.functionName === 'status') {
-    status(res.args.user, res.args.owner, res.args.UID);
+    status(res.args.user, res.args.provider, res.args.UID);
   } else if (res.args.functionName === 'result') {
-    result(res.args.user, res.args.owner, res.args.UID);
+    result(res.args.user, res.args.provider, res.args.UID);
   } else if (res.args.functionName === 'stdout') {
-    stdout(res.args.user, res.args.owner, res.args.UID);
+    stdout(res.args.user, res.args.provider, res.args.UID);
   } else if (res.args.functionName === 'toDelete') {
-    toDelete(res.args.user, res.args.owner, res.args.UID);
+    toDelete(res.args.user, res.args.provider, res.args.UID);
   } else if (res.args.functionName === 'waitResult') {
-    waitResult(res.args.user, res.args.owner, res.args.param1, res.args.UID);
+    waitResult(res.args.user, res.args.provider, res.args.param1, res.args.UID);
   } else if (res.args.functionName === 'register') {
-    register(res.args.user, res.args.owner, res.args.param1);
+    register(res.args.user, res.args.provider, res.args.param1);
   } else if (res.args.functionName === 'getParam') {
-    getParam(res.args.user, res.args.owner, res.args.param1, res.args.UID);
+    getParam(res.args.user, res.args.provider, res.args.param1, res.args.UID);
   }
 });
 
