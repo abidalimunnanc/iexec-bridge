@@ -176,7 +176,7 @@ contract('IexecOracleAPI', function(accounts) {
           assert.strictEqual(txMined.logs[0].args.status.toNumber(), IexecOracle.Status.UNAVAILABLE, "status");
           assert.strictEqual(txMined.logs[0].args.errorMsg, "", "errorMsg");
           return Promise.all([
-            aIexecOracleInstance.getWork(user, provider, txMined.logs[0].args.uid),
+            aIexecOracleInstance.getWork.call(user, provider, txMined.logs[0].args.uid),
             Extensions.getCurrentBlockTime()
           ]);
         })
@@ -216,7 +216,7 @@ contract('IexecOracleAPI', function(accounts) {
           assert.strictEqual(txMined.logs[0].args.status.toNumber(), IexecOracle.Status.ERROR, "status");
           assert.strictEqual(txMined.logs[0].args.errorMsg, "bridge crash", "errorMsg");
           return Promise.all([
-            aIexecOracleInstance.getWork(user, provider, txMined.logs[0].args.uid),
+            aIexecOracleInstance.getWork.call(user, provider, txMined.logs[0].args.uid),
             Extensions.getCurrentBlockTime()
           ]);
         })
@@ -279,14 +279,14 @@ contract('IexecOracleAPI', function(accounts) {
     });
 
     it("Test creator and creator of IexecOracleAPI are set correctly in IexecOracle", function() {
-      return aIexecOracleInstance.getCreator(aIexecOracleAPI.address)
+      return aIexecOracleInstance.getCreator.call(aIexecOracleAPI.address)
         .then(creatorStored => {
           assert.strictEqual(creator, creatorStored, "creator check");
         });
     });
 
     it("Test provider count for the creator  increment of by 1 in IexecOracle", function() {
-      return aIexecOracleInstance.getCreatorProvidersCount(creator)
+      return aIexecOracleInstance.getCreatorProvidersCount.call(creator)
         .then(count => {
           assert.strictEqual(1, count.toNumber(), "creatorProvidersCount increment by 1");
         });
