@@ -1,4 +1,4 @@
-# API    
+# iexec-oracle    
 The role of the API will be to communicate with the bridge to launch xtremweb command, then get the result
 ## test    
 Before launch the test, launch your node, and the bridge
@@ -24,10 +24,9 @@ Call the XTREAMWEB API
 `API/`    
 A truffle repository with contract which reproduce XTREMWEB API.    
 
-TODO:
-Add test 
+test :
+truffle test API/test/iexecoracleapi.js
 
-JIRA integration
 
 ###inspiration    
 https://github.com/oraclize/ethereum-bridge    
