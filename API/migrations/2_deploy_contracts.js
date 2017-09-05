@@ -7,7 +7,8 @@ module.exports = function(deployer) {
     .then(() => IexecOracle.deployed())
     .then(instance => {
       console.log("IexecOracle deployed at address :" + instance.address)
-      return HelloWorld.new(instance.address);
+      return deployer.deploy(HelloWorld, instance.address);
     })
+    .then(() => HelloWorld.deployed())
     .then(instance => console.log("HelloWorld deployed at address :" + instance.address));
 };
