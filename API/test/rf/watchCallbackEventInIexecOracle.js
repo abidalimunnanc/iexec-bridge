@@ -1,4 +1,4 @@
-var HelloWorld = artifacts.require("./HelloWorld");
+var IexecOracle = artifacts.require("./IexecOracle.sol");
 
 const Promise = require("bluebird");
 //extensions.js : credit to : https://github.com/coldice/dbh-b9lab-hackathon/blob/development/truffle/utils/extensions.js
@@ -17,7 +17,7 @@ Promise.promisifyAll(web3.evm, {
 Extensions.init(web3, assert);
 
 
-contract('HelloWorld', function(accounts) {
+contract('IexecOracle', function(accounts) {
 
     var creator, bridge, user, provider;
     var amountGazProvided = 4000000;
@@ -42,17 +42,13 @@ contract('HelloWorld', function(accounts) {
     });
 
 
-    it("should register a work", function() {
-      var aHelloWorldInstance;
-      return HelloWorld.deployed().then(instance => {
-        aHelloWorldInstance = instance;
-        return aHelloWorldInstance.registerEcho({
-            from:user,
-            gas:amountGazProvided
-        });
-      }).then(txMined => {
-        console.log(txMined);
-        assert.isBelow(txMined.receipt.gasUsed, amountGazProvided, "should not use all gas");
+    it("watch CallbackEvent", function() {
+      var aIexecOracleInstance;
+      return IexecOracle.deployed().then(instance => {
+          aIexecOracleInstance = instance;
+        return Extensions.getEventsPromise(aIexecOracleInstance.CallbackEvent({}));
+      }).then(events => {
+        console.log("events :"+events);
       });
     });
 });
