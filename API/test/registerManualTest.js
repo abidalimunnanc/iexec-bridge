@@ -5,7 +5,7 @@ contract('LS', function(accounts) {
   it("should submit", function() {
 
     var LSInstance;
-    return LS.at("0x412d294d5894f7038f083788bea1f102ed135d21").then(function(instance) {
+    return LS.at("0x8f3adbc170afa3b1d90f802e3b0c30bef28a1de4").then(function(instance) {
       LSInstance = instance;
       console.log(instance);
       return LSInstance.iexecLS();

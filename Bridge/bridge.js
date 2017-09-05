@@ -25,7 +25,7 @@ const launchEvent = contractInstance.Launch({});
  */
 
 // return UID
-function bSubmit(user, appName, param) {
+function submit(user, appName, param) {
   console.log('Submit', appName, param);
   submit(appName, param).then((res, err) => {
     if (!err) console.log(res);
@@ -73,11 +73,27 @@ function waitResult(user, pattern, UID) {
   // CALL XTREMWEB
 }
 
-function register(user, provider, appName) {
+function register(user, provider, creator, appName) {
   try {
-    xwhep.register(appName).then((workUid) => {
+    xwhep.register(user, provider, creator, appName).then((workUid) => {
        console.log(`Here the workUid = ${workUid}`);
-       contractInstance.registerCallback(user,provider,appName,workUid,'',{gas:500000});
+       contractInstance.registerCallback(user,provider,appName,workUid,'',{gas:500000}, function(error, result) {
+         if (!error){
+             contractInstance.getWork(user, provider, workUid, function(error, result) {
+               if (!error){
+                 console.log("name :" + result[0]);
+                 console.log("timestamp :" + result[1]);
+                 console.log("status :" + result[2]);
+                 console.log("stdout :" + result[3]);
+                 console.log("stderr :" + result[4]);
+               } else {
+                 console.log(error);
+               }
+             });
+        } else {
+          console.log(error);
+        }
+      });
     });
   } catch (error) {
     contractInstance.registerCallback(user,provider,appName,workUid,error);
@@ -97,11 +113,11 @@ launchEvent.watch((err, res) => {
     console.log(`Erreur event ${err}`);
     return;
   }
-  console.log(`Parse ${res.args.user} ${res.args.provider} ${res.args.functionName} ${res.args.param1} ${res.args.param2} ${res.args.param3} ${res.args.UID}`);
+  console.log(`Parse ${res.args.user} ${res.args.provider} ${res.args.creator} ${res.args.functionName} ${res.args.param1} ${res.args.param2} ${res.args.UID}`);
   if (res.args.functionName === 'submitAndWait') {
     // submitAndWait(res.args.user, res.args.provider, res.args.param1, res.args.param2, res.args.param3);
   } else if (res.args.functionName === 'submit') {
-    bSubmit(res.args.user, res.args.provider, res.args.param1, res.args.param2);
+    submit(res.args.user, res.args.provider, res.args.creator, res.args.param1, res.args.param2);
   } else if (res.args.functionName === 'setParam') {
     setParam(res.args.user, res.args.provider, res.args.param1, res.args.param2, res.args.UID);
   } else if (res.args.functionName === 'status') {
@@ -115,10 +131,8 @@ launchEvent.watch((err, res) => {
   } else if (res.args.functionName === 'waitResult') {
     waitResult(res.args.user, res.args.provider, res.args.param1, res.args.UID);
   } else if (res.args.functionName === 'register') {
-    register(res.args.user, res.args.provider, res.args.param1);
+    register(res.args.user, res.args.provider, res.args.creator, res.args.param1);
   } else if (res.args.functionName === 'getParam') {
     getParam(res.args.user, res.args.provider, res.args.param1, res.args.UID);
   }
 });
-
-//register('address !!!', 'ls');

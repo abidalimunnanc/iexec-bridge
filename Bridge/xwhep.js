@@ -307,7 +307,6 @@ function getApps() {
       method: 'GET',
       rejectUnauthorized: false,
     };
-
 //    console.log(`${options.hostname}:${options.port}${PATH_GETAPPS}`);
 
     const req = https.request(options, (res) => {
@@ -362,7 +361,7 @@ function getApps() {
  * @exception is thrown if application is not found
  * @see #setPending(uid)
  */
-export function register(appName) {
+export function register(user, provider, creator, appName) {
   console.log(`register ; ${appName}`);
 
   return new Promise((resolve, reject) => {
@@ -371,28 +370,28 @@ export function register(appName) {
         if (!(appName in hashtableAppNames)) {
           throw new Error(`Application not found ${appName}`);
         }
-
-        const workUid = uuidV4();
-        console.log(`work uid = ${workUid}`);
-
-        const appUid = hashtableAppNames[appName];
-        console.log(`${appName} = ${appUid}`);
-
-        const workDescription = `<work><uid>${workUid}</uid><accessrights>0x755</accessrights><appuid>${
-appUid}</appuid><status>UNAVAILABLE</status></work>`;
-        sendWork(workDescription).then(() => {
-          sendWork(workDescription).then(() => {  // a 2nd time to force status to UNAVAILABLE
-            resolve(workUid);
-          }).catch((err) => {
-            reject(`register() sendWork 2 error : ${err}`);
-          });
-        }).catch((err) => {
-          reject(`register() sendWork 1 error : ${err}`);
-        });
-      }).catch((err) => {
-        reject(`register() getApps error : ${err}`);
       });
     }
+
+    const workUid = uuidV4();
+    console.log(`work uid = ${workUid}`);
+
+    const appUid = hashtableAppNames[appName];
+    console.log(`${appName} = ${appUid}`);
+
+    const workDescription = `<work><uid>${workUid}</uid><accessrights>0x755</accessrights><appuid>${
+appUid}</appuid><status>UNAVAILABLE</status></work>`;
+    sendWork(workDescription).then(() => {
+      sendWork(workDescription).then(() => {  // a 2nd time to force status to UNAVAILABLE
+        resolve(workUid);
+      }).catch((err) => {
+        reject(`register() sendWork 2 error : ${err}`);
+      });
+    }).catch((err) => {
+      reject(`register() sendWork 1 error : ${err}`);
+    });
+  }).catch((err) => {
+    reject(`register() getApps error : ${err}`);
   });
 }
 
