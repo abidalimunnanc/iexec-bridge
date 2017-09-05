@@ -9,7 +9,7 @@ contract IexecOracle {
      * EVENTS AND MODIFIERS
      */
     event Launch(address indexed user, address indexed provider, address indexed creator, string functionName, string param1, string param2, string uid); // special log to launch process
-    event Register(address indexed user, address indexed provider, address indexed creator, string appName, string uid, StatusEnum status, string errorMsg);
+    event CallbackEvent(string callbackType, address indexed user, address indexed provider, address indexed creator, string appName, string uid, StatusEnum status, string errorMsg);
 
     modifier onlyBy(address a){
         if (msg.sender != a) throw;
@@ -195,7 +195,21 @@ contract IexecOracle {
 
             creatorWorksCount[creatorByProvider[provider]]=creatorWorksCount[creatorByProvider[provider]].add(1);
 
-            Register(user, provider, creatorByProvider[provider], appName, uid, workRegistry[user][provider][uid].status, errorMsg);
+            CallbackEvent("RegisterCallback",user, provider, creatorByProvider[provider], appName, uid, workRegistry[user][provider][uid].status, errorMsg);
         }
     }
+
+
+    function setParamCallback(address user, address provider, string uid, string errorMsg) onlyBy(bridge) {
+        if (workRegistry[user][provider][uid].status == StatusEnum.UNAVAILABLE) {
+            workRegistry[user][provider][uid].timestamp=now;
+            bytes memory errorMsgEmptyStringTest = bytes(errorMsg); // Uses memory
+            if (errorMsgEmptyStringTest.length != 0) {
+                workRegistry[user][provider][uid].status = StatusEnum.ERROR;
+                workRegistry[user][provider][uid].stderr = errorMsg;
+            }
+            CallbackEvent("SetParamCallback",user, provider, creatorByProvider[provider], workRegistry[user][provider][uid].name, uid, workRegistry[user][provider][uid].status, errorMsg);
+        }
+    }
+
 }

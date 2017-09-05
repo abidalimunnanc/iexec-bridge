@@ -17,6 +17,12 @@ contract IexecOracleAPI{
         iexecOracle.register(appName);
     }
 
+    function iexecSetParam(string uid, string param, string value) {
+        IexecOracle iexecOracle = IexecOracle(iexecOracleAddress);
+        iexecOracle.setParam(uid, param, value);
+    }
+
+
     function impossible(address _iexecOracleAddress) {
         IexecOracle iexecOracle = IexecOracle(_iexecOracleAddress);
         iexecOracle.registerSmartContractAndCreator();

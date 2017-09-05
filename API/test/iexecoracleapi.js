@@ -105,7 +105,6 @@ contract('IexecOracleAPI', function(accounts) {
               functionName: "register",
               param1: "ls",
               param2: "",
-              param3: "",
               uid: ""
             }
           });
@@ -167,7 +166,8 @@ contract('IexecOracleAPI', function(accounts) {
         })
         .then(txMined => {
           assert.isBelow(txMined.receipt.gasUsed, amountGazProvided, "should not use all gas");
-          assert.strictEqual(txMined.logs[0].event, "Register", "event");
+          assert.strictEqual(txMined.logs[0].event, "CallbackEvent", "event");
+          assert.strictEqual(txMined.logs[0].args.callbackType, "RegisterCallback", "callbackType");
           assert.strictEqual(txMined.logs[0].args.user, user, "user");
           assert.strictEqual(txMined.logs[0].args.creator, creator, "creator");
           assert.strictEqual(txMined.logs[0].args.provider, provider, "provider");
@@ -208,7 +208,8 @@ contract('IexecOracleAPI', function(accounts) {
         })
         .then(txMined => {
           assert.isBelow(txMined.receipt.gasUsed, amountGazProvided, "should not use all gas");
-          assert.strictEqual(txMined.logs[0].event, "Register", "event");
+          assert.strictEqual(txMined.logs[0].event, "CallbackEvent", "event");
+          assert.strictEqual(txMined.logs[0].args.callbackType, "RegisterCallback", "callbackType");
           assert.strictEqual(txMined.logs[0].args.provider, provider, "provider");
           assert.strictEqual(txMined.logs[0].args.creator, creator, "creator");
           assert.strictEqual(txMined.logs[0].args.user, user, "user");
@@ -241,8 +242,10 @@ contract('IexecOracleAPI', function(accounts) {
         gas: amountGazProvided
       }).then(txMined => {
         assert.isBelow(txMined.receipt.gasUsed, amountGazProvided, "should not use all gas");
-        assert.strictEqual(txMined.logs[0].event, "Register", "event");
+        assert.strictEqual(txMined.logs[0].event, "CallbackEvent", "event");
+        assert.strictEqual(txMined.logs[0].args.callbackType, "RegisterCallback", "callbackType");
         assert.strictEqual(txMined.logs[0].args.provider, provider, "provider");
+        assert.strictEqual(txMined.logs[0].args.creator, creator, "creator");
         assert.strictEqual(txMined.logs[0].args.user, user, "user");
         assert.strictEqual(txMined.logs[0].args.uid, "1234", "uid");
         //assert.strictEqual(txMined.logs[0].args.timestamp, 0);

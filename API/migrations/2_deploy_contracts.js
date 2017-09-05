@@ -1,5 +1,5 @@
 var IexecOracle = artifacts.require("./IexecOracle.sol");
-var LS = artifacts.require("./LS.sol");
+var HelloWorld = artifacts.require("./HelloWorld.sol");
 
 
 module.exports = function(deployer) {
@@ -7,7 +7,7 @@ module.exports = function(deployer) {
     .then(() => IexecOracle.deployed())
     .then(instance => {
       console.log("IexecOracle deployed at address :" + instance.address)
-      return LS.new(instance.address);
+      return HelloWorld.new(instance.address);
     })
-    .then(instance => console.log("LS deployed at address :" + instance.address));
+    .then(instance => console.log("HelloWorld deployed at address :" + instance.address));
 };

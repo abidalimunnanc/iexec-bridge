@@ -1,14 +1,14 @@
-var LS = artifacts.require("./LS");
-contract('LS', function(accounts) {
+var HelloWorld = artifacts.require("./HelloWorld");
+contract('HelloWorld', function(accounts) {
   // need the bridge to have the right contract, so you have to migrate before test
   console.log("test start");
   it("should submit", function() {
 
-    var LSInstance;
-    return LS.at("0x8f3adbc170afa3b1d90f802e3b0c30bef28a1de4").then(function(instance) {
-      LSInstance = instance;
+    var aHelloWorldInstance;
+    return HelloWorld.at("0x8f3adbc170afa3b1d90f802e3b0c30bef28a1de4").then(function(instance) {
+      aHelloWorldInstance = instance;
       console.log(instance);
-      return LSInstance.iexecLS();
+      return aHelloWorldInstance.registerEcho();
     }).then(txMined => {
       console.log(txMined);
       // do something
