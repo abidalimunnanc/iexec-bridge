@@ -6,12 +6,13 @@
   "scripts": {
     "dev": "nodemon --exec 'babel-node ./xwhep.js'",
     "devbridge": "nodemon --exec 'babel-node ./bridge.js'",
+    "devbridgelog": "nodemon --exec 'babel-node ./bridge.js' 2>&1 | tee -a bridge.log",
     "babel-node": "babel-node --presets=latest",
     "prod": "babel-node -- ./xwhep.js"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/iExecBlockchainComputing/ApiSolidity"
+    "url": "https://github.com/iExecBlockchainComputing/iexec-oracle"
   },
   "author": "",
   "license": "ISC",
