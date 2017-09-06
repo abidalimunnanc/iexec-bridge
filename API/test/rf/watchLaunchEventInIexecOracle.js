@@ -44,14 +44,15 @@ contract('IexecOracle', function(accounts) {
 
   it("watch CallbackEvent", function() {
     var aIexecOracleInstance;
-    return IexecOracle.deployed().then(instance => {
-      aIexecOracleInstance = instance;
-      return Extensions.getEventsPromise(aIexecOracleInstance.Launch({}, {
-        fromBlock: 0,
-        toBlock: "latest"
-      }),1);
-    }).then(events => {
-      console.log("events :" + events);
-    });
+    return IexecOracle.at("PUT_THE_ADDRESS_HERE")
+      .then(instance => {
+        aIexecOracleInstance = instance;
+        return Extensions.getEventsPromise(aIexecOracleInstance.Launch({}, {
+          fromBlock: 0,
+          toBlock: "latest"
+        }), 1);
+      }).then(events => {
+        console.log("events :" + events);
+      });
   });
 });
