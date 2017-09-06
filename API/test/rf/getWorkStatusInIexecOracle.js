@@ -1,4 +1,4 @@
-var HelloWorld = artifacts.require("./HelloWorld");
+var IexecOracle = artifacts.require("./IexecOracle.sol");
 
 const Promise = require("bluebird");
 //extensions.js : credit to : https://github.com/coldice/dbh-b9lab-hackathon/blob/development/truffle/utils/extensions.js
@@ -19,7 +19,7 @@ Extensions.init(web3, assert);
 
 
 
-contract('HelloWorld', function(accounts) {
+contract('IexecOracle', function(accounts) {
 
   var creator, bridge, user, provider;
   var amountGazProvided = 4000000;
@@ -44,20 +44,16 @@ contract('HelloWorld', function(accounts) {
   });
 
 
-  it("should register a work", function() {
-    var aHelloWorldInstance;
-return HelloWorld.at("???")
+  it("get a work", function() {
+    var aIexecOracleInstance;
+return IexecOracle.at("???")
       .then(instance => {
-        aHelloWorldInstance = instance;
-        return aHelloWorldInstance.registerEcho({
-          from: user,
-          gas: amountGazProvided
-        });
-      }).then(txMined => {
+        aIexecOracleInstance = instance;
+return aIexecOracleInstance.getWorkStatus.call('???','???',"???");
+      }).then(getWorkStatusCall => {
           console.log("BEGIN_LOG");
-          console.log(txMined);
+          console.log("status:"+getWorkStatusCall);
           console.log("END_LOG");
-          assert.isBelow(txMined.receipt.gasUsed, amountGazProvided, "should not use all gas");
       });
   });
 });

@@ -46,13 +46,18 @@ contract('IexecOracle', function(accounts) {
 
   it("get a work", function() {
     var aIexecOracleInstance;
-return IexecOracle.at("PUT_ADDRESS_HERE")
+return IexecOracle.at("???")
       .then(instance => {
         aIexecOracleInstance = instance;
-        return aIexecOracleInstance.getWork.call();
+return aIexecOracleInstance.getWork.call('???','???',"???");
       }).then(getWorkCall => {
+      [name,timestamp,status,stdout,stderr] =getWorkCall;
           console.log("BEGIN_LOG");
-          console.log(getWorkCall);
+          console.log("name:"+name);
+          console.log("timestamp:"+timestamp);
+          console.log("status:"+status);
+          console.log("stdout:"+stdout);
+          console.log("stderr:"+stderr);
           console.log("END_LOG");
       });
   });

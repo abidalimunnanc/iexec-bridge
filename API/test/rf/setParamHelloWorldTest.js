@@ -44,12 +44,12 @@ contract('HelloWorld', function(accounts) {
   });
 
 
-  it("should register a work", function() {
+  it("should setParam", function() {
     var aHelloWorldInstance;
 return HelloWorld.at("???")
       .then(instance => {
         aHelloWorldInstance = instance;
-        return aHelloWorldInstance.registerEcho({
+return aHelloWorldInstance.setHelloWorldParam("???","HelloWorld!!!",{
           from: user,
           gas: amountGazProvided
         });
