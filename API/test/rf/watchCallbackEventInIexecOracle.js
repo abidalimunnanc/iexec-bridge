@@ -44,7 +44,7 @@ contract('IexecOracle', function(accounts) {
 
   it("watch CallbackEvent", function() {
     var aIexecOracleInstance;
-    return IexecOracle.at("PUT_THE_ADDRESS_HERE")
+return IexecOracle.at("PUT_ADDRESS_HERE")
       .then(instance => {
         aIexecOracleInstance = instance;
         return Extensions.getEventsPromise(aIexecOracleInstance.CallbackEvent({}, {
@@ -52,7 +52,9 @@ contract('IexecOracle', function(accounts) {
           toBlock: "latest"
         }));
       }).then(events => {
-        console.log("events :" + events);
+          console.log("BEGIN_LOG");
+          console.log(events);
+          console.log("END_LOG");
       });
   });
 });

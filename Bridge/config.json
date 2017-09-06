@@ -88,6 +88,31 @@
     },
     {
       "constant": false,
+      "inputs": [
+        {
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "name": "provider",
+          "type": "address"
+        },
+        {
+          "name": "uid",
+          "type": "string"
+        },
+        {
+          "name": "errorMsg",
+          "type": "string"
+        }
+      ],
+      "name": "setParamCallback",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
       "inputs": [],
       "name": "registerSmartContractAndCreator",
       "outputs": [],
@@ -491,11 +516,6 @@
         },
         {
           "indexed": false,
-          "name": "param3",
-          "type": "string"
-        },
-        {
-          "indexed": false,
           "name": "uid",
           "type": "string"
         }
@@ -506,6 +526,11 @@
     {
       "anonymous": false,
       "inputs": [
+        {
+          "indexed": false,
+          "name": "callbackType",
+          "type": "string"
+        },
         {
           "indexed": true,
           "name": "user",
@@ -542,9 +567,9 @@
           "type": "string"
         }
       ],
-      "name": "Register",
+      "name": "CallbackEvent",
       "type": "event"
     }
   ],
-  "ContractAddress": "0x7883d350e42c3e198e1f8c8b1812abbc34b68284"
+"ContractAddress":"0x4f36effc083b1e6a4825960bd74f88715f89e9fc"
 }
