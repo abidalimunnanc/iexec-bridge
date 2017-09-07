@@ -40,9 +40,16 @@ function submitAndWait(user, appName, param, pattern) {
   // CALL XTREMWEB
 }
 */
-function setParam(user, paramName, paramValue, UID) {
+
+function setParam(user,provider, paramName, paramValue, UID) {
   console.log('setParam', UID, paramName, paramValue);
-  // CALL XTREMWEB
+    try {
+        xwhep.setParam(UID, paramName, paramValue).then((workUid) => {
+            console.log(`Here the workUid = ${workUid}`);
+    });
+    } catch (error) {
+        console.log('setParam failed',error);
+    }
 }
 
 // return string (COMPLETED PENDING RUNNING ERROR)

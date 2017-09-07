@@ -12,8 +12,8 @@ import json2xml from 'json2xml';
 /**
  * This are the local XWHEP server informations, for testing only
  */
-const LOCALHOSTNAME = 'server';
-const LOCALHOSTPORT = 443;
+const LOCALHOSTNAME = 'localhost';
+const LOCALHOSTPORT = 9443;
 // var LOCALHOSTURI  = "https://" + LOCALHOSTNAME + ":" + LOCALHOSTPORT;
 const LOCALHOSTURI = `https://${LOCALHOSTNAME}:${LOCALHOSTPORT}`;
 
@@ -64,7 +64,7 @@ const URI_DOWNLOADDATA = SERVERURI + PATH_DOWNLOADDATA;
  * Credentials
  */
 const LOGIN = 'admin';
-const PASSWD = 'adminp';
+const PASSWD = 'admin';
 const CREDENTIALS = `?XWLOGIN=${LOGIN}&XWPASSWD=${PASSWD}`;
 
 
@@ -408,7 +408,10 @@ appUid}</appuid><status>UNAVAILABLE</status></work>`;
  * @exception is thrown if paramName does not represent a valid work parameter
  * @exception is thrown if parameter is read only (e.g. status, return code, etc.)
  */
-function setParam(uid, paramName, paramValue) {
+export function setParam(uid, paramName, paramValue) {
+  console.log("uid",uid);
+  console.log("paramName",paramName);
+  console.log("paramValue",paramValue);
   if (!(paramName in workAvailableParameters)) {
     throw new Error(`Invalid parameter ${paramName}`);
   }
