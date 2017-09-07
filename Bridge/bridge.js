@@ -4,13 +4,8 @@ import Web3 from 'web3';
 import config from './config.json';
 
 import * as xwhep from './xwhep';
-// instanciation web3
 
-/*let web3 = null;
-web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'));
-
-web3.eth.defaultAccount = web3.eth.accounts[0];*/
-
+//instanciation provider http
 var provider = new Web3.providers.HttpProvider("http://localhost:8545");
 var contract = require("truffle-contract");
 
@@ -23,6 +18,11 @@ var truffleContract = contract({
 truffleContract.setProvider(provider);
 
 const contractInstance = truffleContract.at(config.ContractAddress);
+
+// instanciation web3
+let web3 = new Web3(provider);
+const bridgeAccount = web3.eth.accounts[0];
+const runningGas = 400000;
 
 console.log('start', contractInstance);
 
@@ -54,7 +54,8 @@ function setParam(user, provider, creator, paramName, paramValue, workUid) {
   console.log('setParam', user, provider, creator, paramName, paramValue, workUid);
   xwhep.setParam(user, provider, creator, workUid).then((error) => {
     contractInstance.setParamCallback(user, provider, workUid, error, {
-      gas: 500000
+      from: bridgeAccount,
+      gas: runningGas
     }, function(error, result) {
       if (!error) {
         contractInstance.getWork(user, provider, workUid, function(error, result) {
@@ -106,8 +107,10 @@ function waitResult(user, pattern, UID) {
 function register(user, provider, creator, appName) {
   xwhep.register(user, provider, creator, appName).then(workUid => {
       console.log(`Here the workUid = ${workUid}`);
-      /*contractInstance.registerCallback(user, provider, appName, workUid, '').then(result => {
-          console.log('Passé par là');
+      contractInstance.registerCallback(user, provider, appName, workUid, '', {
+          from: bridgeAccount,
+          gas: runningGas
+        }).then(result => {
           contractInstance.getWork.call(user, provider, workUid).then(result => {
               console.log("name :" + result[0]);
               console.log("timestamp :" + result[1]);
@@ -120,29 +123,29 @@ function register(user, provider, creator, appName) {
             });
         })
         .catch(error => {
-          console.log('Passé par ici');
           console.log(error);
-        });*/
+        });
     })
     .catch(error => {
       console.log(error);
-      /*contractInstance.registerCallback(user, provider, appName, '', error, {gas:500000}, function(error, result) {
-        if (!error){
-            contractInstance.getWork(user, provider, workUid, function(error, result) {
-              if (!error){
-                console.log("name :" + result[0]);
-                console.log("timestamp :" + result[1]);
-                console.log("status :" + result[2]);
-                console.log("stdout :" + result[3]);
-                console.log("stderr :" + result[4]);
-              } else {
-                console.log(error);
-              }
+      contractInstance.registerCallback(user, provider, appName, '', `${error}`, {
+          from: bridgeAccount,
+          gas: runningGas
+        }).then(result => {
+          contractInstance.getWork.call(user, provider, '').then(result => {
+              console.log("name :" + result[0]);
+              console.log("timestamp :" + result[1]);
+              console.log("status :" + result[2]);
+              console.log("stdout :" + result[3]);
+              console.log("stderr :" + result[4]);
+            })
+            .catch(error => {
+              console.log(error);
             });
-       } else {
-         console.log(error);
-       }
-     });*/
+        })
+        .catch(error => {
+          console.log(error);
+        });
     });
 }
 

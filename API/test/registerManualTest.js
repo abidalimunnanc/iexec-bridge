@@ -5,7 +5,7 @@ contract('HelloWorld', function(accounts) {
   it("should submit", function() {
 
     var aHelloWorldInstance;
-    return HelloWorld.at("0xb31aea27e9cf5d5fa3140c3c33d3db75d1b0620b").then(function(instance) {
+    return HelloWorld.at("0x6d43c83d9d843d5a9de34db164dc33a093a6812e").then(function(instance) {
       aHelloWorldInstance = instance;
       console.log(instance);
       return aHelloWorldInstance.registerEcho();
