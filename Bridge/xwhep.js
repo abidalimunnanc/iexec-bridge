@@ -362,39 +362,68 @@ function getApps() {
  * @see #setPending(uid)
  */
 export function register(user, provider, creator, appName) {
-  console.log(`register ; ${appName}`);
+    console.log(`register ; ${appName}`);
 
-  console.log('Coucou');
-  return new Promise((resolve, reject) => {
-    if (!(appName in hashtableAppNames)) {
-      getApps().then(() => {
-        if (!(appName in hashtableAppNames)) {
-          throw new Error(`Application not found ${appName}`);
-        }
-      });
-    }
-    //throw new Error('Test avec erreur');
     console.log('Coucou');
-    const workUid = uuidV4();
-    console.log(`work uid = ${workUid}`);
+    return new Promise((resolve, reject) => {
+            if (!(appName in hashtableAppNames)) {
+        getApps().then(() => {
+            if (!(appName in hashtableAppNames)) {
+            throw new Error(`Application not found ${appName}`);
+        }
 
-    const appUid = hashtableAppNames[appName];
-    console.log(`${appName} = ${appUid}`);
+        //appel
 
-    const workDescription = `<work><uid>${workUid}</uid><accessrights>0x755</accessrights><appuid>${
-appUid}</appuid><status>UNAVAILABLE</status></work>`;
-    sendWork(workDescription).then(() => {
-      sendWork(workDescription).then(() => {  // a 2nd time to force status to UNAVAILABLE
-        resolve(workUid);
-      }).catch((err) => {
-        reject(`register() sendWork 2 error : ${err}`);
-      });
+        //throw new Error('Test avec erreur');
+        console.log('Coucou');
+        const workUid = uuidV4();
+        console.log(`work uid = ${workUid}`);
+
+        const appUid = hashtableAppNames[appName];
+        console.log(`${appName} = ${appUid}`);
+
+        const workDescription = `<work><uid>${workUid}</uid><accessrights>0x755</accessrights><appuid>${
+            appUid}</appuid><status>UNAVAILABLE</status></work>`;
+        sendWork(workDescription).then(() => {
+            sendWork(workDescription).then(() => {  // a 2nd time to force status to UNAVAILABLE
+            resolve(workUid);
     }).catch((err) => {
-      reject(`register() sendWork 1 error : ${err}`);
+            reject(`register() sendWork 2 error : ${err}`);
     });
-  }).catch((err) => {
-    reject(`register() getApps error : ${err}`);
-  });
+    }).catch((err) => {
+            reject(`register() sendWork 1 error : ${err}`);
+    });
+
+    });
+    }
+else{
+
+        //appel
+        //throw new Error('Test avec erreur');
+        console.log('Coucou');
+        const workUid = uuidV4();
+        console.log(`work uid = ${workUid}`);
+
+        const appUid = hashtableAppNames[appName];
+        console.log(`${appName} = ${appUid}`);
+
+        const workDescription = `<work><uid>${workUid}</uid><accessrights>0x755</accessrights><appuid>${
+            appUid}</appuid><status>UNAVAILABLE</status></work>`;
+        sendWork(workDescription).then(() => {
+            sendWork(workDescription).then(() => {  // a 2nd time to force status to UNAVAILABLE
+            resolve(workUid);
+    }).catch((err) => {
+            reject(`register() sendWork 2 error : ${err}`);
+    });
+    }).catch((err) => {
+            reject(`register() sendWork 1 error : ${err}`);
+    });
+
+    }
+
+}).catch((err) => {
+        reject(`register() getApps error : ${err}`);
+});
 }
 
 /**
