@@ -12,8 +12,8 @@ import json2xml from 'json2xml';
 /**
  * This are the local XWHEP server informations, for testing only
  */
-const LOCALHOSTNAME = 'localhost';
-const LOCALHOSTPORT = 9443;
+const LOCALHOSTNAME = 'server';
+const LOCALHOSTPORT = 443;
 // var LOCALHOSTURI  = "https://" + LOCALHOSTNAME + ":" + LOCALHOSTPORT;
 const LOCALHOSTURI = `https://${LOCALHOSTNAME}:${LOCALHOSTPORT}`;
 
@@ -64,7 +64,7 @@ const URI_DOWNLOADDATA = SERVERURI + PATH_DOWNLOADDATA;
  * Credentials
  */
 const LOGIN = 'admin';
-const PASSWD = 'admin';
+const PASSWD = 'adminp';
 const CREDENTIALS = `?XWLOGIN=${LOGIN}&XWPASSWD=${PASSWD}`;
 
 
@@ -364,6 +364,7 @@ function getApps() {
 export function register(user, provider, creator, appName) {
   console.log(`register ; ${appName}`);
 
+  console.log('Coucou');
   return new Promise((resolve, reject) => {
     if (!(appName in hashtableAppNames)) {
       getApps().then(() => {
@@ -372,7 +373,8 @@ export function register(user, provider, creator, appName) {
         }
       });
     }
-
+    //throw new Error('Test avec erreur');
+    console.log('Coucou');
     const workUid = uuidV4();
     console.log(`work uid = ${workUid}`);
 

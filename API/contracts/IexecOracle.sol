@@ -8,8 +8,8 @@ contract IexecOracle {
     /*
      * EVENTS AND MODIFIERS
      */
-    event Launch(address indexed user, address indexed provider, address indexed creator, string functionName, string param1, string param2, string uid); // special log to launch process
-    event CallbackEvent(string callbackType, address indexed user, address indexed provider, address indexed creator, string appName, string uid, StatusEnum status, string errorMsg);
+    event Launch(address indexed user, address indexed provider, address indexed creator, string functionName, string param1, string param2, string workUid); // special log to launch process
+    event CallbackEvent(string callbackType, address indexed user, address indexed provider, address indexed creator, string appName, string workUid, StatusEnum status, string errorMsg);
 
     modifier onlyBy(address a){
         if (msg.sender != a) throw;
@@ -27,7 +27,7 @@ contract IexecOracle {
       string stdout;
       string stderr;
     }
-    // mapping (user => mapping(provider => mapping (uid => Work))) workRegistry;
+    // mapping (user => mapping(provider => mapping (workUid => Work))) workRegistry;
     mapping (address => mapping (address => mapping (string => Work))) workRegistry;
     //mapping (provider => creator)
     mapping (address => address ) creatorByProvider;
@@ -78,34 +78,34 @@ contract IexecOracle {
         return creatorByProvider[provider];
     }
 
-    function getWork(address user, address provider, string uid) constant returns (string, uint256, StatusEnum, string, string) {
+    function getWork(address user, address provider, string workUid) constant returns (string, uint256, StatusEnum, string, string) {
         return (
-        workRegistry[user][provider][uid].name,
-        workRegistry[user][provider][uid].timestamp,
-        workRegistry[user][provider][uid].status,
-        workRegistry[user][provider][uid].stdout,
-        workRegistry[user][provider][uid].stderr
+        workRegistry[user][provider][workUid].name,
+        workRegistry[user][provider][workUid].timestamp,
+        workRegistry[user][provider][workUid].status,
+        workRegistry[user][provider][workUid].stdout,
+        workRegistry[user][provider][workUid].stderr
         );
     }
 
-    function getWorkName(address user, address provider, string uid) constant returns (string) {
-        return workRegistry[user][provider][uid].name;
+    function getWorkName(address user, address provider, string workUid) constant returns (string) {
+        return workRegistry[user][provider][workUid].name;
     }
 
-    function getWorkTimestamp(address user, address provider, string uid) constant returns (uint256) {
-        return workRegistry[user][provider][uid].timestamp;
+    function getWorkTimestamp(address user, address provider, string workUid) constant returns (uint256) {
+        return workRegistry[user][provider][workUid].timestamp;
     }
 
-    function getWorkStatus(address user, address provider, string uid) constant returns (StatusEnum) {
-        return workRegistry[user][provider][uid].status;
+    function getWorkStatus(address user, address provider, string workUid) constant returns (StatusEnum) {
+        return workRegistry[user][provider][workUid].status;
     }
 
-    function getWorkStdout(address user, address provider, string uid) constant returns (string) {
-        return workRegistry[user][provider][uid].stdout;
+    function getWorkStdout(address user, address provider, string workUid) constant returns (string) {
+        return workRegistry[user][provider][workUid].stdout;
     }
 
-    function getWorkStderr(address user, address provider, string uid) constant returns (string) {
-        return workRegistry[user][provider][uid].stderr;
+    function getWorkStderr(address user, address provider, string workUid) constant returns (string) {
+        return workRegistry[user][provider][workUid].stderr;
     }
 
 
@@ -127,48 +127,48 @@ contract IexecOracle {
         Launch(tx.origin, msg.sender,creatorByProvider[msg.sender], "submitAndWait", pattern, "", "");
     }
 
-    function setParam(string uid, string paramName, string paramValue) {
-        Launch(tx.origin, msg.sender,creatorByProvider[msg.sender], "setParam", paramName, paramValue, uid);
+    function setParam(string workUid, string paramName, string paramValue) {
+        Launch(tx.origin, msg.sender,creatorByProvider[msg.sender], "setParam", paramName, paramValue, workUid);
     }
 
-    function setPending(string uid) {
-        Launch(tx.origin, msg.sender,creatorByProvider[msg.sender], "setParam", "status", "pending", uid);
+    function setPending(string workUid) {
+        Launch(tx.origin, msg.sender,creatorByProvider[msg.sender], "setParam", "status", "pending", workUid);
     }
 
-    function status(string uid) {
-        Launch(tx.origin, msg.sender,creatorByProvider[msg.sender], "status", "", "", uid);
+    function status(string workUid) {
+        Launch(tx.origin, msg.sender,creatorByProvider[msg.sender], "status", "", "", workUid);
     }
 
-    function result(string uid) {
-        Launch(tx.origin, msg.sender, creatorByProvider[msg.sender],"result", "", "", uid);
+    function result(string workUid) {
+        Launch(tx.origin, msg.sender, creatorByProvider[msg.sender],"result", "", "", workUid);
     }
 
-    function stdout(string uid) {
-        Launch(tx.origin, msg.sender, creatorByProvider[msg.sender], "stdout", "", "", uid);
+    function stdout(string workUid) {
+        Launch(tx.origin, msg.sender, creatorByProvider[msg.sender], "stdout", "", "", workUid);
     }
 
-    function toDelete(string uid) {
-        Launch(tx.origin, msg.sender, creatorByProvider[msg.sender], "toDelete", "", "", uid);
+    function toDelete(string workUid) {
+        Launch(tx.origin, msg.sender, creatorByProvider[msg.sender], "toDelete", "", "", workUid);
     }
 
-    function waitResult(string uid, string pattern) {
-        Launch(tx.origin, msg.sender, creatorByProvider[msg.sender], "waitResult", pattern, "", uid);
+    function waitResult(string workUid, string pattern) {
+        Launch(tx.origin, msg.sender, creatorByProvider[msg.sender], "waitResult", pattern, "", workUid);
     }
 
     /*
      * ONLY BY BRIDGE
      * The following functions are called only by the bridge, to modify the state of the XWObject
      */
-    function registerCallback(address user, address provider, string appName, string uid, string errorMsg) onlyBy(bridge) {
-        if (workRegistry[user][provider][uid].status == StatusEnum.UNSET) {
-            workRegistry[user][provider][uid].name = appName;
-            workRegistry[user][provider][uid].timestamp=now;
+    function registerCallback(address user, address provider, string appName, string workUid, string errorMsg) onlyBy(bridge) {
+        if (workRegistry[user][provider][workUid].status == StatusEnum.UNSET) {
+            workRegistry[user][provider][workUid].name = appName;
+            workRegistry[user][provider][workUid].timestamp=now;
             bytes memory errorMsgEmptyStringTest = bytes(errorMsg); // Uses memory
             if (errorMsgEmptyStringTest.length == 0) {
-              workRegistry[user][provider][uid].status = StatusEnum.UNAVAILABLE;
+              workRegistry[user][provider][workUid].status = StatusEnum.UNAVAILABLE;
             } else {
-              workRegistry[user][provider][uid].status = StatusEnum.ERROR;
-              workRegistry[user][provider][uid].stderr = errorMsg;
+              workRegistry[user][provider][workUid].status = StatusEnum.ERROR;
+              workRegistry[user][provider][workUid].stderr = errorMsg;
             }
 
             // TODO test all stats counters
@@ -195,20 +195,20 @@ contract IexecOracle {
 
             creatorWorksCount[creatorByProvider[provider]]=creatorWorksCount[creatorByProvider[provider]].add(1);
 
-            CallbackEvent("RegisterCallback",user, provider, creatorByProvider[provider], appName, uid, workRegistry[user][provider][uid].status, errorMsg);
+            CallbackEvent("RegisterCallback",user, provider, creatorByProvider[provider], appName, workUid, workRegistry[user][provider][workUid].status, errorMsg);
         }
     }
 
 
-    function setParamCallback(address user, address provider, string uid, string errorMsg) onlyBy(bridge) {
-        if (workRegistry[user][provider][uid].status == StatusEnum.UNAVAILABLE) {
-            workRegistry[user][provider][uid].timestamp=now;
+    function setParamCallback(address user, address provider, string workUid, string errorMsg) onlyBy(bridge) {
+        if (workRegistry[user][provider][workUid].status == StatusEnum.UNAVAILABLE) {
+            workRegistry[user][provider][workUid].timestamp=now;
             bytes memory errorMsgEmptyStringTest = bytes(errorMsg); // Uses memory
             if (errorMsgEmptyStringTest.length != 0) {
-                workRegistry[user][provider][uid].status = StatusEnum.ERROR;
-                workRegistry[user][provider][uid].stderr = errorMsg;
+                workRegistry[user][provider][workUid].status = StatusEnum.ERROR;
+                workRegistry[user][provider][workUid].stderr = errorMsg;
             }
-            CallbackEvent("SetParamCallback",user, provider, creatorByProvider[provider], workRegistry[user][provider][uid].name, uid, workRegistry[user][provider][uid].status, errorMsg);
+            CallbackEvent("SetParamCallback",user, provider, creatorByProvider[provider], workRegistry[user][provider][workUid].name, workUid, workRegistry[user][provider][workUid].status, errorMsg);
         }
     }
 

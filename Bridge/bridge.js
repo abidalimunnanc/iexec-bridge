@@ -5,17 +5,27 @@ import config from './config.json';
 
 import * as xwhep from './xwhep';
 // instanciation web3
-let web3 = null;
+
+/*let web3 = null;
 web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'));
 
+web3.eth.defaultAccount = web3.eth.accounts[0];*/
+
+var provider = new Web3.providers.HttpProvider("http://localhost:8545");
+var contract = require("truffle-contract");
+
 // instanciation contract
+var truffleContract = contract({
+  abi: config.ContractAbi,
+  network_id: "*"
+})
 
+truffleContract.setProvider(provider);
 
-web3.eth.defaultAccount = web3.eth.accounts[0];
+const contractInstance = truffleContract.at(config.ContractAddress);
 
-const XtremWebInterface = web3.eth.contract(config.ContractAbi);
-const contractInstance = XtremWebInterface.at(config.ContractAddress);
 console.log('start', contractInstance);
+
 // event watcher
 const launchEvent = contractInstance.Launch({});
 
@@ -40,16 +50,29 @@ function submitAndWait(user, appName, param, pattern) {
   // CALL XTREMWEB
 }
 */
-
-function setParam(user,provider, paramName, paramValue, UID) {
-  console.log('setParam', UID, paramName, paramValue);
-    try {
-        xwhep.setParam(UID, paramName, paramValue).then((workUid) => {
-            console.log(`Here the workUid = ${workUid}`);
+function setParam(user, provider, creator, paramName, paramValue, workUid) {
+  console.log('setParam', user, provider, creator, paramName, paramValue, workUid);
+  xwhep.setParam(user, provider, creator, workUid).then((error) => {
+    contractInstance.setParamCallback(user, provider, workUid, error, {
+      gas: 500000
+    }, function(error, result) {
+      if (!error) {
+        contractInstance.getWork(user, provider, workUid, function(error, result) {
+          if (!error) {
+            console.log("name :" + result[0]);
+            console.log("timestamp :" + result[1]);
+            console.log("status :" + result[2]);
+            console.log("stdout :" + result[3]);
+            console.log("stderr :" + result[4]);
+          } else {
+            console.log(error);
+          }
+        });
+      } else {
+        console.log(error);
+      }
     });
-    } catch (error) {
-        console.log('setParam failed',error);
-    }
+  });
 }
 
 // return string (COMPLETED PENDING RUNNING ERROR)
@@ -81,30 +104,46 @@ function waitResult(user, pattern, UID) {
 }
 
 function register(user, provider, creator, appName) {
-  try {
-    xwhep.register(user, provider, creator, appName).then((workUid) => {
-       console.log(`Here the workUid = ${workUid}`);
-       contractInstance.registerCallback(user,provider,appName,workUid,'',{gas:500000}, function(error, result) {
-         if (!error){
-             contractInstance.getWork(user, provider, workUid, function(error, result) {
-               if (!error){
-                 console.log("name :" + result[0]);
-                 console.log("timestamp :" + result[1]);
-                 console.log("status :" + result[2]);
-                 console.log("stdout :" + result[3]);
-                 console.log("stderr :" + result[4]);
-               } else {
-                 console.log(error);
-               }
-             });
-        } else {
+  xwhep.register(user, provider, creator, appName).then(workUid => {
+      console.log(`Here the workUid = ${workUid}`);
+      /*contractInstance.registerCallback(user, provider, appName, workUid, '').then(result => {
+          console.log('Passé par là');
+          contractInstance.getWork.call(user, provider, workUid).then(result => {
+              console.log("name :" + result[0]);
+              console.log("timestamp :" + result[1]);
+              console.log("status :" + result[2]);
+              console.log("stdout :" + result[3]);
+              console.log("stderr :" + result[4]);
+            })
+            .catch(error => {
+              console.log(error);
+            });
+        })
+        .catch(error => {
+          console.log('Passé par ici');
           console.log(error);
-        }
-      });
+        });*/
+    })
+    .catch(error => {
+      console.log(error);
+      /*contractInstance.registerCallback(user, provider, appName, '', error, {gas:500000}, function(error, result) {
+        if (!error){
+            contractInstance.getWork(user, provider, workUid, function(error, result) {
+              if (!error){
+                console.log("name :" + result[0]);
+                console.log("timestamp :" + result[1]);
+                console.log("status :" + result[2]);
+                console.log("stdout :" + result[3]);
+                console.log("stderr :" + result[4]);
+              } else {
+                console.log(error);
+              }
+            });
+       } else {
+         console.log(error);
+       }
+     });*/
     });
-  } catch (error) {
-    contractInstance.registerCallback(user,provider,appName,workUid,error);
-  }
 }
 
 function getParam(user, paramName, UID) {
@@ -126,7 +165,7 @@ launchEvent.watch((err, res) => {
   } else if (res.args.functionName === 'submit') {
     submit(res.args.user, res.args.provider, res.args.creator, res.args.param1, res.args.param2);
   } else if (res.args.functionName === 'setParam') {
-    setParam(res.args.user, res.args.provider, res.args.param1, res.args.param2, res.args.UID);
+    setParam(res.args.user, res.args.provider, res.args.creator, res.args.param1, res.args.param2, res.args.UID);
   } else if (res.args.functionName === 'status') {
     status(res.args.user, res.args.provider, res.args.UID);
   } else if (res.args.functionName === 'result') {
