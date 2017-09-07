@@ -22,6 +22,13 @@ contract HelloWorld is IexecOracleAPI{
     iexecStatus(workUid);
   }
 
+  function resultHelloWorld(string workUid){
+    iexecResult(workUid);
+  }
+
+
+
+
 
 
 

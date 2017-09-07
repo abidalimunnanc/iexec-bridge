@@ -32,7 +32,10 @@ contract IexecOracleAPI{
         iexecOracle.status(workUid);
     }
 
-
+    function iexecResult(string workUid) {
+        IexecOracle iexecOracle = IexecOracle(iexecOracleAddress);
+        iexecOracle.stdout(workUid);
+    }
 
     function impossible(address _iexecOracleAddress) {
         IexecOracle iexecOracle = IexecOracle(_iexecOracleAddress);

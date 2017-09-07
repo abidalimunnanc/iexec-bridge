@@ -47,10 +47,10 @@ contract('HelloWorld', function(accounts) {
 
   it("should setParam", function() {
     var aHelloWorldInstance;
-return HelloWorld.at("0xa54609d7a1827404a85e820f9109c78802940289")
+return HelloWorld.at("0x26a1d037737f3e9b9d8ddc0242032fee5036f275")
       .then(instance => {
         aHelloWorldInstance = instance;
-return aHelloWorldInstance.setHelloWorldParam("01be5365-b950-4c04-9dbd-ec8bb218724f","HelloWorld!!!",{
+return aHelloWorldInstance.setHelloWorldParam("36206ed6-e885-4acb-8775-4b5ad301f640","HelloWorld!!!",{
           from: user,
           gas: amountGazProvided
         });

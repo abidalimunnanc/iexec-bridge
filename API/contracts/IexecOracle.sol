@@ -33,28 +33,29 @@ contract IexecOracle {
     mapping (address => address ) creatorByProvider;
 
     // stats
-    uint256 public providersCount;
-    uint256 public usersCount;
-    uint256 public worksCount;
+    //remove stats because : https://ethereum.stackexchange.com/questions/12429/truffle-migrate-fails-with-error-encountered-bailing-network-state-unknown
+   // uint256 public providersCount;
+   // uint256 public usersCount;
+   // uint256 public worksCount;
 
 
-    mapping (address => uint256 ) creatorProvidersCount;
+    //mapping (address => uint256 ) creatorProvidersCount;
 
-    mapping (address => uint256 ) userWorksCount;
+    //mapping (address => uint256 ) userWorksCount;
 
-    mapping (address => uint256 ) userProvidersCount;
+    //mapping (address => uint256 ) userProvidersCount;
 
     //mapping (user => mapping (provider => UsageCount ))
-    mapping (address => mapping (address => uint256 )) userProviderUsageCount;
+   // mapping (address => mapping (address => uint256 )) userProviderUsageCount;
 
-    mapping (address => uint256 ) providerWorksCount;
+    //mapping (address => uint256 ) providerWorksCount;
 
-    mapping (address => uint256 ) providerUsersCount;
+   // mapping (address => uint256 ) providerUsersCount;
 
     //mapping (provider => mapping (user => UsageCount ))
-    mapping (address => mapping (address => uint256 )) providerUserUsageCount;
+    //mapping (address => mapping (address => uint256 )) providerUserUsageCount;
 
-    mapping (address => uint256 ) creatorWorksCount;
+   // mapping (address => uint256 ) creatorWorksCount;
 
 
     //constructor
@@ -66,13 +67,13 @@ contract IexecOracle {
         require(creatorByProvider[msg.sender] == 0x0);
         require(msg.sender != tx.origin);
         creatorByProvider[msg.sender]=tx.origin;
-        creatorProvidersCount[tx.origin]=creatorProvidersCount[tx.origin].add(1);
-        providersCount=providersCount.add(1);
+        //creatorProvidersCount[tx.origin]=creatorProvidersCount[tx.origin].add(1);
+        //providersCount=providersCount.add(1);
     }
 
-    function getCreatorProvidersCount(address provider) constant returns (uint256) {
-        return creatorProvidersCount[provider];
-    }
+    //function getCreatorProvidersCount(address provider) constant returns (uint256) {
+    //    return creatorProvidersCount[provider];
+   // }
 
     function getCreator(address provider) constant returns (address) {
         return creatorByProvider[provider];
@@ -139,10 +140,6 @@ contract IexecOracle {
         Launch(tx.origin, msg.sender,creatorByProvider[msg.sender], "status", "", "", workUid);
     }
 
-    function result(string workUid) {
-        Launch(tx.origin, msg.sender, creatorByProvider[msg.sender],"result", "", "", workUid);
-    }
-
     function stdout(string workUid) {
         Launch(tx.origin, msg.sender, creatorByProvider[msg.sender], "stdout", "", "", workUid);
     }
@@ -173,27 +170,27 @@ contract IexecOracle {
 
             // TODO test all stats counters
             //increment stats
-            worksCount=worksCount.add(1);
-            if (userWorksCount[user] == 0x0) {
+           // worksCount=worksCount.add(1);
+           // if (userWorksCount[user] == 0x0) {
               //new user, increment users count
-              usersCount=usersCount.add(1);
-            }
-            userWorksCount[user]=userWorksCount[user].add(1);
-            providerWorksCount[provider]=providerWorksCount[provider].add(1);
+           //   usersCount=usersCount.add(1);
+           // }
+           // userWorksCount[user]=userWorksCount[user].add(1);
+           // providerWorksCount[provider]=providerWorksCount[provider].add(1);
 
-            if (providerUserUsageCount[provider][user] == 0x0) {
+           // if (providerUserUsageCount[provider][user] == 0x0) {
               //new user for this provider
-              providerUsersCount[provider]=providerUsersCount[provider].add(1);
-            }
-            providerUserUsageCount[provider][user]=providerUserUsageCount[provider][user].add(1);
+           //   providerUsersCount[provider]=providerUsersCount[provider].add(1);
+           // }
+           // providerUserUsageCount[provider][user]=providerUserUsageCount[provider][user].add(1);
 
-            if (  userProviderUsageCount[user][provider]== 0x0) {
+           // if (  userProviderUsageCount[user][provider]== 0x0) {
               //new provider used by this user
-              userProvidersCount[user]=userProvidersCount[user].add(1);
-            }
-            userProviderUsageCount[user][provider]=userProviderUsageCount[user][provider].add(1);
+           //   userProvidersCount[user]=userProvidersCount[user].add(1);
+           // }
+           // userProviderUsageCount[user][provider]=userProviderUsageCount[user][provider].add(1);
 
-            creatorWorksCount[creatorByProvider[provider]]=creatorWorksCount[creatorByProvider[provider]].add(1);
+           // creatorWorksCount[creatorByProvider[provider]]=creatorWorksCount[creatorByProvider[provider]].add(1);
 
             CallbackEvent("RegisterCallback",user, provider, creatorByProvider[provider], appName, workUid, workRegistry[user][provider][workUid].status, errorMsg);
         }
@@ -227,7 +224,6 @@ contract IexecOracle {
     }
 
     function statusCallback(address user, address provider, string workUid, StatusEnum status, string errorMsg) onlyBy(bridge) {
-
         workRegistry[user][provider][workUid].timestamp=now;
         workRegistry[user][provider][workUid].status = status;
         bytes memory errorMsgEmptyStringTest = bytes(errorMsg); // Uses memory
@@ -238,5 +234,14 @@ contract IexecOracle {
         CallbackEvent("StatusCallback",user, provider, creatorByProvider[provider], workRegistry[user][provider][workUid].name, workUid, workRegistry[user][provider][workUid].status, errorMsg);
     }
 
-
+    function stdoutCallback(address user, address provider, string workUid, string stdout, string errorMsg) onlyBy(bridge) {
+        workRegistry[user][provider][workUid].timestamp=now;
+        workRegistry[user][provider][workUid].stdout=stdout;
+        bytes memory errorMsgEmptyStringTest = bytes(errorMsg); // Uses memory
+        if (errorMsgEmptyStringTest.length != 0) {
+            workRegistry[user][provider][workUid].status = StatusEnum.ERROR;
+            workRegistry[user][provider][workUid].stderr = errorMsg;
+        }
+        CallbackEvent("StdoutCallback",user, provider, creatorByProvider[provider], workRegistry[user][provider][workUid].name, workUid, workRegistry[user][provider][workUid].status, errorMsg);
+    }
 }

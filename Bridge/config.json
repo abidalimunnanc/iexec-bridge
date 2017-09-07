@@ -8,7 +8,7 @@
           "type": "string"
         }
       ],
-      "name": "result",
+      "name": "toDelete",
       "outputs": [],
       "payable": false,
       "type": "function"
@@ -17,25 +17,28 @@
       "constant": false,
       "inputs": [
         {
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "name": "provider",
+          "type": "address"
+        },
+        {
           "name": "workUid",
+          "type": "string"
+        },
+        {
+          "name": "stdout",
+          "type": "string"
+        },
+        {
+          "name": "errorMsg",
           "type": "string"
         }
       ],
-      "name": "toDelete",
+      "name": "stdoutCallback",
       "outputs": [],
-      "payable": false,
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [],
-      "name": "worksCount",
-      "outputs": [
-        {
-          "name": "",
-          "type": "uint256"
-        }
-      ],
       "payable": false,
       "type": "function"
     },
@@ -116,19 +119,6 @@
       "inputs": [],
       "name": "registerSmartContractAndCreator",
       "outputs": [],
-      "payable": false,
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [],
-      "name": "usersCount",
-      "outputs": [
-        {
-          "name": "",
-          "type": "uint256"
-        }
-      ],
       "payable": false,
       "type": "function"
     },
@@ -371,19 +361,6 @@
       "type": "function"
     },
     {
-      "constant": true,
-      "inputs": [],
-      "name": "providersCount",
-      "outputs": [
-        {
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "payable": false,
-      "type": "function"
-    },
-    {
       "constant": false,
       "inputs": [
         {
@@ -500,24 +477,6 @@
       "type": "function"
     },
     {
-      "constant": true,
-      "inputs": [
-        {
-          "name": "provider",
-          "type": "address"
-        }
-      ],
-      "name": "getCreatorProvidersCount",
-      "outputs": [
-        {
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "payable": false,
-      "type": "function"
-    },
-    {
       "constant": false,
       "inputs": [
         {
@@ -625,5 +584,5 @@
       "type": "event"
     }
   ],
-"ContractAddress":"0x95df6b6770117cc76d7c70ad1f724283ca371f5c"
+"ContractAddress":"0x86cf94eb21369b5d427c3d082dd7c2c120a6e8c8"
 }

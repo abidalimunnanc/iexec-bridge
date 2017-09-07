@@ -46,10 +46,10 @@ contract('IexecOracle', function(accounts) {
 
   it("get a work", function() {
     var aIexecOracleInstance;
-return IexecOracle.at("0x95df6b6770117cc76d7c70ad1f724283ca371f5c")
+return IexecOracle.at("0x86cf94eb21369b5d427c3d082dd7c2c120a6e8c8")
       .then(instance => {
         aIexecOracleInstance = instance;
-return aIexecOracleInstance.getWorkStderr.call('0x03bea8f9cd0e2cc66b815b1e199c1b33843d5e6e','0xa54609d7a1827404a85e820f9109c78802940289',"01be5365-b950-4c04-9dbd-ec8bb218724f");
+return aIexecOracleInstance.getWorkStderr.call('0xb3e270ede4dc9be8893a03192598b285d31d60a5','0x26a1d037737f3e9b9d8ddc0242032fee5036f275',"36206ed6-e885-4acb-8775-4b5ad301f640");
       }).then(getWorkStderrCall => {
           console.log("BEGIN_LOG");
           console.log("stderr:"+getWorkStderrCall);

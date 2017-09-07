@@ -984,7 +984,7 @@ function dumpFile(path) {
  * @exception is thrown if work is not found
  * @exception is thrown if stdout file is not found
  */
-function getStdout(uid) {
+export function getStdout(uid) {
   return new Promise((resolve, reject) => {
     downloadResult(uid).then(() => {
       console.log(`getStdout() downloaded ${uid}`);
