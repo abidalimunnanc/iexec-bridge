@@ -31,14 +31,15 @@ contract('HelloWorld', function(accounts) {
     bridge = accounts[1];
     user = accounts[2];
 
-    return Extensions.makeSureAreUnlocked(
-        [creator, bridge, user])
-      .then(() => web3.eth.getBalancePromise(creator))
+
+      return Extensions.makeSureAreUnlocked(
+              [creator, bridge, user])
+              .then(() => web3.eth.getBalancePromise(creator))
       .then(balance => assert.isTrue(
-        web3.toWei(web3.toBigNumber(90), "ether").lessThan(balance),
-        "creator should have at least 35 ether, not " + web3.fromWei(balance, "ether")))
-      .then(() => Extensions.refillAccount(creator, user, 30))
-      .then(() => Extensions.refillAccount(creator, bridge, 30))
+          web3.toWei(web3.toBigNumber(50), "ether").lessThan(balance),
+          "creator should have at least 80 ether, not " + web3.fromWei(balance, "ether")))
+      .then(() => Extensions.refillAccount(creator, user, 10))
+      .then(() => Extensions.refillAccount(creator, bridge, 10))
       .then(() => web3.version.getNodePromise())
       .then(node => isTestRPC = node.indexOf("EthereumJS TestRPC") >= 0);
   });
@@ -46,7 +47,7 @@ contract('HelloWorld', function(accounts) {
 
   it("should register a work", function() {
     var aHelloWorldInstance;
-return HelloWorld.at("???")
+return HelloWorld.at("0xa54609d7a1827404a85e820f9109c78802940289")
       .then(instance => {
         aHelloWorldInstance = instance;
         return aHelloWorldInstance.registerEcho({

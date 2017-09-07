@@ -17,10 +17,21 @@ contract IexecOracleAPI{
         iexecOracle.register(appName);
     }
 
-    function iexecSetParam(string uid, string param, string value) {
+    function iexecSetParam(string workUid, string param, string value) {
         IexecOracle iexecOracle = IexecOracle(iexecOracleAddress);
-        iexecOracle.setParam(uid, param, value);
+        iexecOracle.setParam(workUid, param, value);
     }
+
+    function iexecSetPending(string workUid) {
+        IexecOracle iexecOracle = IexecOracle(iexecOracleAddress);
+        iexecOracle.setPending(workUid);
+    }
+
+    function iexecStatus(string workUid) {
+        IexecOracle iexecOracle = IexecOracle(iexecOracleAddress);
+        iexecOracle.status(workUid);
+    }
+
 
 
     function impossible(address _iexecOracleAddress) {

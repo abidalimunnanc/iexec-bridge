@@ -31,14 +31,14 @@ contract('IexecOracle', function(accounts) {
     bridge = accounts[1];
     user = accounts[2];
 
-    return Extensions.makeSureAreUnlocked(
-        [creator, bridge, user])
-      .then(() => web3.eth.getBalancePromise(creator))
+      return Extensions.makeSureAreUnlocked(
+              [creator, bridge, user])
+              .then(() => web3.eth.getBalancePromise(creator))
       .then(balance => assert.isTrue(
-        web3.toWei(web3.toBigNumber(90), "ether").lessThan(balance),
-        "creator should have at least 35 ether, not " + web3.fromWei(balance, "ether")))
-      .then(() => Extensions.refillAccount(creator, user, 30))
-      .then(() => Extensions.refillAccount(creator, bridge, 30))
+          web3.toWei(web3.toBigNumber(50), "ether").lessThan(balance),
+          "creator should have at least 80 ether, not " + web3.fromWei(balance, "ether")))
+      .then(() => Extensions.refillAccount(creator, user, 10))
+      .then(() => Extensions.refillAccount(creator, bridge, 10))
       .then(() => web3.version.getNodePromise())
       .then(node => isTestRPC = node.indexOf("EthereumJS TestRPC") >= 0);
   });
@@ -46,10 +46,10 @@ contract('IexecOracle', function(accounts) {
 
   it("get a work", function() {
     var aIexecOracleInstance;
-return IexecOracle.at("???")
+return IexecOracle.at("0x95df6b6770117cc76d7c70ad1f724283ca371f5c")
       .then(instance => {
         aIexecOracleInstance = instance;
-return aIexecOracleInstance.getWorkName.call('???','???',"???");
+return aIexecOracleInstance.getWorkName.call('0x03bea8f9cd0e2cc66b815b1e199c1b33843d5e6e','0xa54609d7a1827404a85e820f9109c78802940289',"01be5365-b950-4c04-9dbd-ec8bb218724f");
       }).then(getWorkNameCall => {
           console.log("BEGIN_LOG");
           console.log("name:"+getWorkNameCall);

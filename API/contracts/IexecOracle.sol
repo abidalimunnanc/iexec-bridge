@@ -132,7 +132,7 @@ contract IexecOracle {
     }
 
     function setPending(string workUid) {
-        Launch(tx.origin, msg.sender,creatorByProvider[msg.sender], "setParam", "status", "pending", workUid);
+        Launch(tx.origin, msg.sender,creatorByProvider[msg.sender], "setPending", "status", "pending", workUid);
     }
 
     function status(string workUid) {
@@ -211,5 +211,32 @@ contract IexecOracle {
             CallbackEvent("SetParamCallback",user, provider, creatorByProvider[provider], workRegistry[user][provider][workUid].name, workUid, workRegistry[user][provider][workUid].status, errorMsg);
         }
     }
+
+
+    function setPendingCallback(address user, address provider, string workUid, string errorMsg) onlyBy(bridge) {
+        if (workRegistry[user][provider][workUid].status == StatusEnum.UNAVAILABLE) {
+            workRegistry[user][provider][workUid].timestamp=now;
+            workRegistry[user][provider][workUid].status = StatusEnum.PENDING;
+            bytes memory errorMsgEmptyStringTest = bytes(errorMsg); // Uses memory
+            if (errorMsgEmptyStringTest.length != 0) {
+                workRegistry[user][provider][workUid].status = StatusEnum.ERROR;
+                workRegistry[user][provider][workUid].stderr = errorMsg;
+            }
+            CallbackEvent("SetPendingCallback",user, provider, creatorByProvider[provider], workRegistry[user][provider][workUid].name, workUid, workRegistry[user][provider][workUid].status, errorMsg);
+        }
+    }
+
+    function statusCallback(address user, address provider, string workUid, StatusEnum status, string errorMsg) onlyBy(bridge) {
+
+        workRegistry[user][provider][workUid].timestamp=now;
+        workRegistry[user][provider][workUid].status = status;
+        bytes memory errorMsgEmptyStringTest = bytes(errorMsg); // Uses memory
+        if (errorMsgEmptyStringTest.length != 0) {
+            workRegistry[user][provider][workUid].status = StatusEnum.ERROR;
+            workRegistry[user][provider][workUid].stderr = errorMsg;
+        }
+        CallbackEvent("StatusCallback",user, provider, creatorByProvider[provider], workRegistry[user][provider][workUid].name, workUid, workRegistry[user][provider][workUid].status, errorMsg);
+    }
+
 
 }

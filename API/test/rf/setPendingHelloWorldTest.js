@@ -1,4 +1,4 @@
-var IexecOracle = artifacts.require("./IexecOracle.sol");
+var HelloWorld = artifacts.require("./HelloWorld");
 
 const Promise = require("bluebird");
 //extensions.js : credit to : https://github.com/coldice/dbh-b9lab-hackathon/blob/development/truffle/utils/extensions.js
@@ -19,7 +19,7 @@ Extensions.init(web3, assert);
 
 
 
-contract('IexecOracle', function(accounts) {
+contract('HelloWorld', function(accounts) {
 
   var creator, bridge, user, provider;
   var amountGazProvided = 4000000;
@@ -30,7 +30,8 @@ contract('IexecOracle', function(accounts) {
     creator = accounts[0];
     bridge = accounts[1];
     user = accounts[2];
-      
+
+
       return Extensions.makeSureAreUnlocked(
               [creator, bridge, user])
               .then(() => web3.eth.getBalancePromise(creator))
@@ -43,7 +44,22 @@ contract('IexecOracle', function(accounts) {
       .then(node => isTestRPC = node.indexOf("EthereumJS TestRPC") >= 0);
   });
 
-  it("get a creator", function() {
-      console.log("BEGIN_LOG"+creator+"END_LOG");
+
+  it("should setParam", function() {
+    var aHelloWorldInstance;
+return HelloWorld.at("0xa54609d7a1827404a85e820f9109c78802940289")
+      .then(instance => {
+        aHelloWorldInstance = instance;
+
+return aHelloWorldInstance.setPendingHelloWorld("01be5365-b950-4c04-9dbd-ec8bb218724f",{
+          from: user,
+          gas: amountGazProvided
+        });
+      }).then(txMined => {
+          console.log("BEGIN_LOG");
+          console.log(txMined);
+          console.log("END_LOG");
+          assert.isBelow(txMined.receipt.gasUsed, amountGazProvided, "should not use all gas");
+      });
   });
 });
