@@ -47,7 +47,7 @@ contract('HelloWorld', function(accounts) {
 
   it("should register a work", function() {
     var aHelloWorldInstance;
-return HelloWorld.at("0x26a1d037737f3e9b9d8ddc0242032fee5036f275")
+return HelloWorld.at("0xebfac6622d0c2088ff98dafd08af1c5e5d874a7d")
       .then(instance => {
         aHelloWorldInstance = instance;
         return aHelloWorldInstance.registerEcho({

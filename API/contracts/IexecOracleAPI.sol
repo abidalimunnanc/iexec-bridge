@@ -1,9 +1,12 @@
 pragma solidity ^0.4.11;
 import "./IexecOracle.sol";
+import './IexecLib.sol';
 
 contract IexecOracleAPI{
 
+
     address iexecOracleAddress;
+    event IexecCallbackEvent(string callbackType, address indexed user, address indexed provider, address indexed creator, string appName, string workUid, IexecLib.StatusEnum status, string errorMsg);
 
     //constructor
     function IexecOracleAPI(address _iexecOracleAddress) {
@@ -42,4 +45,7 @@ contract IexecOracleAPI{
         iexecOracle.registerSmartContractAndCreator();
     }
 
+    function iexecCallback(string callbackType, address user, address provider, address creator, string appName, string workUid, IexecLib.StatusEnum status, string errorMsg){
+        IexecCallbackEvent( callbackType, user, provider, creator, appName, workUid, status, errorMsg);
+    }
 }

@@ -1,15 +1,18 @@
 pragma solidity ^0.4.11;
 
 import './SafeMath.sol';
+import './IexecOracleAPI.sol';
+import './IexecLib.sol';
 
 contract IexecOracle {
+
 
     using SafeMath for uint;
     /*
      * EVENTS AND MODIFIERS
      */
     event Launch(address indexed user, address indexed provider, address indexed creator, string functionName, string param1, string param2, string workUid); // special log to launch process
-    event CallbackEvent(string callbackType, address indexed user, address indexed provider, address indexed creator, string appName, string workUid, StatusEnum status, string errorMsg);
+    event CallbackEvent(string callbackType, address indexed user, address indexed provider, address indexed creator, string appName, string workUid, IexecLib.StatusEnum status, string errorMsg);
 
     modifier onlyBy(address a){
         if (msg.sender != a) throw;
@@ -18,12 +21,12 @@ contract IexecOracle {
 
     address public bridge;
 
-    enum StatusEnum {UNSET, UNAVAILABLE, PENDING, RUNNING, COMPLETED, ERROR}
+
 
     struct Work {
       string name;
       uint256 timestamp;
-      StatusEnum status;
+      IexecLib.StatusEnum status;
       string stdout;
       string stderr;
     }
@@ -79,7 +82,7 @@ contract IexecOracle {
         return creatorByProvider[provider];
     }
 
-    function getWork(address user, address provider, string workUid) constant returns (string, uint256, StatusEnum, string, string) {
+    function getWork(address user, address provider, string workUid) constant returns (string, uint256, IexecLib.StatusEnum, string, string) {
         return (
         workRegistry[user][provider][workUid].name,
         workRegistry[user][provider][workUid].timestamp,
@@ -97,7 +100,7 @@ contract IexecOracle {
         return workRegistry[user][provider][workUid].timestamp;
     }
 
-    function getWorkStatus(address user, address provider, string workUid) constant returns (StatusEnum) {
+    function getWorkStatus(address user, address provider, string workUid) constant returns (IexecLib.StatusEnum) {
         return workRegistry[user][provider][workUid].status;
     }
 
@@ -120,13 +123,13 @@ contract IexecOracle {
         Launch(tx.origin, msg.sender, creatorByProvider[msg.sender],"register", appName, "", "");
     }
 
-    function submit(string appName, string param) {// param = commandline
-        Launch(tx.origin, msg.sender,creatorByProvider[msg.sender], "submit", param, "", "");
-    }
+    //function submit(string appName, string param) {// param = commandline
+    //    Launch(tx.origin, msg.sender,creatorByProvider[msg.sender], "submit", param, "", "");
+    // }
 
-    function submitAndWait(string appName, string param, string pattern) {
-        Launch(tx.origin, msg.sender,creatorByProvider[msg.sender], "submitAndWait", pattern, "", "");
-    }
+   // function submitAndWait(string appName, string param, string pattern) {
+   //     Launch(tx.origin, msg.sender,creatorByProvider[msg.sender], "submitAndWait", pattern, "", "");
+   // }
 
     function setParam(string workUid, string paramName, string paramValue) {
         Launch(tx.origin, msg.sender,creatorByProvider[msg.sender], "setParam", paramName, paramValue, workUid);
@@ -144,27 +147,27 @@ contract IexecOracle {
         Launch(tx.origin, msg.sender, creatorByProvider[msg.sender], "stdout", "", "", workUid);
     }
 
-    function toDelete(string workUid) {
-        Launch(tx.origin, msg.sender, creatorByProvider[msg.sender], "toDelete", "", "", workUid);
-    }
+   // function toDelete(string workUid) {
+   //     Launch(tx.origin, msg.sender, creatorByProvider[msg.sender], "toDelete", "", "", workUid);
+   // }
 
-    function waitResult(string workUid, string pattern) {
-        Launch(tx.origin, msg.sender, creatorByProvider[msg.sender], "waitResult", pattern, "", workUid);
-    }
+   // function waitResult(string workUid, string pattern) {
+   //     Launch(tx.origin, msg.sender, creatorByProvider[msg.sender], "waitResult", pattern, "", workUid);
+   // }
 
     /*
      * ONLY BY BRIDGE
      * The following functions are called only by the bridge, to modify the state of the XWObject
      */
     function registerCallback(address user, address provider, string appName, string workUid, string errorMsg) onlyBy(bridge) {
-        if (workRegistry[user][provider][workUid].status == StatusEnum.UNSET) {
+        if (workRegistry[user][provider][workUid].status == IexecLib.StatusEnum.UNSET) {
             workRegistry[user][provider][workUid].name = appName;
             workRegistry[user][provider][workUid].timestamp=now;
             bytes memory errorMsgEmptyStringTest = bytes(errorMsg); // Uses memory
             if (errorMsgEmptyStringTest.length == 0) {
-              workRegistry[user][provider][workUid].status = StatusEnum.UNAVAILABLE;
+              workRegistry[user][provider][workUid].status = IexecLib.StatusEnum.UNAVAILABLE;
             } else {
-              workRegistry[user][provider][workUid].status = StatusEnum.ERROR;
+              workRegistry[user][provider][workUid].status = IexecLib.StatusEnum.ERROR;
               workRegistry[user][provider][workUid].stderr = errorMsg;
             }
 
@@ -191,57 +194,66 @@ contract IexecOracle {
            // userProviderUsageCount[user][provider]=userProviderUsageCount[user][provider].add(1);
 
            // creatorWorksCount[creatorByProvider[provider]]=creatorWorksCount[creatorByProvider[provider]].add(1);
-
             CallbackEvent("RegisterCallback",user, provider, creatorByProvider[provider], appName, workUid, workRegistry[user][provider][workUid].status, errorMsg);
+            iexecCallback("RegisterCallback",user, provider, creatorByProvider[provider], appName, workUid, workRegistry[user][provider][workUid].status, errorMsg);
         }
     }
 
+    function iexecCallback(string callbackType, address user, address provider, address creator, string appName, string workUid, IexecLib.StatusEnum status, string errorMsg) internal {
+        IexecOracleAPI iexecOracleAPI = IexecOracleAPI(provider);
+        iexecOracleAPI.iexecCallback(callbackType, user, provider, creatorByProvider[provider], appName, workUid, status,errorMsg);
+    }
 
     function setParamCallback(address user, address provider, string workUid, string errorMsg) onlyBy(bridge) {
-        if (workRegistry[user][provider][workUid].status == StatusEnum.UNAVAILABLE) {
+        if (workRegistry[user][provider][workUid].status == IexecLib.StatusEnum.UNAVAILABLE) {
             workRegistry[user][provider][workUid].timestamp=now;
-            bytes memory errorMsgEmptyStringTest = bytes(errorMsg); // Uses memory
-            if (errorMsgEmptyStringTest.length != 0) {
-                workRegistry[user][provider][workUid].status = StatusEnum.ERROR;
-                workRegistry[user][provider][workUid].stderr = errorMsg;
-            }
+           // bytes memory errorMsgEmptyStringTest = bytes(errorMsg); // Uses memory
+            //   if (errorMsgEmptyStringTest.length != 0) {
+            //     workRegistry[user][provider][workUid].status = IexecLib.StatusEnum.ERROR;
+            //     workRegistry[user][provider][workUid].stderr = errorMsg;
+            // }
             CallbackEvent("SetParamCallback",user, provider, creatorByProvider[provider], workRegistry[user][provider][workUid].name, workUid, workRegistry[user][provider][workUid].status, errorMsg);
+            iexecCallback("SetParamCallback",user, provider, creatorByProvider[provider], workRegistry[user][provider][workUid].name, workUid, workRegistry[user][provider][workUid].status, errorMsg);
+
         }
     }
 
 
     function setPendingCallback(address user, address provider, string workUid, string errorMsg) onlyBy(bridge) {
-        if (workRegistry[user][provider][workUid].status == StatusEnum.UNAVAILABLE) {
+        if (workRegistry[user][provider][workUid].status == IexecLib.StatusEnum.UNAVAILABLE) {
             workRegistry[user][provider][workUid].timestamp=now;
-            workRegistry[user][provider][workUid].status = StatusEnum.PENDING;
-            bytes memory errorMsgEmptyStringTest = bytes(errorMsg); // Uses memory
-            if (errorMsgEmptyStringTest.length != 0) {
-                workRegistry[user][provider][workUid].status = StatusEnum.ERROR;
-                workRegistry[user][provider][workUid].stderr = errorMsg;
-            }
+            workRegistry[user][provider][workUid].status = IexecLib.StatusEnum.PENDING;
+           // bytes memory errorMsgEmptyStringTest = bytes(errorMsg); // Uses memory
+            // if (errorMsgEmptyStringTest.length != 0) {
+            //      workRegistry[user][provider][workUid].status = IexecLib.StatusEnum.ERROR;
+            //   workRegistry[user][provider][workUid].stderr = errorMsg;
+            // }
             CallbackEvent("SetPendingCallback",user, provider, creatorByProvider[provider], workRegistry[user][provider][workUid].name, workUid, workRegistry[user][provider][workUid].status, errorMsg);
+            iexecCallback("SetPendingCallback",user, provider, creatorByProvider[provider], workRegistry[user][provider][workUid].name, workUid, workRegistry[user][provider][workUid].status, errorMsg);
         }
     }
-
-    function statusCallback(address user, address provider, string workUid, StatusEnum status, string errorMsg) onlyBy(bridge) {
+    function statusCallback(address user, address provider, string workUid, IexecLib.StatusEnum status, string errorMsg) onlyBy(bridge) {
         workRegistry[user][provider][workUid].timestamp=now;
         workRegistry[user][provider][workUid].status = status;
-        bytes memory errorMsgEmptyStringTest = bytes(errorMsg); // Uses memory
-        if (errorMsgEmptyStringTest.length != 0) {
-            workRegistry[user][provider][workUid].status = StatusEnum.ERROR;
-            workRegistry[user][provider][workUid].stderr = errorMsg;
-        }
+        //bytes memory errorMsgEmptyStringTest = bytes(errorMsg); // Uses memory
+        // if (errorMsgEmptyStringTest.length != 0) {
+        //    workRegistry[user][provider][workUid].status = IexecLib.StatusEnum.ERROR;
+        //   workRegistry[user][provider][workUid].stderr = errorMsg;
+        //}
         CallbackEvent("StatusCallback",user, provider, creatorByProvider[provider], workRegistry[user][provider][workUid].name, workUid, workRegistry[user][provider][workUid].status, errorMsg);
+        iexecCallback("StatusCallback",user, provider, creatorByProvider[provider], workRegistry[user][provider][workUid].name, workUid, workRegistry[user][provider][workUid].status, errorMsg);
+
     }
 
     function stdoutCallback(address user, address provider, string workUid, string stdout, string errorMsg) onlyBy(bridge) {
         workRegistry[user][provider][workUid].timestamp=now;
         workRegistry[user][provider][workUid].stdout=stdout;
-        bytes memory errorMsgEmptyStringTest = bytes(errorMsg); // Uses memory
-        if (errorMsgEmptyStringTest.length != 0) {
-            workRegistry[user][provider][workUid].status = StatusEnum.ERROR;
-            workRegistry[user][provider][workUid].stderr = errorMsg;
-        }
+        //bytes memory errorMsgEmptyStringTest = bytes(errorMsg); // Uses memory
+      //  if (errorMsgEmptyStringTest.length != 0) {
+      //      workRegistry[user][provider][workUid].status = IexecLib.StatusEnum.ERROR;
+      //      workRegistry[user][provider][workUid].stderr = errorMsg;
+      //  }
         CallbackEvent("StdoutCallback",user, provider, creatorByProvider[provider], workRegistry[user][provider][workUid].name, workUid, workRegistry[user][provider][workUid].status, errorMsg);
+        iexecCallback("StdoutCallback",user, provider, creatorByProvider[provider], workRegistry[user][provider][workUid].name, workUid, workRegistry[user][provider][workUid].status, errorMsg);
     }
 }

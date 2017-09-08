@@ -1,4 +1,4 @@
-var IexecOracle = artifacts.require("./IexecOracle.sol");
+var HelloWorld = artifacts.require("./HelloWorld");
 
 const Promise = require("bluebird");
 //extensions.js : credit to : https://github.com/coldice/dbh-b9lab-hackathon/blob/development/truffle/utils/extensions.js
@@ -17,8 +17,6 @@ Promise.promisifyAll(web3.evm, {
 Extensions.init(web3, assert);
 
 
-
-
 contract('IexecOracle', function(accounts) {
 
   var creator, bridge, user, provider;
@@ -31,12 +29,12 @@ contract('IexecOracle', function(accounts) {
     bridge = accounts[1];
     user = accounts[2];
 
-      return Extensions.makeSureAreUnlocked(
-              [creator, bridge, user])
-              .then(() => web3.eth.getBalancePromise(creator))
+    return Extensions.makeSureAreUnlocked(
+        [creator, bridge, user])
+      .then(() => web3.eth.getBalancePromise(creator))
       .then(balance => assert.isTrue(
-          web3.toWei(web3.toBigNumber(50), "ether").lessThan(balance),
-          "creator should have at least 80 ether, not " + web3.fromWei(balance, "ether")))
+        web3.toWei(web3.toBigNumber(50), "ether").lessThan(balance),
+        "creator should have at least 80 ether, not " + web3.fromWei(balance, "ether")))
       .then(() => Extensions.refillAccount(creator, user, 10))
       .then(() => Extensions.refillAccount(creator, bridge, 10))
       .then(() => web3.version.getNodePromise())
@@ -44,16 +42,20 @@ contract('IexecOracle', function(accounts) {
   });
 
 
-  it("get a work", function() {
-    var aIexecOracleInstance;
-return IexecOracle.at("0xc6405f8d329b6b1517f0acf91bcc8f62091c63bf")
+  it("watch CallbackEvent", function() {
+    var aHelloWorldInstance;
+return HelloWorld.at("0xebfac6622d0c2088ff98dafd08af1c5e5d874a7d")
       .then(instance => {
-        aIexecOracleInstance = instance;
-return aIexecOracleInstance.getWorkStderr.call('0x1a8ced818d4fac9b370273afafdf964cd74faa45','0xebfac6622d0c2088ff98dafd08af1c5e5d874a7d',"162eadfa-efb0-47d0-bc1d-335054e3a3a4");
-      }).then(getWorkStderrCall => {
+        aHelloWorldInstance = instance;
+        return Extensions.getEventsPromise(aHelloWorldInstance.IexecCallbackEvent({}, {
+          fromBlock: 0,
+          toBlock: "latest"
+        }));
+      }).then(events => {
           console.log("BEGIN_LOG");
-          console.log("stderr:"+getWorkStderrCall);
+          console.log(events);
           console.log("END_LOG");
       });
   });
 });
+
