@@ -37,8 +37,6 @@ contract('IexecOracle', function(accounts) {
       .then(balance => assert.isTrue(
           web3.toWei(web3.toBigNumber(50), "ether").lessThan(balance),
           "creator should have at least 80 ether, not " + web3.fromWei(balance, "ether")))
-      .then(() => Extensions.refillAccount(creator, user, 10))
-      .then(() => Extensions.refillAccount(creator, bridge, 10))
       .then(() => web3.version.getNodePromise())
       .then(node => isTestRPC = node.indexOf("EthereumJS TestRPC") >= 0);
   });
