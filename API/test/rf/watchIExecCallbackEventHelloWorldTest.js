@@ -42,7 +42,7 @@ contract('IexecOracle', function(accounts) {
 
   it("watch CallbackEvent", function() {
     var aHelloWorldInstance;
-return HelloWorld.at("0xebfac6622d0c2088ff98dafd08af1c5e5d874a7d")
+return HelloWorld.at("0x67db72da8d8a03683a3586ff41abc90f3d88ecc3")
       .then(instance => {
         aHelloWorldInstance = instance;
         return Extensions.getEventsPromise(aHelloWorldInstance.IexecCallbackEvent({}, {

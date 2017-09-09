@@ -46,6 +46,7 @@ contract IexecOracleAPI{
     }
 
     function iexecCallback(string callbackType, address user, address provider, address creator, string appName, string workUid, IexecLib.StatusEnum status, string errorMsg){
+        require(msg.sender == iexecOracleAddress);
         IexecCallbackEvent( callbackType, user, provider, creator, appName, workUid, status, errorMsg);
     }
 }

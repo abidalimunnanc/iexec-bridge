@@ -42,7 +42,7 @@ contract('IexecOracle', function(accounts) {
 
   it("watch CallbackEvent", function() {
     var aIexecOracleInstance;
-return IexecOracle.at("0xc6405f8d329b6b1517f0acf91bcc8f62091c63bf")
+return IexecOracle.at("0x9f5f58c5f21175b2742e4cc5398d590fcf6da259")
       .then(instance => {
         aIexecOracleInstance = instance;
         return Extensions.getEventsPromise(aIexecOracleInstance.CallbackEvent({}, {

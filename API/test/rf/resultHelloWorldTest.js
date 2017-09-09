@@ -38,6 +38,7 @@ contract('HelloWorld', function(accounts) {
       .then(balance => assert.isTrue(
           web3.toWei(web3.toBigNumber(50), "ether").lessThan(balance),
           "creator should have at least 80 ether, not " + web3.fromWei(balance, "ether")))
+      .then(() => Extensions.refillAccount(creator, user, 20))
       .then(() => web3.version.getNodePromise())
       .then(node => isTestRPC = node.indexOf("EthereumJS TestRPC") >= 0);
   });
@@ -45,10 +46,10 @@ contract('HelloWorld', function(accounts) {
 
   it("should setParam", function() {
     var aHelloWorldInstance;
-return HelloWorld.at("0xebfac6622d0c2088ff98dafd08af1c5e5d874a7d")
+return HelloWorld.at("0x67db72da8d8a03683a3586ff41abc90f3d88ecc3")
       .then(instance => {
         aHelloWorldInstance = instance;
-return aHelloWorldInstance.resultHelloWorld("162eadfa-efb0-47d0-bc1d-335054e3a3a4",{
+return aHelloWorldInstance.resultHelloWorld("c9f644b5-adf2-4db6-bd47-f7839f2496c7",{
           from: user,
           gas: amountGazProvided
         });
