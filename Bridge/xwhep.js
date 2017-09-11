@@ -858,7 +858,7 @@ function waitCompleted(uid) {
  * @exception is thrown on submission error
  * @exception is thrown if work status is ERROR
  */
-function submitAndWait(user, provider, creator, appName, cmdLineParam) {
+export function submitAndWait(user, provider, creator, appName, cmdLineParam) {
   return new Promise((resolve, reject) => {
     let workuid;
     submit(user, provider, creator, appName, cmdLineParam).then((uid) => {
