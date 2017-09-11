@@ -57,13 +57,13 @@ contract('IexecOracleAPI', function(accounts) {
       })
       .then(instance => {
         aIexecOracleInstance = instance;
-       /* return Extensions.expectedExceptionPromise(() => {
+        return Extensions.expectedExceptionPromise(() => {
             return aIexecOracleInstance.registerSmartContractAndCreator({
               from: creator,
               gas: amountGazProvided
             });
           },
-          amountGazProvided);*/
+          amountGazProvided);
       });
   });
 
@@ -86,8 +86,8 @@ contract('IexecOracleAPI', function(accounts) {
         });
     });
 
-    it("Test Launch Event when call iexecRegister", function() {
-      return aIexecOracleAPI.iexecRegister("ls", {
+    it("Test Launch Event when call iexecSubmit", function() {
+      return aIexecOracleAPI.iexecSubmit("ls", "-lrt", {
           from: user,
           gas: amountGazProvided
         })
@@ -100,9 +100,9 @@ contract('IexecOracleAPI', function(accounts) {
               user: user,
               provider: provider,
               creator: creator,
-              functionName: "register",
+              functionName: "submit",
               param1: "ls",
-              param2: "",
+              param2: "-lrt",
               workUid: ""
             }
           });
@@ -111,197 +111,202 @@ contract('IexecOracleAPI', function(accounts) {
   });
 
 
-  describe("Test Register function call then simulate bridge response", function() {
 
-    var aIexecOracleInstance;
-    var aIexecOracleAPI;
-    beforeEach("create a new contract instance and call register ls", function() {
-      return IexecOracle.new({
-          from: bridge
-        })
-        .then(instance => {
-          aIexecOracleInstance = instance;
-          return IexecOracleAPI.new(aIexecOracleInstance.address, {
-            from: creator
-          });
+
+    describe("Test Submit function call then simulate bridge response", function() {
+
+        var aIexecOracleInstance;
+        var aIexecOracleAPI;
+        beforeEach("create a new contract instance and call Submit ls", function() {
+            return IexecOracle.new({
+                    from: bridge
+                })
+                    .then(instance => {
+                    aIexecOracleInstance = instance;
+            return IexecOracleAPI.new(aIexecOracleInstance.address, {
+                from: creator,
+                gas: amountGazProvided
+            });
         }).
-      then(instance => {
-          aIexecOracleAPI = instance;
-          provider = aIexecOracleAPI.address;
-          return aIexecOracleAPI.iexecRegister("ls", {
-            from: user,
-            gas: amountGazProvided
-          });
+            then(instance => {
+                aIexecOracleAPI = instance;
+            provider = aIexecOracleAPI.address;
+            return aIexecOracleAPI.iexecSubmit("ls", "-lrt", {
+                from: user,
+                gas: amountGazProvided
+            });
         })
-        .then(txMined => {
-          assert.isBelow(txMined.receipt.gasUsed, amountGazProvided, "should not use all gas");
+            .then(txMined => {
+                assert.isBelow(txMined.receipt.gasUsed, amountGazProvided, "should not use all gas");
         });
-    });
+        });
 
-    it("Only bridge can call registerCallback fonction", function() {
-      return Extensions.expectedExceptionPromise(() => {
-          return aIexecOracleInstance.registerCallback(user, provider, "ls", "1234", "", {
-            from: user,
-            gas: amountGazProvided
-          });
+        it("Only bridge can call SubmitCallback fonction", function() {
+            return Extensions.expectedExceptionPromise(() => {
+                    return aIexecOracleInstance.submitCallback(user, provider, "ls", "1234", "", {
+                        from: user,
+                        gas: amountGazProvided
+                    });
         },
-        amountGazProvided);
-    });
+            amountGazProvided);
+        });
 
-    it("Simulate bridge response OK and test event Register", function() {
-      //simulate bridge response
-      let previousBlockTime;
-      let workTimestamp;
-      let nextBlockTime;
-      return Extensions.getCurrentBlockTime()
-        .then(now => {
-          previousBlockTime = now;
-          return aIexecOracleInstance.registerCallback(user, provider, "ls", "1234", "", {
-            from: bridge,
-            gas: amountGazProvided
-          });
+        it("Simulate bridge response OK and test event Submit", function() {
+            //simulate bridge response
+            let previousBlockTime;
+            let workTimestamp;
+            let nextBlockTime;
+            return Extensions.getCurrentBlockTime()
+                    .then(now => {
+                    previousBlockTime = now;
+            return aIexecOracleInstance.submitCallback(user, provider, "ls", "1234", "", {
+                from: bridge,
+                gas: amountGazProvided
+            });
         })
-        .then(txMined => {
-          assert.isBelow(txMined.receipt.gasUsed, amountGazProvided, "should not use all gas");
-          assert.strictEqual(txMined.logs[0].event, "CallbackEvent", "event");
-          assert.strictEqual(txMined.logs[0].args.callbackType, "RegisterCallback", "callbackType");
-          assert.strictEqual(txMined.logs[0].args.user, user, "user");
-          assert.strictEqual(txMined.logs[0].args.creator, creator, "creator");
-          assert.strictEqual(txMined.logs[0].args.provider, provider, "provider");
-          assert.strictEqual(txMined.logs[0].args.workUid, "1234", "workUid");
-          //assert.strictEqual(txMined.logs[0].args.timestamp, "time");
-          assert.strictEqual(txMined.logs[0].args.status.toNumber(), IexecOracle.Status.UNAVAILABLE, "status");
-          assert.strictEqual(txMined.logs[0].args.errorMsg, "", "errorMsg");
-          return Promise.all([
-            aIexecOracleInstance.getWork.call(user, provider, txMined.logs[0].args.workUid),
-            Extensions.getCurrentBlockTime()
-          ]);
+            .then(txMined => {
+                assert.isBelow(txMined.receipt.gasUsed, amountGazProvided, "should not use all gas");
+            assert.strictEqual(txMined.logs[0].event, "CallbackEvent", "event");
+            assert.strictEqual(txMined.logs[0].args.callbackType, "SubmitCallback", "callbackType");
+            assert.strictEqual(txMined.logs[0].args.user, user, "user");
+            assert.strictEqual(txMined.logs[0].args.creator, creator, "creator");
+            assert.strictEqual(txMined.logs[0].args.provider, provider, "provider");
+            assert.strictEqual(txMined.logs[0].args.workUid, "1234", "workUid");
+            //assert.strictEqual(txMined.logs[0].args.timestamp, "time");
+            assert.strictEqual(txMined.logs[0].args.status.toNumber(), IexecOracle.Status.PENDING, "status");
+            assert.strictEqual(txMined.logs[0].args.errorMsg, "", "errorMsg");
+            return Promise.all([
+                aIexecOracleInstance.getWork.call(user, provider, txMined.logs[0].args.workUid),
+                Extensions.getCurrentBlockTime()
+            ]);
         })
-        .then(workAndNow => {
-          [name, timestamp, status, stdout, stderr] = workAndNow[0];
-          nextBlockTime = workAndNow[1];
-          assert.strictEqual(name, "ls", "work name");
-          workTimestamp = timestamp.toNumber();
-          assert.isAtLeast(workTimestamp, previousBlockTime, "work timestamp >= previousBlockTime");
-          assert.isAtLeast(nextBlockTime, workTimestamp, "work timestamp <= nextBlockTime");
-          assert.strictEqual(status.toNumber(), IexecOracle.Status.UNAVAILABLE, "work status");
-          assert.strictEqual(stdout, "", "work stdout");
-          assert.strictEqual(stderr, "", "work stderr");
+            .then(workAndNow => {
+                [name, timestamp, status, stdout, stderr] = workAndNow[0];
+            nextBlockTime = workAndNow[1];
+            assert.strictEqual(name, "ls", "work name");
+            workTimestamp = timestamp.toNumber();
+            assert.isAtLeast(workTimestamp, previousBlockTime, "work timestamp >= previousBlockTime");
+            assert.isAtLeast(nextBlockTime, workTimestamp, "work timestamp <= nextBlockTime");
+            assert.strictEqual(status.toNumber(), IexecOracle.Status.PENDING, "work status");
+            assert.strictEqual(stdout, "", "work stdout");
+            assert.strictEqual(stderr, "", "work stderr");
+        });
+        });
+
+        it("Simulate bridge response KO and test event Submit", function() {
+            let previousBlockTime;
+            let workTimestamp;
+            let nextBlockTime;
+            //simulate bridge response
+            return Extensions.getCurrentBlockTime()
+                    .then(now => {
+                    previousBlockTime = now;
+            return aIexecOracleInstance.submitCallback(user, provider, "ls", "1234", "bridge crash", {
+                from: bridge,
+                gas: amountGazProvided
+            });
+        })
+            .then(txMined => {
+                assert.isBelow(txMined.receipt.gasUsed, amountGazProvided, "should not use all gas");
+            assert.strictEqual(txMined.logs[0].event, "CallbackEvent", "event");
+            assert.strictEqual(txMined.logs[0].args.callbackType, "SubmitCallback", "callbackType");
+            assert.strictEqual(txMined.logs[0].args.provider, provider, "provider");
+            assert.strictEqual(txMined.logs[0].args.creator, creator, "creator");
+            assert.strictEqual(txMined.logs[0].args.user, user, "user");
+            assert.strictEqual(txMined.logs[0].args.workUid, "1234", "workUid");
+            assert.strictEqual(txMined.logs[0].args.status.toNumber(), IexecOracle.Status.ERROR, "status");
+            assert.strictEqual(txMined.logs[0].args.errorMsg, "bridge crash", "errorMsg");
+            return Promise.all([
+                aIexecOracleInstance.getWork.call(user, provider, txMined.logs[0].args.workUid),
+                Extensions.getCurrentBlockTime()
+            ]);
+        })
+            .then(workAndNow => {
+                [name, timestamp, status, stdout, stderr] = workAndNow[0];
+            nextBlockTime = workAndNow[1];
+            assert.strictEqual(name, "ls", "work name");
+            workTimestamp = timestamp.toNumber();
+            assert.isAtLeast(workTimestamp, previousBlockTime, "work timestamp >= previousBlockTime");
+            assert.isAtLeast(nextBlockTime, workTimestamp, "work timestamp <= nextBlockTime");
+            assert.strictEqual(status.toNumber(), IexecOracle.Status.ERROR, "work status");
+            assert.strictEqual(stdout, "", "work stdout");
+            assert.strictEqual(stderr, "bridge crash", "work stderr");
+        });
+        });
+
+
+        it("Simulate bridge SubmitCallback and test event Submit, then next SubmitCallback call do not generate event Submit", function() {
+            //simulate bridge response
+            return aIexecOracleInstance.submitCallback(user, provider, "ls", "1234", "", {
+                    from: bridge,
+                    gas: amountGazProvided
+                }).then(txMined => {
+                    assert.isBelow(txMined.receipt.gasUsed, amountGazProvided, "should not use all gas");
+            assert.strictEqual(txMined.logs[0].event, "CallbackEvent", "event");
+            assert.strictEqual(txMined.logs[0].args.callbackType, "SubmitCallback", "callbackType");
+            assert.strictEqual(txMined.logs[0].args.provider, provider, "provider");
+            assert.strictEqual(txMined.logs[0].args.creator, creator, "creator");
+            assert.strictEqual(txMined.logs[0].args.user, user, "user");
+            assert.strictEqual(txMined.logs[0].args.workUid, "1234", "workUid");
+            //assert.strictEqual(txMined.logs[0].args.timestamp, 0);
+            assert.strictEqual(txMined.logs[0].args.status.toNumber(), IexecOracle.Status.PENDING, "status");
+            //call twice
+            return aIexecOracleInstance.submitCallback(user, provider, "ls", "1234", "", {
+                from: bridge,
+                gas: amountGazProvided
+            });
+        }).then(txMined => {
+                assert.isBelow(txMined.receipt.gasUsed, amountGazProvided, "should not use all gas");
+            assert.strictEqual(txMined.logs.length, 0, "no Submit event generate");
+        });
         });
     });
 
-    it("Simulate bridge response KO and test event Register", function() {
-      let previousBlockTime;
-      let workTimestamp;
-      let nextBlockTime;
-      //simulate bridge response
-      return Extensions.getCurrentBlockTime()
-        .then(now => {
-          previousBlockTime = now;
-          return aIexecOracleInstance.registerCallback(user, provider, "ls", "1234", "bridge crash", {
-            from: bridge,
-            gas: amountGazProvided
-          });
-        })
-        .then(txMined => {
-          assert.isBelow(txMined.receipt.gasUsed, amountGazProvided, "should not use all gas");
-          assert.strictEqual(txMined.logs[0].event, "CallbackEvent", "event");
-          assert.strictEqual(txMined.logs[0].args.callbackType, "RegisterCallback", "callbackType");
-          assert.strictEqual(txMined.logs[0].args.provider, provider, "provider");
-          assert.strictEqual(txMined.logs[0].args.creator, creator, "creator");
-          assert.strictEqual(txMined.logs[0].args.user, user, "user");
-          assert.strictEqual(txMined.logs[0].args.workUid, "1234", "workUid");
-          assert.strictEqual(txMined.logs[0].args.status.toNumber(), IexecOracle.Status.ERROR, "status");
-          assert.strictEqual(txMined.logs[0].args.errorMsg, "bridge crash", "errorMsg");
-          return Promise.all([
-            aIexecOracleInstance.getWork.call(user, provider, txMined.logs[0].args.workUid),
-            Extensions.getCurrentBlockTime()
-          ]);
-        })
-        .then(workAndNow => {
-          [name, timestamp, status, stdout, stderr] = workAndNow[0];
-          nextBlockTime = workAndNow[1];
-          assert.strictEqual(name, "ls", "work name");
-          workTimestamp = timestamp.toNumber();
-          assert.isAtLeast(workTimestamp, previousBlockTime, "work timestamp >= previousBlockTime");
-          assert.isAtLeast(nextBlockTime, workTimestamp, "work timestamp <= nextBlockTime");
-          assert.strictEqual(status.toNumber(), IexecOracle.Status.ERROR, "work status");
-          assert.strictEqual(stdout, "", "work stdout");
-          assert.strictEqual(stderr, "bridge crash", "work stderr");
-        });
-    });
-
-
-    it("Simulate bridge registerCallback and test event Register, then next registerCallback call do not generate event Register", function() {
-      //simulate bridge response
-      return aIexecOracleInstance.registerCallback(user, provider, "ls", "1234", "", {
-        from: bridge,
-        gas: amountGazProvided
-      }).then(txMined => {
-        assert.isBelow(txMined.receipt.gasUsed, amountGazProvided, "should not use all gas");
-        assert.strictEqual(txMined.logs[0].event, "CallbackEvent", "event");
-        assert.strictEqual(txMined.logs[0].args.callbackType, "RegisterCallback", "callbackType");
-        assert.strictEqual(txMined.logs[0].args.provider, provider, "provider");
-        assert.strictEqual(txMined.logs[0].args.creator, creator, "creator");
-        assert.strictEqual(txMined.logs[0].args.user, user, "user");
-        assert.strictEqual(txMined.logs[0].args.workUid, "1234", "workUid");
-        //assert.strictEqual(txMined.logs[0].args.timestamp, 0);
-        assert.strictEqual(txMined.logs[0].args.status.toNumber(), IexecOracle.Status.UNAVAILABLE, "status");
-        //call twice
-        return aIexecOracleInstance.registerCallback(user, provider, "ls", "1234", "", {
-          from: bridge,
-          gas: amountGazProvided
-        });
-      }).then(txMined => {
-        assert.isBelow(txMined.receipt.gasUsed, amountGazProvided, "should not use all gas");
-        assert.strictEqual(txMined.logs.length, 0, "no Register event generate");
-      });
-    });
-  });
-
-  describe("Test IexecOracleAPI on IexecOracle well initialized", function() {
-    var aIexecOracleInstance;
-    var aIexecOracleAPI;
-    beforeEach("create a new contract instance", function() {
-      return IexecOracle.new({
-          from: bridge
-        })
-        .then(instance => {
-          aIexecOracleInstance = instance;
-          return IexecOracleAPI.new(aIexecOracleInstance.address, {
-            from: creator
-          });
+    describe("Test IexecOracleAPI on IexecOracle well initialized", function() {
+        var aIexecOracleInstance;
+        var aIexecOracleAPI;
+        beforeEach("create a new contract instance", function() {
+            return IexecOracle.new({
+                    from: bridge
+                })
+                    .then(instance => {
+                    aIexecOracleInstance = instance;
+            return IexecOracleAPI.new(aIexecOracleInstance.address, {
+                from: creator,
+                gas: amountGazProvided
+            });
         }).then(instance => {
-          aIexecOracleAPI = instance;
+                aIexecOracleAPI = instance;
         });
-    });
-
-    it("Test creator and creator of IexecOracleAPI are set correctly in IexecOracle", function() {
-      return aIexecOracleInstance.getCreator.call(aIexecOracleAPI.address)
-        .then(creatorStored => {
-          assert.strictEqual(creator, creatorStored, "creator check");
         });
-    });
 
-   /* it("Test provider count for the creator  increment of by 1 in IexecOracle", function() {
-      return aIexecOracleInstance.getCreatorProvidersCount.call(creator)
-        .then(count => {
-          assert.strictEqual(1, count.toNumber(), "creatorProvidersCount increment by 1");
+        it("Test creator and creator of IexecOracleAPI are set correctly in IexecOracle", function() {
+            return aIexecOracleInstance.getCreator.call(aIexecOracleAPI.address)
+                    .then(creatorStored => {
+                    assert.strictEqual(creator, creatorStored, "creator check");
         });
-    });*/
+        });
 
-    it("Cannot change creator in aIexecOracleInstance after first call by IexecOracleAPI constructor", function() {
-      return Extensions.expectedExceptionPromise(() => {
-          return aIexecOracleAPI.impossible(aIexecOracleInstance.address, {
-            from: user,
-            gas: amountGazProvided
-          });
+      /* it("Test provider count for the creator  increment of by 1 in IexecOracle", function() {
+       return aIexecOracleInstance.getCreatorProvidersCount.call(creator)
+       .then(count => {
+       assert.strictEqual(1, count.toNumber(), "creatorProvidersCount increment by 1");
+       });
+       });*/
+
+        it("Cannot change creator in aIexecOracleInstance after first call by IexecOracleAPI constructor", function() {
+            return Extensions.expectedExceptionPromise(() => {
+                    return aIexecOracleAPI.impossible(aIexecOracleInstance.address, {
+                        from: user,
+                        gas: amountGazProvided
+                    });
         },
-        amountGazProvided);
+            amountGazProvided);
+        });
     });
-  });
 
-  // TODO test bridge call register ?
+
+
   // TODO limit register call
   // TODO test all stats counters
   //TODO test aIexecOracleAPI not initialized modifier only providerInitialized
