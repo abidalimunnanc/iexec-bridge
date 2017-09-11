@@ -11,19 +11,6 @@ contract HelloWorld is IexecOracleAPI{
     iexecSubmit("echo",helloText);
   }
 
-
-  //function registerEcho(){
-  //  iexecRegister("echo");
-  //}
-
-  //function setHelloWorldParam(string workUid, string helloText){
-  //  iexecSetParam(workUid,"cmdline",helloText);
-  //}
-
-  //function setPendingHelloWorld(string workUid){
-  //  iexecSetPending(workUid);
-  //}
-
   function statusHelloWorld(string workUid){
     iexecStatus(workUid);
   }

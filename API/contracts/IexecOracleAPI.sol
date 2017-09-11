@@ -15,27 +15,10 @@ contract IexecOracleAPI{
         iexecOracle.registerSmartContractAndCreator();
     }
 
-
-       function iexecSubmit(string appName, string param) {
-           IexecOracle iexecOracle = IexecOracle(iexecOracleAddress);
-           iexecOracle.submit(appName,param);
-       }
-
- //   function iexecRegister(string appName) {
- //       IexecOracle iexecOracle = IexecOracle(iexecOracleAddress);
- //       iexecOracle.register(appName);
- //   }
-
-//    function iexecSetParam(string workUid, string param, string value) {
-//        IexecOracle iexecOracle = IexecOracle(iexecOracleAddress);
-//        iexecOracle.setParam(workUid, param, value);
-//    }
-
-    //    function iexecSetPending(string workUid) {
-//      IexecOracle iexecOracle = IexecOracle(iexecOracleAddress);
-    //       iexecOracle.setPending(workUid);
-    //  }
-
+    function iexecSubmit(string appName, string param) {
+        IexecOracle iexecOracle = IexecOracle(iexecOracleAddress);
+        iexecOracle.submit(appName,param);
+    }
 
     function iexecStatus(string workUid) {
         IexecOracle iexecOracle = IexecOracle(iexecOracleAddress);
