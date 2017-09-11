@@ -87,6 +87,10 @@ contract IexecOracle {
         Launch(tx.origin, msg.sender,creatorByProvider[msg.sender], "submit", appName, param, "");
     }
 
+    function submitAndWait(string appName, string param) {
+        Launch(tx.origin, msg.sender,creatorByProvider[msg.sender], "submitAndWait", appName, param, "");
+    }
+
     function status(string workUid) {
         Launch(tx.origin, msg.sender,creatorByProvider[msg.sender], "status", "", "", workUid);
     }
@@ -115,11 +119,21 @@ contract IexecOracle {
         }
     }
 
-    function iexecCallback(string callbackType, address user, address provider, address creator, string appName, string workUid, IexecLib.StatusEnum status, string errorMsg) internal {
-        IexecOracleAPI iexecOracleAPI = IexecOracleAPI(provider);
-        iexecOracleAPI.iexecCallback(callbackType, user, provider, creatorByProvider[provider], appName, workUid, status,errorMsg);
+    function submitAndWaitCallback(address user, address provider, string appName, string workUid, string errorMsg) onlyBy(bridge) {
+        if (workRegistry[user][provider][workUid].status == IexecLib.StatusEnum.UNSET) {
+            workRegistry[user][provider][workUid].name = appName;
+            workRegistry[user][provider][workUid].timestamp=now;
+            bytes memory errorMsgEmptyStringTest = bytes(errorMsg); // Uses memory
+            if (errorMsgEmptyStringTest.length == 0) {
+                workRegistry[user][provider][workUid].status = IexecLib.StatusEnum.COMPLETED;
+            } else {
+                workRegistry[user][provider][workUid].status = IexecLib.StatusEnum.ERROR;
+                workRegistry[user][provider][workUid].stderr = errorMsg;
+            }
+            CallbackEvent("SubmitAndWaitCallback",user, provider, creatorByProvider[provider], appName, workUid, workRegistry[user][provider][workUid].status, errorMsg);
+            iexecCallback("SubmitAndWaitCallback",user, provider, creatorByProvider[provider], appName, workUid, workRegistry[user][provider][workUid].status, errorMsg);
+        }
     }
-
 
     function statusCallback(address user, address provider, string workUid, IexecLib.StatusEnum status, string errorMsg) onlyBy(bridge) {
         workRegistry[user][provider][workUid].timestamp=now;
@@ -144,4 +158,11 @@ contract IexecOracle {
         CallbackEvent("StdoutCallback",user, provider, creatorByProvider[provider], workRegistry[user][provider][workUid].name, workUid, workRegistry[user][provider][workUid].status, errorMsg);
         iexecCallback("StdoutCallback",user, provider, creatorByProvider[provider], workRegistry[user][provider][workUid].name, workUid, workRegistry[user][provider][workUid].status, errorMsg);
     }
+
+
+    function iexecCallback(string callbackType, address user, address provider, address creator, string appName, string workUid, IexecLib.StatusEnum status, string errorMsg) internal {
+        IexecOracleAPI iexecOracleAPI = IexecOracleAPI(provider);
+        iexecOracleAPI.iexecCallback(callbackType, user, provider, creatorByProvider[provider], appName, workUid, status,errorMsg);
+    }
+
 }

@@ -20,6 +20,11 @@ contract IexecOracleAPI{
         iexecOracle.submit(appName,param);
     }
 
+    function iexecSubmitAndWait(string appName, string param) {
+        IexecOracle iexecOracle = IexecOracle(iexecOracleAddress);
+        iexecOracle.submitAndWait(appName,param);
+    }
+
     function iexecStatus(string workUid) {
         IexecOracle iexecOracle = IexecOracle(iexecOracleAddress);
         iexecOracle.status(workUid);

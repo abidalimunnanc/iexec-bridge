@@ -11,6 +11,10 @@ contract HelloWorld is IexecOracleAPI{
     iexecSubmit("echo",helloText);
   }
 
+  function submitAndWaitEcho(string helloText ){
+    iexecSubmitAndWait("echo",helloText);
+  }
+
   function statusHelloWorld(string workUid){
     iexecStatus(workUid);
   }

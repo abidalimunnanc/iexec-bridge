@@ -36,57 +36,96 @@ const launchEvent = contractInstance.Launch({});
 
 // return UID
 function submit(user, provider, creator, appName, param) {
-
     xwhep.submit(user, provider, creator, appName,param).then(workUid => {
         console.log(`Here the workUid = ${workUid}`);
-    contractInstance.submitCallback(user, provider, appName, workUid, '', {
-        from: bridgeAccount,
-        gas: runningGas
-    }).then(result => {
-        contractInstance.getWork.call(user, provider, workUid).then(result => {
-        console.log("name :" + result[0]);
-    console.log("timestamp :" + result[1]);
-    console.log("status :" + result[2]);
-    console.log("stdout :" + result[3]);
-    console.log("stderr :" + result[4]);
-})
-.catch(error => {
-        console.log(error);
-});
-})
-.catch(error => {
-        console.log(error);
-});
-})
-.catch(error => {
-        console.log(error);
-    contractInstance.submitCallback(user, provider, appName, '', `${error}`, {
-        from: bridgeAccount,
-        gas: runningGas
-    }).then(result => {
-        contractInstance.getWork.call(user, provider, '').then(result => {
-        console.log("name :" + result[0]);
-    console.log("timestamp :" + result[1]);
-    console.log("status :" + result[2]);
-    console.log("stdout :" + result[3]);
-    console.log("stderr :" + result[4]);
-})
-.catch(error => {
-        console.log(error);
-});
-})
-.catch(error => {
-        console.log(error);
-});
-});
+        contractInstance.submitCallback(user, provider, appName, workUid, '', {
+            from: bridgeAccount,
+            gas: runningGas
+        }).then(result => {
+            contractInstance.getWork.call(user, provider, workUid).then(result => {
+            console.log("name :" + result[0]);
+        console.log("timestamp :" + result[1]);
+        console.log("status :" + result[2]);
+        console.log("stdout :" + result[3]);
+        console.log("stderr :" + result[4]);
+        })
+        .catch(error => {
+                console.log(error);
+        });
+        })
+        .catch(error => {
+                console.log(error);
+        });
+    })
+    .catch(error => {
+            console.log(error);
+        contractInstance.submitCallback(user, provider, appName, '', `${error}`, {
+            from: bridgeAccount,
+            gas: runningGas
+        }).then(result => {
+            contractInstance.getWork.call(user, provider, '').then(result => {
+            console.log("name :" + result[0]);
+        console.log("timestamp :" + result[1]);
+        console.log("status :" + result[2]);
+        console.log("stdout :" + result[3]);
+        console.log("stderr :" + result[4]);
+        })
+        .catch(error => {
+                console.log(error);
+        });
+        })
+        .catch(error => {
+                console.log(error);
+        });
+    });
 }
-/*
-// return pattern
-function submitAndWait(user, appName, param, pattern) {
-  console.log('Submit and Wait ', appName, param, pattern);
-  // CALL XTREMWEB
+
+// return UID
+function submitAndWait(user, provider, creator, appName, param) {
+    xwhep.submitAndWait(user, provider, creator, appName,param).then(workUid => {
+        console.log(`Here the workUid = ${workUid}`);
+        contractInstance.submitAndWaitCallback(user, provider, appName, workUid, '', {
+            from: bridgeAccount,
+            gas: runningGas
+        }).then(result => {
+            contractInstance.getWork.call(user, provider, workUid).then(result => {
+            console.log("name :" + result[0]);
+        console.log("timestamp :" + result[1]);
+        console.log("status :" + result[2]);
+        console.log("stdout :" + result[3]);
+        console.log("stderr :" + result[4]);
+        })
+        .catch(error => {
+                console.log(error);
+        });
+        })
+        .catch(error => {
+                console.log(error);
+        });
+})
+.catch(error => {
+        console.log(error);
+        contractInstance.submitAndWaitCallback(user, provider, appName, '', `${error}`, {
+            from: bridgeAccount,
+            gas: runningGas
+        }).then(result => {
+            contractInstance.getWork.call(user, provider, '').then(result => {
+            console.log("name :" + result[0]);
+        console.log("timestamp :" + result[1]);
+        console.log("status :" + result[2]);
+        console.log("stdout :" + result[3]);
+        console.log("stderr :" + result[4]);
+        })
+        .catch(error => {
+                console.log(error);
+        });
+        })
+        .catch(error => {
+                console.log(error);
+        });
+    });
 }
-*/
+
 function setParam(user, provider, creator, paramName, paramValue, workUid) {
   console.log('setParam', user, provider, creator, paramName, paramValue, workUid);
   xwhep.setParam(workUid, paramName, paramValue).then((error) => {
@@ -243,7 +282,7 @@ launchEvent.watch((err, res) => {
   }
   console.log(`Parse ${res.args.user} ${res.args.provider} ${res.args.creator} ${res.args.functionName} ${res.args.param1} ${res.args.param2} ${res.args.UID}`);
   if (res.args.functionName === 'submitAndWait') {
-    // submitAndWait(res.args.user, res.args.provider, res.args.param1, res.args.param2, res.args.param3);
+    submitAndWait(res.args.user, res.args.provider, res.args.creator, res.args.param1, res.args.param2);
   } else if (res.args.functionName === 'submit') {
     submit(res.args.user, res.args.provider, res.args.creator, res.args.param1, res.args.param2);
   } else if (res.args.functionName === 'setParam') {

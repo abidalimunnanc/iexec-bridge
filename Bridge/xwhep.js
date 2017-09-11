@@ -360,71 +360,7 @@ function getApps() {
  * @resolve the new work uid
  * @exception is thrown if application is not found
  * @see #setPending(uid)
- *//*
-export function register(user, provider, creator, appName) {
-  console.log(`register ; ${appName}`);
-
-  console.log('Coucou');
-  return new Promise((resolve, reject) => {
-    if (!(appName in hashtableAppNames)) {
-      getApps().then(() => {
-        if (!(appName in hashtableAppNames)) {
-          throw new Error(`Application not found ${appName}`);
-        }
-
-          //appel
-
-        //throw new Error('Test avec erreur');
-        console.log('Coucou');
-        const workUid = uuidV4();
-        console.log(`work uid = ${workUid}`);
-
-        const appUid = hashtableAppNames[appName];
-        console.log(`${appName} = ${appUid}`);
-
-        const workDescription = `<work><uid>${workUid}</uid><accessrights>0x755</accessrights><appuid>${
-            appUid}</appuid><status>UNAVAILABLE</status></work>`;
-        sendWork(workDescription).then(() => {
-            sendWork(workDescription).then(() => {  // a 2nd time to force status to UNAVAILABLE
-            resolve(workUid);
-    }).catch((err) => {
-            reject(`register() sendWork 2 error : ${err}`);
-    });
-    }).catch((err) => {
-            reject(`register() sendWork 1 error : ${err}`);
-    });
-
-      });
-    }
-    else{
-
-        //appel
-        //throw new Error('Test avec erreur');
-        console.log('Coucou');
-        const workUid = uuidV4();
-        console.log(`work uid = ${workUid}`);
-
-        const appUid = hashtableAppNames[appName];
-        console.log(`${appName} = ${appUid}`);
-
-        const workDescription = `<work><uid>${workUid}</uid><accessrights>0x755</accessrights><appuid>${
-            appUid}</appuid><status>UNAVAILABLE</status></work>`;
-        sendWork(workDescription).then(() => {
-            sendWork(workDescription).then(() => {  // a 2nd time to force status to UNAVAILABLE
-            resolve(workUid);
-    }).catch((err) => {
-            reject(`register() sendWork 2 error : ${err}`);
-    });
-    }).catch((err) => {
-            reject(`register() sendWork 1 error : ${err}`);
-    });
-
-    }
-
-  }).catch((err) => {
-    reject(`register() getApps error : ${err}`);
-  });
-}*/
+ */
 
 
 export async function register(user, provider, creator, appName) {
@@ -922,10 +858,10 @@ function waitCompleted(uid) {
  * @exception is thrown on submission error
  * @exception is thrown if work status is ERROR
  */
-function submitAndWait(appName, cmdLineParam) {
+function submitAndWait(user, provider, creator, appName, cmdLineParam) {
   return new Promise((resolve, reject) => {
     let workuid;
-    submit(appName, cmdLineParam).then((uid) => {
+    submit(user, provider, creator, appName, cmdLineParam).then((uid) => {
       workuid = uid;
       console.log('submitAndWait() submission done');
       waitCompleted(uid).then(() => {
