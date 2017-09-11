@@ -77,8 +77,7 @@ contract('IexecOracleAPI', function(accounts) {
         .then(instance => {
           aIexecOracleInstance = instance;
           return IexecOracleAPI.new(aIexecOracleInstance.address, {
-            from: creator,
-            gas: amountGazProvided
+            from: creator
           });
         }).then(instance => {
           aIexecOracleAPI = instance;
@@ -124,8 +123,7 @@ contract('IexecOracleAPI', function(accounts) {
                     .then(instance => {
                     aIexecOracleInstance = instance;
             return IexecOracleAPI.new(aIexecOracleInstance.address, {
-                from: creator,
-                gas: amountGazProvided
+                from: creator
             });
         }).
             then(instance => {
@@ -272,8 +270,7 @@ contract('IexecOracleAPI', function(accounts) {
                     .then(instance => {
                     aIexecOracleInstance = instance;
             return IexecOracleAPI.new(aIexecOracleInstance.address, {
-                from: creator,
-                gas: amountGazProvided
+                from: creator
             });
         }).then(instance => {
                 aIexecOracleAPI = instance;
