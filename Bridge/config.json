@@ -4,19 +4,6 @@
       "constant": false,
       "inputs": [
         {
-          "name": "workUid",
-          "type": "string"
-        }
-      ],
-      "name": "toDelete",
-      "outputs": [],
-      "payable": false,
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
           "name": "user",
           "type": "address"
         },
@@ -65,52 +52,6 @@
           "type": "uint256"
         }
       ],
-      "payable": false,
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "appName",
-          "type": "string"
-        },
-        {
-          "name": "param",
-          "type": "string"
-        },
-        {
-          "name": "pattern",
-          "type": "string"
-        }
-      ],
-      "name": "submitAndWait",
-      "outputs": [],
-      "payable": false,
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "user",
-          "type": "address"
-        },
-        {
-          "name": "provider",
-          "type": "address"
-        },
-        {
-          "name": "workUid",
-          "type": "string"
-        },
-        {
-          "name": "errorMsg",
-          "type": "string"
-        }
-      ],
-      "name": "setParamCallback",
-      "outputs": [],
       "payable": false,
       "type": "function"
     },
@@ -173,60 +114,6 @@
         }
       ],
       "name": "statusCallback",
-      "outputs": [],
-      "payable": false,
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "user",
-          "type": "address"
-        },
-        {
-          "name": "provider",
-          "type": "address"
-        },
-        {
-          "name": "workUid",
-          "type": "string"
-        },
-        {
-          "name": "errorMsg",
-          "type": "string"
-        }
-      ],
-      "name": "setPendingCallback",
-      "outputs": [],
-      "payable": false,
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "user",
-          "type": "address"
-        },
-        {
-          "name": "provider",
-          "type": "address"
-        },
-        {
-          "name": "appName",
-          "type": "string"
-        },
-        {
-          "name": "workUid",
-          "type": "string"
-        },
-        {
-          "name": "errorMsg",
-          "type": "string"
-        }
-      ],
-      "name": "registerCallback",
       "outputs": [],
       "payable": false,
       "type": "function"
@@ -364,15 +251,27 @@
       "constant": false,
       "inputs": [
         {
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "name": "provider",
+          "type": "address"
+        },
+        {
+          "name": "appName",
+          "type": "string"
+        },
+        {
           "name": "workUid",
           "type": "string"
         },
         {
-          "name": "pattern",
+          "name": "errorMsg",
           "type": "string"
         }
       ],
-      "name": "waitResult",
+      "name": "submitCallback",
       "outputs": [],
       "payable": false,
       "type": "function"
@@ -399,40 +298,6 @@
         }
       ],
       "name": "status",
-      "outputs": [],
-      "payable": false,
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "workUid",
-          "type": "string"
-        },
-        {
-          "name": "paramName",
-          "type": "string"
-        },
-        {
-          "name": "paramValue",
-          "type": "string"
-        }
-      ],
-      "name": "setParam",
-      "outputs": [],
-      "payable": false,
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "appName",
-          "type": "string"
-        }
-      ],
-      "name": "register",
       "outputs": [],
       "payable": false,
       "type": "function"
@@ -472,19 +337,6 @@
         }
       ],
       "name": "stdout",
-      "outputs": [],
-      "payable": false,
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "workUid",
-          "type": "string"
-        }
-      ],
-      "name": "setPending",
       "outputs": [],
       "payable": false,
       "type": "function"

@@ -624,9 +624,9 @@ export function setPending(uid) {
  * @resolve the new work uid
  * @exception is thrown if application is not found
  */
-export const submit = (appName, cmdLineParam) => (
+export const submit = ( user, provider, creator,appName, cmdLineParam) => (
    new Promise((resolve, reject) => {
-     register(appName).then((uid) => {
+     register(user, provider, creator,appName).then((uid) => {
        setParam(uid, 'cmdline', cmdLineParam).then(() => {
          setPending(uid).then(() => {
            resolve(uid);
