@@ -39,7 +39,8 @@ function submitAndWaitAndGetStdout(user, provider, creator, appName, param) {
         [workUid,stdout]=result;
         console.log(`Here the workUid = ${workUid}`);
         console.log(`Here the stdout = ${stdout}`);
-        contractInstance.submitCallback(user, provider, appName, workUid, '', {
+
+        contractInstance.submitCallback(user, provider, appName, workUid, 4 /*COMPLETED*/, stdout,'', {
             from: bridgeAccount,
             gas: runningGas
         }).then(result => {
@@ -60,7 +61,7 @@ function submitAndWaitAndGetStdout(user, provider, creator, appName, param) {
 })
 .catch(error => {
         console.log(error);
-        contractInstance.submitCallback(user, provider, appName, '', `${error}`, {
+        contractInstance.submitCallback(user, provider, appName, workUid, 5/*ERROR*/, stdout, `${error}`, {
             from: bridgeAccount,
             gas: runningGas
         }).then(result => {
@@ -82,43 +83,6 @@ function submitAndWaitAndGetStdout(user, provider, creator, appName, param) {
 }
 
 
-
-
-// return string (COMPLETED PENDING RUNNING ERROR)
-function status(user, provider, creator, paramName, paramValue, workUid) {
-  console.log('status', workUid);
-  xwhep.getStatus(workUid).then(status => {
-    console.log("status is " + status);
-    //StatusEnum {UNSET=0, UNAVAILABLE=1, PENDING=2, RUNNING=3, COMPLETED=4, ERROR=5}
-    let workStatusToReturn;
-    if (status.indexOf("UNAVAILABLE") !== -1) {
-      workStatusToReturn = 1;
-    } else if (status.indexOf("PENDING") !== -1) {
-      workStatusToReturn = 2;
-    } else if (status.indexOf("RUNNING") !== -1) {
-      workStatusToReturn = 3;
-    } else if (status.indexOf("COMPLETED") !== -1) {
-      workStatusToReturn = 4;
-    } else if (status.indexOf("ERROR") !== -1) {
-      workStatusToReturn = 5;
-    } else {
-      workStatusToReturn = 5;
-    }
-    console.log("workStatusToReturn" + workStatusToReturn);
-    contractInstance.statusCallback(user, provider, workUid, workStatusToReturn, '', {
-        from: bridgeAccount,
-        gas: 400000
-      }).then(result => {
-        console.log('status Done');
-      })
-      .catch(error => {
-        console.log('status KO');
-        console.log(error);
-      });
-
-
-  });
-}
 
 /*
  * Event watcher: this function listen to the event and call the related fonction

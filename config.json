@@ -213,7 +213,11 @@
           "type": "uint8"
         },
         {
-          "name": "errorMsg",
+          "name": "stdout",
+          "type": "string"
+        },
+        {
+          "name": "stderr",
           "type": "string"
         }
       ],
@@ -348,7 +352,12 @@
         },
         {
           "indexed": false,
-          "name": "errorMsg",
+          "name": "stdout",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "name": "stderr",
           "type": "string"
         }
       ],
