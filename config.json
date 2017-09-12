@@ -1,35 +1,6 @@
 {
   "ContractAbi": [
     {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "user",
-          "type": "address"
-        },
-        {
-          "name": "provider",
-          "type": "address"
-        },
-        {
-          "name": "workUid",
-          "type": "string"
-        },
-        {
-          "name": "stdout",
-          "type": "string"
-        },
-        {
-          "name": "errorMsg",
-          "type": "string"
-        }
-      ],
-      "name": "stdoutCallback",
-      "outputs": [],
-      "payable": false,
-      "type": "function"
-    },
-    {
       "constant": true,
       "inputs": [
         {
@@ -86,35 +57,6 @@
           "type": "string"
         }
       ],
-      "payable": false,
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "user",
-          "type": "address"
-        },
-        {
-          "name": "provider",
-          "type": "address"
-        },
-        {
-          "name": "workUid",
-          "type": "string"
-        },
-        {
-          "name": "status",
-          "type": "uint8"
-        },
-        {
-          "name": "errorMsg",
-          "type": "string"
-        }
-      ],
-      "name": "statusCallback",
-      "outputs": [],
       "payable": false,
       "type": "function"
     },
@@ -267,6 +209,10 @@
           "type": "string"
         },
         {
+          "name": "status",
+          "type": "uint8"
+        },
+        {
           "name": "errorMsg",
           "type": "string"
         }
@@ -286,19 +232,6 @@
           "type": "address"
         }
       ],
-      "payable": false,
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "workUid",
-          "type": "string"
-        }
-      ],
-      "name": "status",
-      "outputs": [],
       "payable": false,
       "type": "function"
     },
@@ -325,19 +258,6 @@
           "type": "uint8"
         }
       ],
-      "payable": false,
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "workUid",
-          "type": "string"
-        }
-      ],
-      "name": "stdout",
-      "outputs": [],
       "payable": false,
       "type": "function"
     },

@@ -40,7 +40,7 @@ const SERVERURI = IEXECURI;
  * This is the delay between between two get status calls
  * This is in milliseconds
  */
-const WAITSTATUSDELAY = 1000
+const WAITSTATUSDELAY = 10000
 
 /**
  * API PATH
@@ -363,7 +363,7 @@ function getApps() {
  */
 
 
-export async function register(user, provider, creator, appName) {
+async function register(user, provider, creator, appName) {
     console.log(`register ; ${appName}`);
 
     // return new Promise((resolve, reject) => {
@@ -416,7 +416,7 @@ export async function register(user, provider, creator, appName) {
  * @exception is thrown if parameter is read only (e.g. status, return code, etc.)
  */
 
-export function setParam(uid, paramName, paramValue) {
+function setParam(uid, paramName, paramValue) {
   console.log("uid",uid);
   console.log("paramName",paramName);
   console.log("paramValue",paramValue);
@@ -520,7 +520,7 @@ export function getStatus(uid) {
  * @exception is thrown if paramName does not represent a valid work parameter
  * @exception is thrown if parameter is read only (e.g. status, return code, etc.)
  */
-export function setPending(uid) {
+function setPending(uid) {
   return new Promise((resolve, reject) => {
     get(uid).then((getResponse) => {
       let jsonObject;
@@ -560,7 +560,7 @@ export function setPending(uid) {
  * @resolve the new work uid
  * @exception is thrown if application is not found
  */
-export const submit = ( user, provider, creator,appName, cmdLineParam) => (
+const submit = ( user, provider, creator,appName, cmdLineParam) => (
    new Promise((resolve, reject) => {
      register(user, provider, creator,appName).then((uid) => {
        setParam(uid, 'cmdline', cmdLineParam).then(() => {
@@ -857,11 +857,11 @@ function waitCompleted(uid) {
  * @param appName is the application name
  * @param cmdLineParam is the command line parameter. This may be ""
  * @return a new Promise
- * @resolve the result path
+ * @resolve the workuid and result path
  * @exception is thrown on submission error
  * @exception is thrown if work status is ERROR
  */
-export function submitAndWait(user, provider, creator, appName, cmdLineParam) {
+function submitAndWait(user, provider, creator, appName, cmdLineParam) {
   return new Promise((resolve, reject) => {
     let workuid;
     submit(user, provider, creator, appName, cmdLineParam).then((uid) => {
@@ -873,7 +873,7 @@ export function submitAndWait(user, provider, creator, appName, cmdLineParam) {
           console.log(`submitAndWait() downloaded ${workuid}`);
           getResultPath(workuid).then((resultPath) => {
             console.log(`submitAndWait() path ${resultPath}`);
-            resolve(resultPath);
+            resolve([workuid,resultPath]);
           }).catch((msg) => {
             reject(`submitAndWait() : ${msg}`);
           });
@@ -887,6 +887,35 @@ export function submitAndWait(user, provider, creator, appName, cmdLineParam) {
       reject(`submitAndWait() : ${e}`);
     });
   });
+}
+
+
+/**
+ * This submits a work for the provided application and waits for its completion and then return stdout
+ * This is a public method implemented in the smart contract
+ * @param appName is the application name
+ * @param cmdLineParam is the command line parameter. This may be ""
+ * @return a new Promise
+ * @resolve the workuid and result path
+ * @exception is thrown on submission error
+ * @exception is thrown if work status is ERROR
+ */
+export function submitAndWaitAndGetStdout(user, provider, creator, appName, cmdLineParam) {
+    return new Promise((resolve, reject) => {
+        submitAndWait(user, provider, creator, appName, cmdLineParam).then((results) => {
+            workuid=results[0];
+            resultPath=results[1];
+            console.log('submitAndWaitAndGetResult() submitAndWait done');
+            console.log(`submitAndWaitAndGetResult() path ${resultPath}`);
+            dumpFile(resultPath).then((textContent) => {
+                resolve([workuid,textContent]);
+            }).catch((msg) => {
+                reject(`submitAndWaitAndGetResult() : ${msg}`);
+            });
+        }).catch((e) => {
+            reject(`submitAndWaitAndGetResult() : ${e}`);
+        });
+    });
 }
 
 /**
