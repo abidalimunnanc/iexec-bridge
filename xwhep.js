@@ -835,8 +835,11 @@ function waitCompleted(uid) {
           return reject(`waitCompleted() : work ERROR (${uid})`);
         }
         if (newStatus.toString() === 'COMPLETED') {
+          console.log("waitCompleted !");
           clearInterval(theInterval);
+          console.log("waitCompleted. interval clear !");
           resolve();
+          console.log("waitCompleted. reseolved!");
           return;
         }
         console.log(`waitCompleted sleeping ${WAITSTATUSDELAY}ms : ${uid} (${newStatus})`);
