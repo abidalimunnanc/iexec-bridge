@@ -103,51 +103,51 @@ if(!(qwerty in workAvailableParameters)){
  * Value describes the write access
  */
 const workAvailableParameters = {
-  uid: false,
-  owneruid: false,
-  accessrights: true,
-  errormsg: true,
-  mtime: false,
-  userproxy: true,
-  sessionuid: true,
-  groupuid: true,
-  sgid: true,
-  expectedhostuid: true,
-  isservice: false,
-  label: true,
-  appuid: true,
-  returncode: false,
-  server: false,
-  listenport: true,
-  smartsocketaddr: true,
-  smartsocketclient: true,
-  envvars: true,
-  cmdline: true,
-  stdinuri: true,
-  dirinuri: true,
-  resulturi: false,
-  arrivaldate: false,
-  completeddate: false,
-  readydate: false,
-  datareadydate: false,
-  compstartdate: false,
-  compenddate: false,
-  sendtoclient: false,
-  local: false,
-  active: true,
-  replications: true,
-  totalr: true,
-  sizer: true,
-  replicateduid: true,
-  datadrivenuri: true,
-  maxretry: true,
-  retry: false,
-  maxwallclocktime: true,
-  diskspace: true,
-  minmemory: true,
-  mincpuspeed: true,
-  status: false,
-  minfreemassstorage: true,
+    uid: false,
+    owneruid: false,
+    accessrights: true,
+    errormsg: true,
+    mtime: false,
+    userproxy: true,
+    sessionuid: true,
+    groupuid: true,
+    sgid: true,
+    expectedhostuid: true,
+    isservice: false,
+    label: true,
+    appuid: true,
+    returncode: false,
+    server: false,
+    listenport: true,
+    smartsocketaddr: true,
+    smartsocketclient: true,
+    envvars: true,
+    cmdline: true,
+    stdinuri: true,
+    dirinuri: true,
+    resulturi: false,
+    arrivaldate: false,
+    completeddate: false,
+    readydate: false,
+    datareadydate: false,
+    compstartdate: false,
+    compenddate: false,
+    sendtoclient: false,
+    local: false,
+    active: true,
+    replications: true,
+    totalr: true,
+    sizer: true,
+    replicateduid: true,
+    datadrivenuri: true,
+    maxretry: true,
+    retry: false,
+    maxwallclocktime: true,
+    diskspace: true,
+    minmemory: true,
+    mincpuspeed: true,
+    status: false,
+    minfreemassstorage: true,
 }
 /**
  * This contains all known application names
@@ -159,7 +159,7 @@ const hashtableAppNames = {};
  * This throws "Connection error"
  */
 function connectionError() {
-  throw new Error('Connection error');
+    throw new Error('Connection error');
 }
 
 /**
@@ -168,11 +168,11 @@ function connectionError() {
  * @exception is throw if xmldoc represents an error
  */
 function rpcError(xmldoc) {
-  const rpcErr = xmldoc.getElementsByTagName(XMLRPCRESULTTAG)[0];
-  if (rpcErr != null) {
-    const msg = rpcErr.getAttribute(XMLRPCRESULTMESSAGE);
-    throw msg;
-  }
+    const rpcErr = xmldoc.getElementsByTagName(XMLRPCRESULTTAG)[0];
+    if (rpcErr != null) {
+        const msg = rpcErr.getAttribute(XMLRPCRESULTMESSAGE);
+        throw msg;
+    }
 }
 
 /**
@@ -183,33 +183,33 @@ function rpcError(xmldoc) {
  * @resolve undefined
  */
 function sendWork(xmlWork) {
-  return new Promise((resolve, reject) => {
-    const sendWorkPath = `${PATH_SENDWORK}?XMLDESC=${xmlWork}`;
-    const options = {
-      hostname: SERVERNAME,
-      port: SERVERPORT,
-      path: `${PATH_SENDWORK + CREDENTIALS}&XMLDESC=${xmlWork}`,
-      method: 'GET',
-      rejectUnauthorized: false,
-    };
-    console.log(`${options.hostname}:${options.port}${sendWorkPath}`);
+    return new Promise((resolve, reject) => {
+        const sendWorkPath = `${PATH_SENDWORK}?XMLDESC=${xmlWork}`;
+        const options = {
+            hostname: SERVERNAME,
+            port: SERVERPORT,
+            path: `${PATH_SENDWORK + CREDENTIALS}&XMLDESC=${xmlWork}`,
+            method: 'GET',
+            rejectUnauthorized: false,
+        };
+        console.log(`${options.hostname}:${options.port}${sendWorkPath}`);
 
-    const req = https.request(options, (res) => {
-      res.on('data', (d) => {
-        const strd = String.fromCharCode.apply(null, new Uint16Array(d));
-        console.log(strd);
-      });
+        const req = https.request(options, (res) => {
+            res.on('data', (d) => {
+                const strd = String.fromCharCode.apply(null, new Uint16Array(d));
+                console.log(strd);
+            });
 
-      res.on('end', () => {
-        resolve();
-      });
+            res.on('end', () => {
+                resolve();
+            });
+        });
+
+        req.on('error', (e) => {
+            reject(e);
+        });
+        req.end();
     });
-
-    req.on('error', (e) => {
-      reject(e);
-    });
-    req.end();
-  });
 }
 
 /**
@@ -220,36 +220,36 @@ function sendWork(xmlWork) {
  * @resolve a String containing the XML representation of the retrieved object
  */
 export const get = uid => (
-  new Promise((resolve, reject) => {
-    let getResponse = '';
+    new Promise((resolve, reject) => {
+        let getResponse = '';
 
-    const getPath = `${PATH_GET}/${uid}`;
-    const options = {
-      hostname: SERVERNAME,
-      port: SERVERPORT,
-      path: getPath + CREDENTIALS,
-      method: 'GET',
-      rejectUnauthorized: false,
-    };
-    console.log(`get() : ${options.hostname}:${options.port}${getPath}`);
+        const getPath = `${PATH_GET}/${uid}`;
+        const options = {
+            hostname: SERVERNAME,
+            port: SERVERPORT,
+            path: getPath + CREDENTIALS,
+            method: 'GET',
+            rejectUnauthorized: false,
+        };
+        console.log(`get() : ${options.hostname}:${options.port}${getPath}`);
 
-    const req = https.request(options, (res) => {
-      res.on('data', (d) => {
-        const strd = String.fromCharCode.apply(null, new Uint16Array(d));
-        getResponse += strd;
-      });
+        const req = https.request(options, (res) => {
+            res.on('data', (d) => {
+                const strd = String.fromCharCode.apply(null, new Uint16Array(d));
+                getResponse += strd;
+            });
 
-      res.on('end', () => {
-        console.log(`get() : ${getResponse}`);
-        resolve(getResponse);
-      });
-    });
+            res.on('end', () => {
+                console.log(`get() : ${getResponse}`);
+                resolve(getResponse);
+            });
+        });
 
-    req.on('error', (e) => {
-      reject(e);
-    });
-    req.end();
-  }));
+        req.on('error', (e) => {
+            reject(e);
+        });
+        req.end();
+    }));
 /**
  * This retrieves an application
  * This is a private method not implemented in the smart contract
@@ -259,33 +259,33 @@ export const get = uid => (
  * @see get(uid)
  */
 function getApp(appUid) {
-  return new Promise((resolve, reject) => {
-    get(appUid).then((getResponse) => {
-      let jsonObject;
-      parseString(getResponse, (err, result) => {
-        jsonObject = JSON.parse(JSON.stringify(result));
-      });
+    return new Promise((resolve, reject) => {
+        get(appUid).then((getResponse) => {
+            let jsonObject;
+            parseString(getResponse, (err, result) => {
+                jsonObject = JSON.parse(JSON.stringify(result));
+            });
 
-      console.log(JSON.stringify(jsonObject));
+            console.log(JSON.stringify(jsonObject));
 
-      if (jsonObject.xwhep.app === undefined) {
-        return reject(`getApp() : Not an application : ${appUid}`);
-      }
+            if (jsonObject.xwhep.app === undefined) {
+                return reject(`getApp() : Not an application : ${appUid}`);
+            }
 
-      const appName = jsonObject.xwhep.app[0].name;
-      console.log(`${appUid} ; ${appName}`);
+            const appName = jsonObject.xwhep.app[0].name;
+            console.log(`${appUid} ; ${appName}`);
 
-      if (!(appName in hashtableAppNames)) {
-        hashtableAppNames[appName] = appUid;
-      }
+            if (!(appName in hashtableAppNames)) {
+                hashtableAppNames[appName] = appUid;
+            }
 
-      console.log(`hashtableAppNames[${appName}] = ${hashtableAppNames[appName]}`)
+            console.log(`hashtableAppNames[${appName}] = ${hashtableAppNames[appName]}`)
 
-      resolve(getResponse);
-    }).catch((e) => {
-      reject(`getApp() : Application not found (${appUid}) : ${e}`);
+            resolve(getResponse);
+        }).catch((e) => {
+            reject(`getApp() : Application not found (${appUid}) : ${e}`);
+        });
     });
-  });
 }
 
 /**
@@ -296,57 +296,57 @@ function getApp(appUid) {
  * @see getApp(appUid)
  */
 function getApps() {
-  let rand = Math.random();
-  return new Promise((resolve, reject) => {
-    let getAppsResponse = '';
+    let rand = Math.random();
+    return new Promise((resolve, reject) => {
+        let getAppsResponse = '';
 
-    const options = {
-      hostname: SERVERNAME,
-      port: SERVERPORT,
-      path: `${PATH_GETAPPS + CREDENTIALS}`,
-      method: 'GET',
-      rejectUnauthorized: false,
-    };
+        const options = {
+            hostname: SERVERNAME,
+            port: SERVERPORT,
+            path: `${PATH_GETAPPS + CREDENTIALS}`,
+            method: 'GET',
+            rejectUnauthorized: false,
+        };
 //    console.log(`${options.hostname}:${options.port}${PATH_GETAPPS}`);
 
-    const req = https.request(options, (res) => {
-      res.on('data', (d) => {
-        const strd = String.fromCharCode.apply(null, new Uint16Array(d));
-        getAppsResponse += strd;
-      });
-      res.on('end', () => {
-        parseString(getAppsResponse, (err, result) => {
-          console.log(`result = "${result}"`);
-          if ((result === null) || (result === '') || (result === undefined)) {
-            return reject('getApps() : connection Error');
-          }
-          const jsonData = JSON.parse(JSON.stringify(result));
-          if (jsonData === null) {
-            return reject('getApps() : connection Error');
-          }
-          const appsCount = jsonData.xwhep.XMLVector[0].XMLVALUE.length;
-          const appuids = [];
-          console.log(`appsCount ${appsCount}`);
-          for (let i = 0; i < appsCount; i += 1) {
-            const appuid = JSON.stringify(jsonData.xwhep.XMLVector[0].XMLVALUE[i].$.value).replace(/"/g, '');
-            appuids[i] = appuid;
-          }
-          const apppUidPromises = appuids.map(getApp);
-          Promise.all(apppUidPromises).then((xmlStr) => {
-            console.log(xmlStr);
-            resolve();
-          }).catch((e) => {
-            reject(`getApps() : ${e}`)
-          });
+        const req = https.request(options, (res) => {
+            res.on('data', (d) => {
+                const strd = String.fromCharCode.apply(null, new Uint16Array(d));
+                getAppsResponse += strd;
+            });
+            res.on('end', () => {
+                parseString(getAppsResponse, (err, result) => {
+                    console.log(`result = "${result}"`);
+                    if ((result === null) || (result === '') || (result === undefined)) {
+                        return reject('getApps() : connection Error');
+                    }
+                    const jsonData = JSON.parse(JSON.stringify(result));
+                    if (jsonData === null) {
+                        return reject('getApps() : connection Error');
+                    }
+                    const appsCount = jsonData.xwhep.XMLVector[0].XMLVALUE.length;
+                    const appuids = [];
+                    console.log(`appsCount ${appsCount}`);
+                    for (let i = 0; i < appsCount; i += 1) {
+                        const appuid = JSON.stringify(jsonData.xwhep.XMLVector[0].XMLVALUE[i].$.value).replace(/"/g, '');
+                        appuids[i] = appuid;
+                    }
+                    const apppUidPromises = appuids.map(getApp);
+                    Promise.all(apppUidPromises).then((xmlStr) => {
+                        console.log(xmlStr);
+                        resolve();
+                    }).catch((e) => {
+                        reject(`getApps() : ${e}`)
+                    });
+                });
+            });
         });
-      });
-    });
 
-    req.on('error', (e) => {
-      reject(`getApps() : ${e}`);
+        req.on('error', (e) => {
+            reject(`getApps() : ${e}`);
+        });
+        req.end();
     });
-    req.end();
-  });
 }
 
 /**
@@ -372,34 +372,34 @@ async function register(user, provider, creator, appName) {
     if (!(appName in hashtableAppNames)) {
         await getApps().then(() => {
             if (!(appName in hashtableAppNames)) {
-            return Promise.reject(
-                new Error(`Application not found ${appName}`)
-            )
-        }
-    });
+                return Promise.reject(
+                    new Error(`Application not found ${appName}`)
+                )
+            }
+        });
     }
 
     return new Promise((resolve, reject) => {
-            //appel
-            //throw new Error('Test avec erreur');
-            const workUid = uuidV4();
-    console.log(`work uid = ${workUid}`);
+        //appel
+        //throw new Error('Test avec erreur');
+        const workUid = uuidV4();
+        console.log(`work uid = ${workUid}`);
 
-    const appUid = hashtableAppNames[appName];
-    console.log(`${appName} = ${appUid}`);
+        const appUid = hashtableAppNames[appName];
+        console.log(`${appName} = ${appUid}`);
 
-    const workDescription = `<work><uid>${workUid}</uid><accessrights>0x755</accessrights><appuid>${
-        appUid}</appuid><status>UNAVAILABLE</status></work>`;
-    sendWork(workDescription).then(() => {
-        sendWork(workDescription).then(() => { // a 2nd time to force status to UNAVAILABLE
-        resolve(workUid);
-}).catch((err) => {
-        reject(`register() sendWork 2 error : ${err}`);
-});
-}).catch((err) => {
-        reject(`register() sendWork 1 error : ${err}`);
-});
-})
+        const workDescription = `<work><uid>${workUid}</uid><accessrights>0x755</accessrights><appuid>${
+            appUid}</appuid><status>UNAVAILABLE</status></work>`;
+        sendWork(workDescription).then(() => {
+            sendWork(workDescription).then(() => { // a 2nd time to force status to UNAVAILABLE
+                resolve(workUid);
+            }).catch((err) => {
+                reject(`register() sendWork 2 error : ${err}`);
+            });
+        }).catch((err) => {
+            reject(`register() sendWork 1 error : ${err}`);
+        });
+    })
 }
 
 /**
@@ -417,41 +417,41 @@ async function register(user, provider, creator, appName) {
  */
 
 function setParam(uid, paramName, paramValue) {
-  console.log("uid",uid);
-  console.log("paramName",paramName);
-  console.log("paramValue",paramValue);
-  if (!(paramName in workAvailableParameters)) {
-    throw new Error(`Invalid parameter ${paramName}`);
-  }
-  if (workAvailableParameters[paramName] === false) {
-    throw new Error(`Read only parameter ${paramName}`);
-  }
+    console.log("uid",uid);
+    console.log("paramName",paramName);
+    console.log("paramValue",paramValue);
+    if (!(paramName in workAvailableParameters)) {
+        throw new Error(`Invalid parameter ${paramName}`);
+    }
+    if (workAvailableParameters[paramName] === false) {
+        throw new Error(`Read only parameter ${paramName}`);
+    }
 
-  return new Promise((resolve, reject) => {
-    get(uid).then((getResponse) => {
-      let jsonObject;
-      parseString(getResponse, (err, result) => {
-        jsonObject = JSON.parse(JSON.stringify(result));
-      });
+    return new Promise((resolve, reject) => {
+        get(uid).then((getResponse) => {
+            let jsonObject;
+            parseString(getResponse, (err, result) => {
+                jsonObject = JSON.parse(JSON.stringify(result));
+            });
 
-      if (jsonObject.xwhep.work === undefined) {
-        return reject(`setParam(): Not a work : ${uid}`);
-      }
-      if (jsonObject.xwhep.work[0].status.toString() !== 'UNAVAILABLE') {
-        return reject(`setParam(): Invalid status : ${jsonObject.xwhep.work[0].status}`);
-      }
+            if (jsonObject.xwhep.work === undefined) {
+                return reject(`setParam(): Not a work : ${uid}`);
+            }
+            if (jsonObject.xwhep.work[0].status.toString() !== 'UNAVAILABLE') {
+                return reject(`setParam(): Invalid status : ${jsonObject.xwhep.work[0].status}`);
+            }
 
-      jsonObject.xwhep.work[0][paramName] = paramValue;
+            jsonObject.xwhep.work[0][paramName] = paramValue;
 
-      sendWork(json2xml(jsonObject, false)).then(() => {
-        resolve();
-      }).catch((err) => {
-        reject(`setParam() error : ${err}`);
-      });
-    }).catch((e) => {
-      reject(`setParam(): Work not found (${uid}) : ${e}`);
+            sendWork(json2xml(jsonObject, false)).then(() => {
+                resolve();
+            }).catch((err) => {
+                reject(`setParam() error : ${err}`);
+            });
+        }).catch((e) => {
+            reject(`setParam(): Work not found (${uid}) : ${e}`);
+        });
     });
-  });
 }
 
 /**
@@ -465,32 +465,32 @@ function setParam(uid, paramName, paramValue) {
  * @exception is thrown if paramName does not represent a valid work parameter
  */
 function getParam(uid, paramName) {
-  return new Promise((resolve, reject) => {
-    get(uid).then((getResponse) => {
-      console.log(`getParam (${uid}, ${paramName}) = ${getResponse}`);
+    return new Promise((resolve, reject) => {
+        get(uid).then((getResponse) => {
+            console.log(`getParam (${uid}, ${paramName}) = ${getResponse}`);
 
-      let jsonObject;
-      parseString(getResponse, (err, result) => {
-        jsonObject = JSON.parse(JSON.stringify(result));
-      });
+            let jsonObject;
+            parseString(getResponse, (err, result) => {
+                jsonObject = JSON.parse(JSON.stringify(result));
+            });
 
-      console.log(`getParam ${JSON.stringify(jsonObject)}`);
+            console.log(`getParam ${JSON.stringify(jsonObject)}`);
 
-      if (jsonObject.xwhep.work === undefined) {
-        return reject(`getParam(): Not a work : ${uid}`);
-      }
+            if (jsonObject.xwhep.work === undefined) {
+                return reject(`getParam(): Not a work : ${uid}`);
+            }
 
-      const paramValue = jsonObject.xwhep.work[0][paramName];
-      if (paramValue === undefined) {
-        return reject(`getParam() : Invalid work parameter : ${paramName}`);
-      }
-      console.log(`getParam ${paramValue}`);
+            const paramValue = jsonObject.xwhep.work[0][paramName];
+            if (paramValue === undefined) {
+                return reject(`getParam() : Invalid work parameter : ${paramName}`);
+            }
+            console.log(`getParam ${paramValue}`);
 
-      resolve(paramValue);
-    }).catch((e) => {
-      reject(`getParam(): Work not found (${uid}) : ${e}`);
+            resolve(paramValue);
+        }).catch((e) => {
+            reject(`getParam(): Work not found (${uid}) : ${e}`);
+        });
     });
-  });
 }
 
 /**
@@ -505,7 +505,7 @@ function getParam(uid, paramName) {
  * @see #getParam(uid, paramName)
  */
 export function getStatus(uid) {
-  return getParam(uid, 'status');
+    return getParam(uid, 'status');
 }
 
 /**
@@ -521,33 +521,33 @@ export function getStatus(uid) {
  * @exception is thrown if parameter is read only (e.g. status, return code, etc.)
  */
 function setPending(uid) {
-  return new Promise((resolve, reject) => {
-    get(uid).then((getResponse) => {
-      let jsonObject;
-      parseString(getResponse, (err, result) => {
-        jsonObject = JSON.parse(JSON.stringify(result));
-      });
+    return new Promise((resolve, reject) => {
+        get(uid).then((getResponse) => {
+            let jsonObject;
+            parseString(getResponse, (err, result) => {
+                jsonObject = JSON.parse(JSON.stringify(result));
+            });
 
-      if (jsonObject.xwhep.work === undefined) {
-        return reject(`setPending(): Not a work : ${uid}`);
-      }
+            if (jsonObject.xwhep.work === undefined) {
+                return reject(`setPending(): Not a work : ${uid}`);
+            }
 
-      if (jsonObject.xwhep.work[0].status.toString() !== 'UNAVAILABLE') {
-        return reject(`setPending(): Invalid status : ${jsonObject.xwhep.work[0].status}`);
-      }
+            if (jsonObject.xwhep.work[0].status.toString() !== 'UNAVAILABLE') {
+                return reject(`setPending(): Invalid status : ${jsonObject.xwhep.work[0].status}`);
+            }
 
-      jsonObject.xwhep.work[0].status = 'PENDING';
-      console.log(`setPending() : ${JSON.stringify(jsonObject)}`);
+            jsonObject.xwhep.work[0].status = 'PENDING';
+            console.log(`setPending() : ${JSON.stringify(jsonObject)}`);
 
-      sendWork(json2xml(jsonObject, false)).then(() => {
-        resolve();
-      }).catch((err) => {
-        reject(`setPending() error : ${err}`);
-      });
-    }).catch((e) => {
-      reject(`setPending(): Work not found (${uid}) : ${e}`);
+            sendWork(json2xml(jsonObject, false)).then(() => {
+                resolve();
+            }).catch((err) => {
+                reject(`setPending() error : ${err}`);
+            });
+        }).catch((e) => {
+            reject(`setPending(): Work not found (${uid}) : ${e}`);
+        });
     });
-  });
 }
 
 /**
@@ -561,21 +561,21 @@ function setPending(uid) {
  * @exception is thrown if application is not found
  */
 const submit = ( user, provider, creator,appName, cmdLineParam) => (
-   new Promise((resolve, reject) => {
-     register(user, provider, creator,appName).then((uid) => {
-       setParam(uid, 'cmdline', cmdLineParam).then(() => {
-         setPending(uid).then(() => {
-           resolve(uid);
-         }).catch((msg) => {
-           reject(msg);
-         });
-       }).catch((msg) => {
-         reject(msg);
-       });
-     }).catch((msg) => {
-       reject(msg);
-     });
-   })
+    new Promise((resolve, reject) => {
+        register(user, provider, creator,appName).then((uid) => {
+            setParam(uid, 'cmdline', cmdLineParam).then(() => {
+                setPending(uid).then(() => {
+                    resolve(uid);
+                }).catch((msg) => {
+                    reject(msg);
+                });
+            }).catch((msg) => {
+                reject(msg);
+            });
+        }).catch((msg) => {
+            reject(msg);
+        });
+    })
 );
 
 /**
@@ -589,41 +589,41 @@ const submit = ( user, provider, creator,appName, cmdLineParam) => (
  * @exception is thrown if work result is not set
  */
 function download(uri, downloadedPath) {
-  return new Promise((resolve, reject) => {
-    const uid = uri.substring(uri.lastIndexOf('/') + 1);
+    return new Promise((resolve, reject) => {
+        const uid = uri.substring(uri.lastIndexOf('/') + 1);
 
-    const downloadPath = `${PATH_DOWNLOADDATA}/${uid}`;
+        const downloadPath = `${PATH_DOWNLOADDATA}/${uid}`;
 
-    const options = {
-      hostname: SERVERNAME,
-      port: SERVERPORT,
-      path: downloadPath + CREDENTIALS,
-      method: 'GET',
-      rejectUnauthorized: false,
-    };
+        const options = {
+            hostname: SERVERNAME,
+            port: SERVERPORT,
+            path: downloadPath + CREDENTIALS,
+            method: 'GET',
+            rejectUnauthorized: false,
+        };
 
-    process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+        process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
-    console.log(`https://${options.hostname}:${options.port}${options.path}`)
+        console.log(`https://${options.hostname}:${options.port}${options.path}`)
 
-    const outputStream = fs.createWriteStream(downloadedPath);
-    outputStream.on('error', (e) => {
-      reject(`download() : pipe error ${e}`);
-    }).on('data', (d) => {
-      console.log(d);
-    }).on('finish', () => {
-      resolve(downloadedPath);
+        const outputStream = fs.createWriteStream(downloadedPath);
+        outputStream.on('error', (e) => {
+            reject(`download() : pipe error ${e}`);
+        }).on('data', (d) => {
+            console.log(d);
+        }).on('finish', () => {
+            resolve(downloadedPath);
+        });
+
+        request.get(`https://${options.hostname}:${options.port}${options.path}`)
+            .on('response', () => {
+            })
+            .on('error', (response) => {
+                console.error(`download() : request error ${response}`);
+                reject(`download() : request error ${response}`);
+            })
+            .pipe(outputStream);
     });
-
-    request.get(`https://${options.hostname}:${options.port}${options.path}`)
-       .on('response', () => {
-       })
-       .on('error', (response) => {
-         console.error(`download() : request error ${response}`);
-         reject(`download() : request error ${response}`);
-       })
-       .pipe(outputStream);
-  });
 }
 
 /**
@@ -635,29 +635,29 @@ function download(uri, downloadedPath) {
  * @resolve downloadedPath
  */
 function downloadURL(url, downloadedPath) {
-  return new Promise((resolve, reject) => {
-    process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+    return new Promise((resolve, reject) => {
+        process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
-    console.log(`${url}:${downloadedPath}`);
+        console.log(`${url}:${downloadedPath}`);
 
-    const outputStream = fs.createWriteStream(downloadedPath);
-    outputStream.on('error', (e) => {
-      reject(`download() : pipe error ${e}`);
-    }).on('data', (d) => {
-      console.log(d);
-    }).on('finish', () => {
-      resolve(downloadedPath);
+        const outputStream = fs.createWriteStream(downloadedPath);
+        outputStream.on('error', (e) => {
+            reject(`download() : pipe error ${e}`);
+        }).on('data', (d) => {
+            console.log(d);
+        }).on('finish', () => {
+            resolve(downloadedPath);
+        });
+
+        request.get(url)
+            .on('response', () => {
+            })
+            .on('error', (response) => {
+                console.error(`download() : request error ${response}`);
+                reject(`download() : request error ${response}`);
+            })
+            .pipe(outputStream);
     });
-
-    request.get(url)
-       .on('response', () => {
-       })
-       .on('error', (response) => {
-         console.error(`download() : request error ${response}`);
-         reject(`download() : request error ${response}`);
-       })
-       .pipe(outputStream);
-  });
 }
 
 /**
@@ -670,31 +670,31 @@ function downloadURL(url, downloadedPath) {
  * @exception is thrown if work status is not COMPLETED
  */
 function getResult(uid) {
-  return new Promise((resolve, reject) => {
-    get(uid).then((getResponse) => {
-      let jsonObject;
-      parseString(getResponse, (err, result) => {
-        jsonObject = JSON.parse(JSON.stringify(result));
-      });
-      if (jsonObject.xwhep.work === undefined) {
-        return reject(`getResult(): Not a work : ${uid}`);
-      }
+    return new Promise((resolve, reject) => {
+        get(uid).then((getResponse) => {
+            let jsonObject;
+            parseString(getResponse, (err, result) => {
+                jsonObject = JSON.parse(JSON.stringify(result));
+            });
+            if (jsonObject.xwhep.work === undefined) {
+                return reject(`getResult(): Not a work : ${uid}`);
+            }
 
-      if (jsonObject.xwhep.work[0].status.toString() !== 'COMPLETED') {
-        return reject(`getRestult(): Invalid status : ${jsonObject.xwhep.work[0].status}`);
-      }
+            if (jsonObject.xwhep.work[0].status.toString() !== 'COMPLETED') {
+                return reject(`getRestult(): Invalid status : ${jsonObject.xwhep.work[0].status}`);
+            }
 
-      if (jsonObject.xwhep.work[0].resulturi === undefined) {
-        resolve(undefined);
-      }
-      const uri = jsonObject.xwhep.work[0].resulturi.toString();
-      const resultUid = uri.substring(uri.lastIndexOf('/') + 1);
+            if (jsonObject.xwhep.work[0].resulturi === undefined) {
+                resolve(undefined);
+            }
+            const uri = jsonObject.xwhep.work[0].resulturi.toString();
+            const resultUid = uri.substring(uri.lastIndexOf('/') + 1);
 
-      resolve(get(resultUid));
-    }).catch((err) => {
-      reject(`getResult() error : ${err}`);
+            resolve(get(resultUid));
+        }).catch((err) => {
+            reject(`getResult() error : ${err}`);
+        });
     });
-  });
 }
 
 /**
@@ -707,46 +707,46 @@ function getResult(uid) {
  * @exception is thrown if work result is not set
  */
 function downloadResult(uid) {
-  return new Promise((resolve, reject) => {
-    getResult(uid).then((getResponse) => {
-      let jsonObject;
-      parseString(getResponse, (err, result) => {
-        jsonObject = JSON.parse(JSON.stringify(result));
-      });
-      if (jsonObject.xwhep.data === undefined) {
-        return reject(`downloadResult(): Not a data : ${uid}`);
-      }
+    return new Promise((resolve, reject) => {
+        getResult(uid).then((getResponse) => {
+            let jsonObject;
+            parseString(getResponse, (err, result) => {
+                jsonObject = JSON.parse(JSON.stringify(result));
+            });
+            if (jsonObject.xwhep.data === undefined) {
+                return reject(`downloadResult(): Not a data : ${uid}`);
+            }
 
-      if (jsonObject.xwhep.data[0].status.toString() !== 'AVAILABLE') {
-        return reject(`downloadResult(): Invalid status : ${jsonObject.xwhep.data[0].status}`);
-      }
+            if (jsonObject.xwhep.data[0].status.toString() !== 'AVAILABLE') {
+                return reject(`downloadResult(): Invalid status : ${jsonObject.xwhep.data[0].status}`);
+            }
 
-      let resultPath = `result.${uid}`;
-      const dataName = jsonObject.xwhep.data[0].name;
-      if (dataName !== undefined) {
-        resultPath += `.${dataName.toString().toLowerCase()}`;
-      }
-      const dataType = jsonObject.xwhep.data[0].type;
-      if (dataType !== undefined) {
-        resultPath += `.${dataType.toString().toLowerCase()}`;
-      } else {
-        resultPath += '.txt';
-      }
-      const dataUri = jsonObject.xwhep.data[0].uri;
-      if (dataUri === undefined) {
-        return reject(`downloadResult(): data uri not found : ${uid}`);
-      }
-      console.log(`downloadResult() calling download(${dataUri}, ${resultPath})`);
-      download(dataUri.toString(), resultPath).then((downloadedPath) => {
-        console.log(`downloadResult() : ${downloadedPath}`);
-        resolve(downloadedPath);
-      }).catch((msg) => {
-        console.error(msg);
-      });
-    }).catch((msg) => {
-      console.error(msg);
+            let resultPath = `result.${uid}`;
+            const dataName = jsonObject.xwhep.data[0].name;
+            if (dataName !== undefined) {
+                resultPath += `.${dataName.toString().toLowerCase()}`;
+            }
+            const dataType = jsonObject.xwhep.data[0].type;
+            if (dataType !== undefined) {
+                resultPath += `.${dataType.toString().toLowerCase()}`;
+            } else {
+                resultPath += '.txt';
+            }
+            const dataUri = jsonObject.xwhep.data[0].uri;
+            if (dataUri === undefined) {
+                return reject(`downloadResult(): data uri not found : ${uid}`);
+            }
+            console.log(`downloadResult() calling download(${dataUri}, ${resultPath})`);
+            download(dataUri.toString(), resultPath).then((downloadedPath) => {
+                console.log(`downloadResult() : ${downloadedPath}`);
+                resolve(downloadedPath);
+            }).catch((msg) => {
+                console.error(msg);
+            });
+        }).catch((msg) => {
+            console.error(msg);
+        });
     });
-  });
 }
 
 /**
@@ -758,20 +758,20 @@ function downloadResult(uid) {
  * @exception is thrown on local fs error, or if there is no result file for the provided work
  */
 function getResultPath(uid) {
-  return new Promise((resolve, reject) => {
-    fs.readdir('.', (ferr, files) => { // '/' denotes the root folder
-      if (ferr) {
-        return reject(ferr);
-      }
+    return new Promise((resolve, reject) => {
+        fs.readdir('.', (ferr, files) => { // '/' denotes the root folder
+            if (ferr) {
+                return reject(ferr);
+            }
 
-      files.forEach((file) => {
-        if (file.indexOf(uid) !== -1) {
-          resolve(file);
-        }
-      });
-      return reject(`getResultPath() : file not found ${uid}`);
+            files.forEach((file) => {
+                if (file.indexOf(uid) !== -1) {
+                    resolve(file);
+                }
+            });
+            return reject(`getResultPath() : file not found ${uid}`);
+        });
     });
-  });
 }
 
 /**
@@ -783,36 +783,36 @@ function getResultPath(uid) {
  */
 // eslint-disable-next-line
 function remove(uid) {
-  return new Promise((resolve, reject) => {
-    let getResponse = '';
+    return new Promise((resolve, reject) => {
+        let getResponse = '';
 
-    const getPath = `${PATH_REMOVE}/${uid}`;
-    const options = {
-      hostname: SERVERNAME,
-      port: SERVERPORT,
-      path: getPath + CREDENTIALS,
-      method: 'GET',
-      rejectUnauthorized: false,
-    };
-    console.log(`${options.hostname}:${options.port}${getPath}`);
+        const getPath = `${PATH_REMOVE}/${uid}`;
+        const options = {
+            hostname: SERVERNAME,
+            port: SERVERPORT,
+            path: getPath + CREDENTIALS,
+            method: 'GET',
+            rejectUnauthorized: false,
+        };
+        console.log(`${options.hostname}:${options.port}${getPath}`);
 
-    const req = https.request(options, (res) => {
-      res.on('data', (d) => {
-        const strd = String.fromCharCode.apply(null, new Uint16Array(d));
-        getResponse += strd;
-      });
+        const req = https.request(options, (res) => {
+            res.on('data', (d) => {
+                const strd = String.fromCharCode.apply(null, new Uint16Array(d));
+                getResponse += strd;
+            });
 
-      res.on('end', () => {
-        console.log(getResponse);
-        resolve();
-      });
+            res.on('end', () => {
+                console.log(getResponse);
+                resolve();
+            });
+        });
+
+        req.on('error', (e) => {
+            reject(e);
+        });
+        req.end();
     });
-
-    req.on('error', (e) => {
-      reject(e);
-    });
-    req.end();
-  });
 }
 
 /**
@@ -825,30 +825,30 @@ function remove(uid) {
  * @exception is thrown if work status is ERROR
  */
 function waitCompleted(uid) {
-  return new Promise((resolve, reject) => {
-    const theInterval = setInterval(() => {
-      getStatus(uid).then((newStatus) => {
-        console.log(`waitCompleted ${newStatus}`);
+    return new Promise((resolve, reject) => {
+        const theInterval = setInterval(() => {
+            getStatus(uid).then((newStatus) => {
+                console.log(`waitCompleted ${newStatus}`);
 
-        if (newStatus.toString() === 'ERROR') {
-          clearInterval(theInterval);
-          return reject(`waitCompleted() : work ERROR (${uid})`);
-        }
-        if (newStatus.toString() === 'COMPLETED') {
-          console.log("waitCompleted !");
-          clearInterval(theInterval);
-          console.log("waitCompleted. interval clear !");
-          resolve();
-          console.log("waitCompleted. reseolved!");
-          return;
-        }
-        console.log(`waitCompleted sleeping ${WAITSTATUSDELAY}ms : ${uid} (${newStatus})`);
-      }).catch((e) => {
-        clearInterval(theInterval);
-        reject(`waitCompleted() : ${e}`);
-      });
-    }, WAITSTATUSDELAY);
-  });
+                if (newStatus.toString() === 'ERROR') {
+                    clearInterval(theInterval);
+                    return reject(`waitCompleted() : work ERROR (${uid})`);
+                }
+                if (newStatus.toString() === 'COMPLETED') {
+                    console.log("waitCompleted !");
+                    clearInterval(theInterval);
+                    console.log("waitCompleted. interval clear !");
+                    resolve();
+                    console.log("waitCompleted. reseolved!");
+                    return;
+                }
+                console.log(`waitCompleted sleeping ${WAITSTATUSDELAY}ms : ${uid} (${newStatus})`);
+            }).catch((e) => {
+                clearInterval(theInterval);
+                reject(`waitCompleted() : ${e}`);
+            });
+        }, WAITSTATUSDELAY);
+    });
 }
 
 /**
@@ -862,31 +862,31 @@ function waitCompleted(uid) {
  * @exception is thrown if work status is ERROR
  */
 function submitAndWait(user, provider, creator, appName, cmdLineParam) {
-  return new Promise((resolve, reject) => {
-    let workuid;
-    submit(user, provider, creator, appName, cmdLineParam).then((uid) => {
-      workuid = uid;
-      console.log('submitAndWait() submission done');
-      waitCompleted(uid).then(() => {
-        console.log(`submitAndWait() COMPLETED ${workuid}`);
-        downloadResult(workuid).then(() => {
-          console.log(`submitAndWait() downloaded ${workuid}`);
-          getResultPath(workuid).then((resultPath) => {
-            console.log(`submitAndWait() path ${resultPath}`);
-            resolve([workuid,resultPath]);
-          }).catch((msg) => {
-            reject(`submitAndWait() : ${msg}`);
-          });
-        }).catch((msg) => {
-          reject(`submitAndWait() : ${msg}`);
+    return new Promise((resolve, reject) => {
+        let workuid;
+        submit(user, provider, creator, appName, cmdLineParam).then((uid) => {
+            workuid = uid;
+            console.log('submitAndWait() submission done');
+            waitCompleted(uid).then(() => {
+                console.log(`submitAndWait() COMPLETED ${workuid}`);
+                downloadResult(workuid).then(() => {
+                    console.log(`submitAndWait() downloaded ${workuid}`);
+                    getResultPath(workuid).then((resultPath) => {
+                        console.log(`submitAndWait() path ${resultPath}`);
+                        resolve([workuid,resultPath]);
+                    }).catch((msg) => {
+                        reject(`submitAndWait() 1 : ${msg}`);
+                    });
+                }).catch((msg) => {
+                    reject(`submitAndWait() 2 : ${msg}`);
+                });
+            }).catch((e) => {
+                reject(`submitAndWait() 3 : ${e}`);
+            });
+        }).catch((e) => {
+            reject(`submitAndWait() 4 : ${e}`);
         });
-      }).catch((e) => {
-        reject(`submitAndWait() : ${e}`);
-      });
-    }).catch((e) => {
-      reject(`submitAndWait() : ${e}`);
     });
-  });
 }
 
 
@@ -902,9 +902,10 @@ function submitAndWait(user, provider, creator, appName, cmdLineParam) {
  */
 export function submitAndWaitAndGetStdout(user, provider, creator, appName, cmdLineParam) {
     return new Promise((resolve, reject) => {
+        let workuid;
+        let resultPath;
         submitAndWait(user, provider, creator, appName, cmdLineParam).then((results) => {
-            workuid=results[0];
-            resultPath=results[1];
+            [workuid,resultPath]=results;
             console.log('submitAndWaitAndGetResult() submitAndWait done');
             console.log(`submitAndWaitAndGetResult() path ${resultPath}`);
             dumpFile(resultPath).then((textContent) => {
@@ -926,21 +927,21 @@ export function submitAndWaitAndGetStdout(user, provider, creator, appName, cmdL
  * @resolve a String containing the text file content
  */
 function dumpFile(path) {
-  return new Promise((resolve, reject) => {
-    const readableStream = fs.createReadStream(path);
-    let data = '';
+    return new Promise((resolve, reject) => {
+        const readableStream = fs.createReadStream(path);
+        let data = '';
 
-    readableStream.on('error', (err) => {
-      reject(err);
-    });
-    readableStream.on('data', (chunk) => {
-      data += chunk;
-    });
+        readableStream.on('error', (err) => {
+            reject(err);
+        });
+        readableStream.on('data', (chunk) => {
+            data += chunk;
+        });
 
-    readableStream.on('end', () => {
-      resolve(data);
+        readableStream.on('end', () => {
+            resolve(data);
+        });
     });
-  });
 }
 
 /**
@@ -953,23 +954,23 @@ function dumpFile(path) {
  * @exception is thrown if stdout file is not found
  */
 export function getStdout(uid) {
-  return new Promise((resolve, reject) => {
-    downloadResult(uid).then(() => {
-      console.log(`getStdout() downloaded ${uid}`);
-      getResultPath(uid).then((resultPath) => {
-        console.log(`getStdout() path ${resultPath}`);
-        dumpFile(resultPath).then((textContent) => {
-          resolve(textContent);
+    return new Promise((resolve, reject) => {
+        downloadResult(uid).then(() => {
+            console.log(`getStdout() downloaded ${uid}`);
+            getResultPath(uid).then((resultPath) => {
+                console.log(`getStdout() path ${resultPath}`);
+                dumpFile(resultPath).then((textContent) => {
+                    resolve(textContent);
+                }).catch((msg) => {
+                    reject(`getStdout() : ${msg}`);
+                });
+            }).catch((msg) => {
+                reject(`getStdout() : ${msg}`);
+            });
         }).catch((msg) => {
-          reject(`getStdout() : ${msg}`);
+            reject(`getStdout() : ${msg}`);
         });
-      }).catch((msg) => {
-        reject(`getStdout() : ${msg}`);
-      });
-    }).catch((msg) => {
-      reject(`getStdout() : ${msg}`);
     });
-  });
 }
 
 /** *******************************

@@ -11,8 +11,8 @@ var contract = require("truffle-contract");
 
 // instanciation contract
 var truffleContract = contract({
-  abi: config.ContractAbi,
-  network_id: "*"
+    abi: config.ContractAbi,
+    network_id: "*"
 })
 
 truffleContract.setProvider(provider);
@@ -35,6 +35,8 @@ const launchEvent = contractInstance.Launch({});
  */
 
 function submitAndWaitAndGetStdout(user, provider, creator, appName, param) {
+    let workUid;
+    let stdout;
     xwhep.submitAndWaitAndGetStdout(user, provider, creator, appName,param).then(result => {
         [workUid,stdout]=result;
         console.log(`Here the workUid = ${workUid}`);
@@ -45,41 +47,41 @@ function submitAndWaitAndGetStdout(user, provider, creator, appName, param) {
             gas: runningGas
         }).then(result => {
             contractInstance.getWork.call(user, provider, workUid).then(result => {
-            console.log("name :" + result[0]);
-        console.log("timestamp :" + result[1]);
-        console.log("status :" + result[2]);
-        console.log("stdout :" + result[3]);
-        console.log("stderr :" + result[4]);
+                console.log("name :" + result[0]);
+                console.log("timestamp :" + result[1]);
+                console.log("status :" + result[2]);
+                console.log("stdout :" + result[3]);
+                console.log("stderr :" + result[4]);
+            })
+                .catch(error => {
+                    console.log(error);
+                });
         })
-        .catch(error => {
+            .catch(error => {
                 console.log(error);
-        });
-        })
+            });
+    })
         .catch(error => {
-                console.log(error);
+            console.log(error);
+            contractInstance.submitCallback(user, provider, appName, workUid, 5/*ERROR*/, stdout, `${error}`, {
+                from: bridgeAccount,
+                gas: runningGas
+            }).then(result => {
+                contractInstance.getWork.call(user, provider, '').then(result => {
+                    console.log("name :" + result[0]);
+                    console.log("timestamp :" + result[1]);
+                    console.log("status :" + result[2]);
+                    console.log("stdout :" + result[3]);
+                    console.log("stderr :" + result[4]);
+                })
+                    .catch(error => {
+                        console.log(error);
+                    });
+            })
+                .catch(error => {
+                    console.log(error);
+                });
         });
-})
-.catch(error => {
-        console.log(error);
-        contractInstance.submitCallback(user, provider, appName, workUid, 5/*ERROR*/, stdout, `${error}`, {
-            from: bridgeAccount,
-            gas: runningGas
-        }).then(result => {
-            contractInstance.getWork.call(user, provider, '').then(result => {
-            console.log("name :" + result[0]);
-        console.log("timestamp :" + result[1]);
-        console.log("status :" + result[2]);
-        console.log("stdout :" + result[3]);
-        console.log("stderr :" + result[4]);
-        })
-        .catch(error => {
-                console.log(error);
-        });
-        })
-        .catch(error => {
-                console.log(error);
-        });
-    });
 }
 
 
@@ -88,12 +90,12 @@ function submitAndWaitAndGetStdout(user, provider, creator, appName, param) {
  * Event watcher: this function listen to the event and call the related fonction
  */
 launchEvent.watch((err, res) => {
-  if (err) {
-    console.log(`Erreur event ${err}`);
-    return;
-  }
-  console.log(`Parse ${res.args.user} ${res.args.provider} ${res.args.creator} ${res.args.functionName} ${res.args.param1} ${res.args.param2} ${res.args.UID}`);
-  if (res.args.functionName === 'submit') {
-      submitAndWaitAndGetStdout(res.args.user, res.args.provider, res.args.creator, res.args.param1, res.args.param2);
-  }
+    if (err) {
+        console.log(`Erreur event ${err}`);
+        return;
+    }
+    console.log(`Parse ${res.args.user} ${res.args.provider} ${res.args.creator} ${res.args.functionName} ${res.args.param1} ${res.args.param2} ${res.args.UID}`);
+    if (res.args.functionName === 'submit') {
+        submitAndWaitAndGetStdout(res.args.user, res.args.provider, res.args.creator, res.args.param1, res.args.param2);
+    }
 });
