@@ -35,8 +35,8 @@ const launchEvent = contractInstance.Launch({});
  */
 
 function submitAndWaitAndGetStdout(user, provider, creator, appName, param) {
-    let workUid;
-    let stdout;
+    let workUid='';
+    let stdout='';
     xwhep.submitAndWaitAndGetStdout(user, provider, creator, appName,param).then(result => {
         [workUid,stdout]=result;
         console.log(`Here the workUid = ${workUid}`);
