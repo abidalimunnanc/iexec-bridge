@@ -12,8 +12,34 @@
           "type": "address"
         },
         {
-          "name": "workUid",
-          "type": "string"
+          "name": "index",
+          "type": "uint256"
+        }
+      ],
+      "name": "getWorkStatus",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "name": "provider",
+          "type": "address"
+        },
+        {
+          "name": "index",
+          "type": "uint256"
         }
       ],
       "name": "getWorkTimestamp",
@@ -21,6 +47,104 @@
         {
           "name": "",
           "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "name": "provider",
+          "type": "address"
+        },
+        {
+          "name": "index",
+          "type": "uint256"
+        }
+      ],
+      "name": "getWorkName",
+      "outputs": [
+        {
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "name": "provider",
+          "type": "address"
+        },
+        {
+          "name": "index",
+          "type": "uint256"
+        }
+      ],
+      "name": "getWorkUid",
+      "outputs": [
+        {
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "name": "provider",
+          "type": "address"
+        },
+        {
+          "name": "index",
+          "type": "uint256"
+        }
+      ],
+      "name": "getWork",
+      "outputs": [
+        {
+          "name": "",
+          "type": "string"
+        },
+        {
+          "name": "",
+          "type": "string"
+        },
+        {
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "name": "",
+          "type": "uint8"
+        },
+        {
+          "name": "",
+          "type": "string"
+        },
+        {
+          "name": "",
+          "type": "string"
         }
       ],
       "payable": false,
@@ -46,34 +170,8 @@
           "type": "address"
         },
         {
-          "name": "workUid",
-          "type": "string"
-        }
-      ],
-      "name": "getWorkName",
-      "outputs": [
-        {
-          "name": "",
-          "type": "string"
-        }
-      ],
-      "payable": false,
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [
-        {
-          "name": "user",
-          "type": "address"
-        },
-        {
-          "name": "provider",
-          "type": "address"
-        },
-        {
-          "name": "workUid",
-          "type": "string"
+          "name": "index",
+          "type": "uint256"
         }
       ],
       "name": "getWorkStderr",
@@ -131,59 +229,13 @@
         {
           "name": "provider",
           "type": "address"
-        },
-        {
-          "name": "workUid",
-          "type": "string"
         }
       ],
-      "name": "getWorkStdout",
+      "name": "getUserProviderUsageCount",
       "outputs": [
-        {
-          "name": "",
-          "type": "string"
-        }
-      ],
-      "payable": false,
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [
-        {
-          "name": "user",
-          "type": "address"
-        },
-        {
-          "name": "provider",
-          "type": "address"
-        },
-        {
-          "name": "workUid",
-          "type": "string"
-        }
-      ],
-      "name": "getWork",
-      "outputs": [
-        {
-          "name": "",
-          "type": "string"
-        },
         {
           "name": "",
           "type": "uint256"
-        },
-        {
-          "name": "",
-          "type": "uint8"
-        },
-        {
-          "name": "",
-          "type": "string"
-        },
-        {
-          "name": "",
-          "type": "string"
         }
       ],
       "payable": false,
@@ -251,15 +303,15 @@
           "type": "address"
         },
         {
-          "name": "workUid",
-          "type": "string"
+          "name": "index",
+          "type": "uint256"
         }
       ],
-      "name": "getWorkStatus",
+      "name": "getWorkStdout",
       "outputs": [
         {
           "name": "",
-          "type": "uint8"
+          "type": "string"
         }
       ],
       "payable": false,
@@ -342,23 +394,8 @@
         },
         {
           "indexed": false,
-          "name": "workUid",
-          "type": "string"
-        },
-        {
-          "indexed": false,
-          "name": "status",
-          "type": "uint8"
-        },
-        {
-          "indexed": false,
-          "name": "stdout",
-          "type": "string"
-        },
-        {
-          "indexed": false,
-          "name": "stderr",
-          "type": "string"
+          "name": "index",
+          "type": "uint256"
         }
       ],
       "name": "CallbackEvent",
