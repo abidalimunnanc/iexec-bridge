@@ -45,17 +45,6 @@ function submitAndWaitAndGetStdout(user, provider, creator, appName, param) {
         contractInstance.submitCallback(user, provider, appName, workUid, 4 /*COMPLETED*/, stdout,'', {
             from: bridgeAccount,
             gas: runningGas
-        }).then(result => {
-            contractInstance.getWork.call(user, provider, workUid).then(result => {
-                console.log("name :" + result[0]);
-                console.log("timestamp :" + result[1]);
-                console.log("status :" + result[2]);
-                console.log("stdout :" + result[3]);
-                console.log("stderr :" + result[4]);
-            })
-                .catch(error => {
-                    console.log(error);
-                });
         })
             .catch(error => {
                 console.log(error);
@@ -66,17 +55,6 @@ function submitAndWaitAndGetStdout(user, provider, creator, appName, param) {
             contractInstance.submitCallback(user, provider, appName, workUid, 5/*ERROR*/, stdout, `${error}`, {
                 from: bridgeAccount,
                 gas: runningGas
-            }).then(result => {
-                contractInstance.getWork.call(user, provider, '').then(result => {
-                    console.log("name :" + result[0]);
-                    console.log("timestamp :" + result[1]);
-                    console.log("status :" + result[2]);
-                    console.log("stdout :" + result[3]);
-                    console.log("stderr :" + result[4]);
-                })
-                    .catch(error => {
-                        console.log(error);
-                    });
             })
                 .catch(error => {
                     console.log(error);
