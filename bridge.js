@@ -34,7 +34,7 @@ const launchEvent = contractInstance.Launch({});
  * they have to call XtremWeb and return result to solidity
  */
 
-function submitAndWaitAndGetStdout(user, provider, creator, appName, param) {
+function submitAndWaitAndGetStdout(user, provider, creator, appName, param, opid) {
     let workUid='';
     let stdout='';
     xwhep.submitAndWaitAndGetStdout(user, provider, creator, appName,param).then(result => {
@@ -42,24 +42,24 @@ function submitAndWaitAndGetStdout(user, provider, creator, appName, param) {
         console.log(`Here the workUid = ${workUid}`);
         console.log(`Here the stdout = ${stdout}`);
 
-        contractInstance.submitCallback(user, provider, appName, workUid, 4 /*COMPLETED*/, stdout,'', {
+        contractInstance.submitCallback(opid, provider, workUid, 4 /*COMPLETED*/, stdout,'', {
             from: bridgeAccount,
             gas: runningGas
         })
             .catch(error => {
-                console.log(error);
-            });
-    })
-        .catch(error => {
             console.log(error);
-            contractInstance.submitCallback(user, provider, appName, workUid, 5/*ERROR*/, stdout, `${error}`, {
+        });
+    })
+    .catch(error => {
+            console.log(error);
+            contractInstance.submitCallback(opid, provider, workUid, 5/*ERROR*/, stdout, `${error}`, {
                 from: bridgeAccount,
                 gas: runningGas
             })
                 .catch(error => {
-                    console.log(error);
-                });
+                console.log(error);
         });
+    });
 }
 
 
@@ -72,8 +72,8 @@ launchEvent.watch((err, res) => {
         console.log(`Erreur event ${err}`);
         return;
     }
-    console.log(`Parse ${res.args.user} ${res.args.provider} ${res.args.creator} ${res.args.functionName} ${res.args.param1} ${res.args.param2} ${res.args.UID}`);
+    console.log(`Parse ${res.args.user} ${res.args.provider} ${res.args.creator} ${res.args.functionName} ${res.args.param1} ${res.args.param2} ${res.args.opid}`);
     if (res.args.functionName === 'submit') {
-        submitAndWaitAndGetStdout(res.args.user, res.args.provider, res.args.creator, res.args.param1, res.args.param2);
+        submitAndWaitAndGetStdout(res.args.user, res.args.provider, res.args.creator, res.args.param1, res.args.param2,res.args.opid);
     }
 });
