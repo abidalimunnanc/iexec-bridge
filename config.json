@@ -1,10 +1,47 @@
 {
   "ContractAbi": [
     {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "submitTxHash",
+          "type": "bytes32"
+        },
+        {
+          "name": "provider",
+          "type": "address"
+        },
+        {
+          "name": "workUid",
+          "type": "string"
+        },
+        {
+          "name": "appName",
+          "type": "string"
+        },
+        {
+          "name": "status",
+          "type": "uint8"
+        },
+        {
+          "name": "stdout",
+          "type": "string"
+        },
+        {
+          "name": "stderr",
+          "type": "string"
+        }
+      ],
+      "name": "submitCallback",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
       "constant": true,
       "inputs": [
         {
-          "name": "opid",
+          "name": "submitTxHash",
           "type": "bytes32"
         }
       ],
@@ -40,50 +77,6 @@
     },
     {
       "constant": false,
-      "inputs": [
-        {
-          "name": "id",
-          "type": "string"
-        },
-        {
-          "name": "appName",
-          "type": "string"
-        },
-        {
-          "name": "param",
-          "type": "string"
-        }
-      ],
-      "name": "submit",
-      "outputs": [
-        {
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "payable": false,
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [
-        {
-          "name": "opid",
-          "type": "bytes32"
-        }
-      ],
-      "name": "getWorkName",
-      "outputs": [
-        {
-          "name": "",
-          "type": "string"
-        }
-      ],
-      "payable": false,
-      "type": "function"
-    },
-    {
-      "constant": false,
       "inputs": [],
       "name": "registerSmartContractAndCreator",
       "outputs": [
@@ -99,7 +92,25 @@
       "constant": true,
       "inputs": [
         {
-          "name": "opid",
+          "name": "submitTxHash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "getWorkAppName",
+      "outputs": [
+        {
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "submitTxHash",
           "type": "bytes32"
         }
       ],
@@ -132,10 +143,32 @@
       "type": "function"
     },
     {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "appName",
+          "type": "string"
+        },
+        {
+          "name": "param",
+          "type": "string"
+        }
+      ],
+      "name": "submit",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
       "constant": true,
       "inputs": [
         {
-          "name": "opid",
+          "name": "submitTxHash",
           "type": "bytes32"
         }
       ],
@@ -153,7 +186,7 @@
       "constant": true,
       "inputs": [
         {
-          "name": "opid",
+          "name": "submitTxHash",
           "type": "bytes32"
         }
       ],
@@ -171,7 +204,7 @@
       "constant": true,
       "inputs": [
         {
-          "name": "opid",
+          "name": "submitTxHash",
           "type": "bytes32"
         }
       ],
@@ -199,43 +232,10 @@
       "type": "function"
     },
     {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "opid",
-          "type": "bytes32"
-        },
-        {
-          "name": "provider",
-          "type": "address"
-        },
-        {
-          "name": "workUid",
-          "type": "string"
-        },
-        {
-          "name": "status",
-          "type": "uint8"
-        },
-        {
-          "name": "stdout",
-          "type": "string"
-        },
-        {
-          "name": "stderr",
-          "type": "string"
-        }
-      ],
-      "name": "submitCallback",
-      "outputs": [],
-      "payable": false,
-      "type": "function"
-    },
-    {
       "constant": true,
       "inputs": [
         {
-          "name": "opid",
+          "name": "submitTxHash",
           "type": "bytes32"
         }
       ],
@@ -274,26 +274,16 @@
         },
         {
           "indexed": false,
-          "name": "functionName",
+          "name": "appName",
           "type": "string"
         },
         {
           "indexed": false,
-          "name": "param1",
+          "name": "args",
           "type": "string"
-        },
-        {
-          "indexed": false,
-          "name": "param2",
-          "type": "string"
-        },
-        {
-          "indexed": false,
-          "name": "opid",
-          "type": "bytes32"
         }
       ],
-      "name": "Launch",
+      "name": "Submit",
       "type": "event"
     },
     {
@@ -301,16 +291,28 @@
       "inputs": [
         {
           "indexed": false,
-          "name": "callbackType",
-          "type": "string"
-        },
-        {
-          "indexed": false,
-          "name": "opid",
+          "name": "submitTxHash",
           "type": "bytes32"
         }
       ],
-      "name": "CallbackEvent",
+      "name": "SubmitCallback",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "provider",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "name": "creator",
+          "type": "address"
+        }
+      ],
+      "name": "Register",
       "type": "event"
     }
   ],

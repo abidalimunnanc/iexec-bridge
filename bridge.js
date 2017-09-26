@@ -72,8 +72,11 @@ launchEvent.watch((err, res) => {
         console.log(`Erreur event ${err}`);
         return;
     }
-    console.log(`Parse ${res.args.user} ${res.args.provider} ${res.args.creator} ${res.args.functionName} ${res.args.param1} ${res.args.param2} ${res.args.opid}`);
-    if (res.args.functionName === 'submit') {
-        submitAndWaitAndGetStdout(res.args.user, res.args.provider, res.args.creator, res.args.param1, res.args.param2,res.args.opid);
-    }
+    console.log(`Parse res ${res}`);
+    console.log(`Parse args ${res.args}`);
+
+console.log(`Parse ${res.args.user} ${res.args.provider} ${res.args.creator} ${res.args.functionName} ${res.args.param1} ${res.args.param2} ${res.args.opid}`);
+  //  if (res.args.functionName === 'submit') {
+  //      submitAndWaitAndGetStdout(res.args.user, res.args.provider, res.args.creator, res.args.param1, res.args.param2,res.args.opid);
+  //  }
 });
