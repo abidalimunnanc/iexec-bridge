@@ -42,7 +42,7 @@ function submitAndWaitAndGetStdout(user, provider, creator, appName, param,submi
         console.log(`Here the workUid = ${workUid}`);
         console.log(`Here the stdout = ${stdout}`);
 
-        contractInstance.submitCallback(submitTxHash, provider, workUid, appName, 4 /*COMPLETED*/, stdout,'', {
+        contractInstance.submitCallback(submitTxHash,user, provider, workUid, appName, 4 /*COMPLETED*/, stdout,'', {
             from: bridgeAccount,
             gas: runningGas
         })
@@ -52,7 +52,7 @@ function submitAndWaitAndGetStdout(user, provider, creator, appName, param,submi
     })
     .catch(error => {
             console.log(error);
-            contractInstance.submitCallback(submitTxHash, provider, workUid, appName, 5/*ERROR*/, stdout, `${error}`, {
+            contractInstance.submitCallback(submitTxHash,user, provider, workUid, appName, 5/*ERROR*/, stdout, `${error}`, {
                 from: bridgeAccount,
                 gas: runningGas
             })
