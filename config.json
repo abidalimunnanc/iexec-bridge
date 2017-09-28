@@ -1,43 +1,6 @@
 {
   "ContractAbi": [
     {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "submitTxHash",
-          "type": "bytes32"
-        },
-        {
-          "name": "provider",
-          "type": "address"
-        },
-        {
-          "name": "workUid",
-          "type": "string"
-        },
-        {
-          "name": "appName",
-          "type": "string"
-        },
-        {
-          "name": "status",
-          "type": "uint8"
-        },
-        {
-          "name": "stdout",
-          "type": "string"
-        },
-        {
-          "name": "stderr",
-          "type": "string"
-        }
-      ],
-      "name": "submitCallback",
-      "outputs": [],
-      "payable": false,
-      "type": "function"
-    },
-    {
       "constant": true,
       "inputs": [
         {
@@ -219,6 +182,47 @@
       "type": "function"
     },
     {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "submitTxHash",
+          "type": "bytes32"
+        },
+        {
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "name": "provider",
+          "type": "address"
+        },
+        {
+          "name": "workUid",
+          "type": "string"
+        },
+        {
+          "name": "appName",
+          "type": "string"
+        },
+        {
+          "name": "status",
+          "type": "uint8"
+        },
+        {
+          "name": "stdout",
+          "type": "string"
+        },
+        {
+          "name": "stderr",
+          "type": "string"
+        }
+      ],
+      "name": "submitCallback",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
       "constant": true,
       "inputs": [],
       "name": "bridge",
@@ -293,6 +297,21 @@
           "indexed": false,
           "name": "submitTxHash",
           "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "name": "appName",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "name": "stdout",
+          "type": "string"
         }
       ],
       "name": "SubmitCallback",
