@@ -27,14 +27,14 @@ const runningGas = 400000;
 console.log('start', contractInstance);
 
 // event watcher
-const launchEvent = contractInstance.Launch({});
+const submitEvent = contractInstance.Submit({});
 
 /*
  * The following functions are called when we get event from solidity,
  * they have to call XtremWeb and return result to solidity
  */
 
-function submitAndWaitAndGetStdout(user, provider, creator, appName, param) {
+function submitAndWaitAndGetStdout(user, provider, creator, appName, param,submitTxHash) {
     let workUid='';
     let stdout='';
     xwhep.submitAndWaitAndGetStdout(user, provider, creator, appName,param).then(result => {
@@ -42,24 +42,26 @@ function submitAndWaitAndGetStdout(user, provider, creator, appName, param) {
         console.log(`Here the workUid = ${workUid}`);
         console.log(`Here the stdout = ${stdout}`);
 
-        contractInstance.submitCallback(user, provider, appName, workUid, 4 /*COMPLETED*/, stdout,'', {
+        contractInstance.submitCallback(submitTxHash,user, provider, workUid, appName, 4 /*COMPLETED*/, stdout,'', {
             from: bridgeAccount,
-            gas: runningGas
+            gas: runningGas,
+            gasPrice:100000000000
         })
             .catch(error => {
-                console.log(error);
-            });
-    })
-        .catch(error => {
             console.log(error);
-            contractInstance.submitCallback(user, provider, appName, workUid, 5/*ERROR*/, stdout, `${error}`, {
+        });
+    })
+    .catch(error => {
+            console.log(error);
+            contractInstance.submitCallback(submitTxHash,user, provider, workUid, appName, 5/*ERROR*/, stdout, `${error}`, {
                 from: bridgeAccount,
-                gas: runningGas
+                gas: runningGas,
+                gasPrice:100000000000
             })
                 .catch(error => {
-                    console.log(error);
-                });
+                console.log(error);
         });
+    });
 }
 
 
@@ -67,13 +69,13 @@ function submitAndWaitAndGetStdout(user, provider, creator, appName, param) {
 /*
  * Event watcher: this function listen to the event and call the related fonction
  */
-launchEvent.watch((err, res) => {
+submitEvent.watch((err, res) => {
     if (err) {
         console.log(`Erreur event ${err}`);
         return;
     }
-    console.log(`Parse ${res.args.user} ${res.args.provider} ${res.args.creator} ${res.args.functionName} ${res.args.param1} ${res.args.param2} ${res.args.UID}`);
-    if (res.args.functionName === 'submit') {
-        submitAndWaitAndGetStdout(res.args.user, res.args.provider, res.args.creator, res.args.param1, res.args.param2);
-    }
+    console.log("res.transactionHash:"+res.transactionHash);
+    console.log(`Parse ${res.args.user} ${res.args.provider} ${res.args.creator} ${res.args.appName} ${res.args.args}`);
+    submitAndWaitAndGetStdout(res.args.user, res.args.provider, res.args.creator, res.args.appName, res.args.args,res.transactionHash);
+
 });

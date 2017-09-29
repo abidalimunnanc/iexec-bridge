@@ -4,120 +4,8 @@
       "constant": true,
       "inputs": [
         {
-          "name": "user",
-          "type": "address"
-        },
-        {
-          "name": "provider",
-          "type": "address"
-        },
-        {
-          "name": "index",
-          "type": "uint256"
-        }
-      ],
-      "name": "getWorkStatus",
-      "outputs": [
-        {
-          "name": "",
-          "type": "uint8"
-        }
-      ],
-      "payable": false,
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [
-        {
-          "name": "user",
-          "type": "address"
-        },
-        {
-          "name": "provider",
-          "type": "address"
-        },
-        {
-          "name": "index",
-          "type": "uint256"
-        }
-      ],
-      "name": "getWorkTimestamp",
-      "outputs": [
-        {
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "payable": false,
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [
-        {
-          "name": "user",
-          "type": "address"
-        },
-        {
-          "name": "provider",
-          "type": "address"
-        },
-        {
-          "name": "index",
-          "type": "uint256"
-        }
-      ],
-      "name": "getWorkName",
-      "outputs": [
-        {
-          "name": "",
-          "type": "string"
-        }
-      ],
-      "payable": false,
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [
-        {
-          "name": "user",
-          "type": "address"
-        },
-        {
-          "name": "provider",
-          "type": "address"
-        },
-        {
-          "name": "index",
-          "type": "uint256"
-        }
-      ],
-      "name": "getWorkUid",
-      "outputs": [
-        {
-          "name": "",
-          "type": "string"
-        }
-      ],
-      "payable": false,
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [
-        {
-          "name": "user",
-          "type": "address"
-        },
-        {
-          "name": "provider",
-          "type": "address"
-        },
-        {
-          "name": "index",
-          "type": "uint256"
+          "name": "submitTxHash",
+          "type": "bytes32"
         }
       ],
       "name": "getWork",
@@ -154,7 +42,12 @@
       "constant": false,
       "inputs": [],
       "name": "registerSmartContractAndCreator",
-      "outputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
       "payable": false,
       "type": "function"
     },
@@ -162,16 +55,26 @@
       "constant": true,
       "inputs": [
         {
-          "name": "user",
-          "type": "address"
-        },
+          "name": "submitTxHash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "getWorkAppName",
+      "outputs": [
         {
-          "name": "provider",
-          "type": "address"
-        },
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
         {
-          "name": "index",
-          "type": "uint256"
+          "name": "submitTxHash",
+          "type": "bytes32"
         }
       ],
       "name": "getWorkStderr",
@@ -215,7 +118,12 @@
         }
       ],
       "name": "submit",
-      "outputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
       "payable": false,
       "type": "function"
     },
@@ -223,19 +131,51 @@
       "constant": true,
       "inputs": [
         {
-          "name": "user",
-          "type": "address"
-        },
-        {
-          "name": "provider",
-          "type": "address"
+          "name": "submitTxHash",
+          "type": "bytes32"
         }
       ],
-      "name": "getUserProviderUsageCount",
+      "name": "getWorkUid",
       "outputs": [
         {
           "name": "",
-          "type": "uint256"
+          "type": "string"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "submitTxHash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "getWorkStatus",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "submitTxHash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "getWorkStdout",
+      "outputs": [
+        {
+          "name": "",
+          "type": "string"
         }
       ],
       "payable": false,
@@ -245,6 +185,10 @@
       "constant": false,
       "inputs": [
         {
+          "name": "submitTxHash",
+          "type": "bytes32"
+        },
+        {
           "name": "user",
           "type": "address"
         },
@@ -253,11 +197,11 @@
           "type": "address"
         },
         {
-          "name": "appName",
+          "name": "workUid",
           "type": "string"
         },
         {
-          "name": "workUid",
+          "name": "appName",
           "type": "string"
         },
         {
@@ -295,23 +239,15 @@
       "constant": true,
       "inputs": [
         {
-          "name": "user",
-          "type": "address"
-        },
-        {
-          "name": "provider",
-          "type": "address"
-        },
-        {
-          "name": "index",
-          "type": "uint256"
+          "name": "submitTxHash",
+          "type": "bytes32"
         }
       ],
-      "name": "getWorkStdout",
+      "name": "getWorkTimestamp",
       "outputs": [
         {
           "name": "",
-          "type": "string"
+          "type": "uint256"
         }
       ],
       "payable": false,
@@ -342,26 +278,16 @@
         },
         {
           "indexed": false,
-          "name": "functionName",
+          "name": "appName",
           "type": "string"
         },
         {
           "indexed": false,
-          "name": "param1",
-          "type": "string"
-        },
-        {
-          "indexed": false,
-          "name": "param2",
-          "type": "string"
-        },
-        {
-          "indexed": false,
-          "name": "workUid",
+          "name": "args",
           "type": "string"
         }
       ],
-      "name": "Launch",
+      "name": "Submit",
       "type": "event"
     },
     {
@@ -369,22 +295,12 @@
       "inputs": [
         {
           "indexed": false,
-          "name": "callbackType",
-          "type": "string"
+          "name": "submitTxHash",
+          "type": "bytes32"
         },
         {
           "indexed": true,
           "name": "user",
-          "type": "address"
-        },
-        {
-          "indexed": true,
-          "name": "provider",
-          "type": "address"
-        },
-        {
-          "indexed": true,
-          "name": "creator",
           "type": "address"
         },
         {
@@ -394,13 +310,30 @@
         },
         {
           "indexed": false,
-          "name": "index",
-          "type": "uint256"
+          "name": "stdout",
+          "type": "string"
         }
       ],
-      "name": "CallbackEvent",
+      "name": "SubmitCallback",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "provider",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "name": "creator",
+          "type": "address"
+        }
+      ],
+      "name": "Register",
       "type": "event"
     }
   ],
-"ContractAddress":"0xc6405f8d329b6b1517f0acf91bcc8f62091c63bf"
+"ContractAddress":"0xd95a36bb3c67bbb6f50be1087cfe2bdbf498da16"
 }
