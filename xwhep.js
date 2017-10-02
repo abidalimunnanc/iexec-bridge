@@ -7,7 +7,8 @@ import uuidV4 from 'uuid/v4';
 import request from 'request';
 import json2xml from 'json2xml';
 // import util from 'util';
-
+import FormData from 'form-data';
+const md5File = require('md5-file');
 
 /**
  * This are the local XWHEP server informations, for testing only
@@ -50,6 +51,9 @@ const PATH_GET = '/get';
 const PATH_SENDWORK = '/sendwork';
 const PATH_REMOVE = '/remove';
 const PATH_DOWNLOADDATA = '/downloaddata';
+const PATH_SENDDATA = '/senddata';
+const PATH_SENDAPP = '/sendapp';
+const PATH_UPLOADDATA = '/uploaddata';
 
 /**
  * API URI
@@ -98,7 +102,7 @@ if(!(qwerty in workAvailableParameters)){
  */
 
 /**
- * This object contains work parameters write access.
+ * This contains work parameters write access.
  * Key is the work parameter name
  * Value describes the write access
  */
@@ -149,6 +153,64 @@ const workAvailableParameters = {
     status: false,
     minfreemassstorage: true,
 }
+
+/**
+ * This contains work parameters write access.
+ * Key is the work parameter name
+ * Value describes the write access
+ */
+const appAvailableParameters = {
+    uid: false,
+    owneruid: false,
+    accessrights: true,
+    errormsg: true,
+    mtime: false,
+    name : true,
+    isservice : true,
+    type : true,
+    minfreemassstorage:true,
+    avgexectime: false,
+    minmemory:true,
+    mincpuspeed: true,
+    launchscriptshuri: true,
+    launchscriptcmduri: true,
+    unloadscriptshuri:true,
+    unloadscriptcmduri: true,
+    nbjobs: false,
+    pendingjobs:false,
+    runningjobs:false,
+    errorjobs:false,
+    webpage:true,
+    neededpackages:true,
+    envvars:true,
+    defaultstdinuri:true,
+    basedirinuri:true,
+    defaultdirinuri:true,
+    ldlinux_ix86uri:true,
+    ldlinux_x86_64uri: true,
+    ldlinux_amd64uri:true,
+    ldlinux_ia64uri:true,
+    ldlinux_ppcuri:true,
+    ldmacos_ix86uri:true,
+    ldmacos_x86_64uri:true,
+    ldmacos_ppcuri:true,
+    ldwin32_ix86uri:true,
+    ldwin32_amd64uri:true,
+    ldwin32_x86_64uri:true,
+    linux_ix86uri:true,
+    linux_amd64uri:true,
+    linux_x86_64uri:true,
+    linux_ia64uri:true,
+    linux_ppcuri:true,
+    macos_ix86uri:true,
+    macos_x86_64uri:true,
+    macos_ppcuri:true,
+    win32_ix86uri:true,
+    win32_amd64uri:true,
+    win32_x86_64uri:true,
+    javauri:true,
+}
+
 /**
  * This contains all known application names
  */
@@ -193,6 +255,129 @@ function sendWork(xmlWork) {
             rejectUnauthorized: false,
         };
         console.log(`${options.hostname}:${options.port}${sendWorkPath}`);
+
+        const req = https.request(options, (res) => {
+            res.on('data', (d) => {
+                const strd = String.fromCharCode.apply(null, new Uint16Array(d));
+                console.log(strd);
+            });
+
+            res.on('end', () => {
+                resolve();
+            });
+        });
+
+        req.on('error', (e) => {
+            reject(e);
+        });
+        req.end();
+    });
+}
+
+/**
+ * This sends the application to server
+ * This is a private method not implemented in the smart contract
+ * @param xmlApp is an XML description of the application
+ * @return a new Promise
+ * @resolve undefined
+ */
+function sendApp(xmlApp) {
+    return new Promise((resolve, reject) => {
+        const sendAppPath = `${PATH_SENDAPP}?XMLDESC=${xmlApp}`;
+        const options = {
+            hostname: SERVERNAME,
+            port: SERVERPORT,
+            path: `${PATH_SENDAPP + CREDENTIALS}&XMLDESC=${xmlApp}`,
+            method: 'GET',
+            rejectUnauthorized: false,
+        };
+        console.log(`${options.hostname}:${options.port}${sendAppPath}`);
+
+        const req = https.request(options, (res) => {
+            res.on('data', (d) => {
+                const strd = String.fromCharCode.apply(null, new Uint16Array(d));
+                console.log(strd);
+            });
+
+            res.on('end', () => {
+                resolve();
+            });
+        });
+
+        req.on('error', (e) => {
+            reject(e);
+        });
+        req.end();
+    });
+}
+
+/**
+ * Ref: https://github.com/form-data/form-data
+ * This sends the data to server
+ * This is a private method not implemented in the smart contract
+ * @param dataUid is the uid of the data
+ * @param dataPath is the path of the data in local fs
+ * @return a new Promise
+ * @resolve undefined
+ */
+function uploadData(dataUid, dataPath) {
+    return new Promise((resolve, reject) => {
+        const uploadDataPath = `${PATH_UPLOADDATA}?XMLDESC=${xmlData}`;
+        const options = {
+          hostname: SERVERNAME,
+          port: SERVERPORT,
+          path: `${PATH_UPLOADDATA + CREDENTIALS}&XMLDESC=${xmlData}`,
+          method: 'GET',
+          rejectUnauthorized: false,
+        };
+        console.log(`${options.hostname}:${options.port}${uploadDataPath}`);
+
+        var stats = fs.statSync(dataPath);
+        // console.log('stats', stats);
+        var dataSize = stats["size"];
+
+        const hash = md5File.sync(dataPath);
+        var dataMD5 = ${hash};
+
+/*
+        var fileName = dataPath;
+        var lastSlash = dataPath.lastIndexOf("/");
+        if( lastSlash >= 0) {
+          fileName = dataPath.substr(lastSlash + 1);
+        }
+*/
+        var dataForm = new FormData();
+        dataForm.append('DATAUID', dataUid);
+        dataForm.append('DATAMD5SUM', dataMD5);
+        dataForm.append('DATASIZE', dataSize);
+        dataForm.append('DATAFILE', fs.createReadStream(dataPath));
+//        dataForm.append('my_buffer', new Buffer(10));
+
+        dataForm.submit( ${options.path}, function(err, res) {
+          // res – response object (http.IncomingMessage)  //
+          res.resume();
+        });
+    });
+}
+
+/**
+ * This sends the data to server
+ * This is a private method not implemented in the smart contract
+ * @param xmlData is an XML description of the data
+ * @return a new Promise
+ * @resolve undefined
+ */
+function sendData(xmlData) {
+    return new Promise((resolve, reject) => {
+        const sendDataPath = `${PATH_SENDDATA}?XMLDESC=${xmlData}`;
+        const options = {
+            hostname: SERVERNAME,
+            port: SERVERPORT,
+            path: `${PATH_SENDDATA + CREDENTIALS}&XMLDESC=${xmlData}`,
+            method: 'GET',
+            rejectUnauthorized: false,
+        };
+        console.log(`${options.hostname}:${options.port}${sendDataPath}`);
 
         const req = https.request(options, (res) => {
             res.on('data', (d) => {
@@ -350,6 +535,32 @@ function getApps() {
 }
 
 /**
+ * This registers a new application
+ * This is a public method implemented in the smart contract
+ * It is the caller responsibility to ensure appName does not already exist
+ * @param appName is the application name; this must be unic
+ * @return a new Promise
+ * @resolve the new app uid
+ * @exception is thrown if application is not found
+ * @see #setPending(uid)
+ */
+async function registerApp(user, provider, creator, appName) {
+    console.log(`registerApp ; ${appName}`);
+
+    return new Promise((resolve, reject) => {
+        const appUid = uuidV4();
+        console.log(`registerApp appUid = ${appUid}`);
+
+        const appDescription = `<app><uid>${appUid}</uid><name>${appName}</name><accessrights>0x755</accessrights><status>AVAILABLE</status></app>`;
+        sendApp(appDescription).then(() => {
+          resolve(appUid);
+        }).catch((err) => {
+            reject(`registerApp() sendApp error : ${err}`);
+        });
+    })
+}
+
+/**
  * This registers a new UNAVAILABLE work for the provided application.
  * Since the status is set to UNAVAILABLE, this new work is not candidate for scheduling.
  * This lets a chance to sets some parameters.
@@ -388,8 +599,8 @@ async function register(user, provider, creator, appName) {
         const appUid = hashtableAppNames[appName];
         console.log(`${appName} = ${appUid}`);
 
-        const workDescription = `<work><uid>${workUid}</uid><accessrights>0x755</accessrights><appuid>${
-            appUid}</appuid><status>UNAVAILABLE</status></work>`;
+        const workDescription = '<work><uid>${workUid}</uid><accessrights>0x755</accessrights><appuid>${
+            appUid}</appuid><status>UNAVAILABLE</status></work>';
         sendWork(workDescription).then(() => {
             sendWork(workDescription).then(() => { // a 2nd time to force status to UNAVAILABLE
                 resolve(workUid);
@@ -400,6 +611,53 @@ async function register(user, provider, creator, appName) {
             reject(`register() sendWork 1 error : ${err}`);
         });
     })
+}
+
+/**
+ * This sets a parameter for the provided application
+ * This is a public method implemented in the smart contract
+ * @param uid is the application unique identifier
+ * @param paramName contains the name of the application parameter to modify
+ * @param paramValue contains the value of the application parameter
+ * @return a new Promise
+ * @resolve undefined
+ * @exception is thrown if application is not found
+ * @exception is thrown if paramName does not represent a valid application parameter
+ * @exception is thrown if parameter is read only (e.g. status, return code, etc.)
+ */
+function setApplicationParam(uid, paramName, paramValue) {
+    console.log("setApplicationParam uid",uid);
+    console.log("setApplicationParamp aramName",paramName);
+    console.log("setApplicationParam paramValue",paramValue);
+    if (!(paramName in appAvailableParameters)) {
+        throw new Error(`setApplicationParam : invalid app parameter ${paramName}`);
+    }
+    if (appAvailableParameters[paramName] === false) {
+        throw new Error(`setApplicationParam : read only app parameter ${paramName}`);
+    }
+
+    return new Promise((resolve, reject) => {
+        get(uid).then((getResponse) => {
+            let jsonObject;
+            parseString(getResponse, (err, result) => {
+                jsonObject = JSON.parse(JSON.stringify(result));
+            });
+
+            if (jsonObject.xwhep.app === undefined) {
+                return reject(`setApplicationParam : Not an application : ${uid}`);
+            }
+
+            jsonObject.xwhep.app[0][paramName] = paramValue;
+
+            sendApp(json2xml(jsonObject, false)).then(() => {
+                resolve();
+            }).catch((err) => {
+                reject(`setParam() error : ${err}`);
+            });
+        }).catch((e) => {
+            reject(`setParam(): Work not found (${uid}) : ${e}`);
+        });
+    });
 }
 
 /**
@@ -560,9 +818,29 @@ function setPending(uid) {
  * @resolve the new work uid
  * @exception is thrown if application is not found
  */
-const submit = ( user, provider, creator,appName, cmdLineParam) => (
+const submit = ( user, provider, creator,appName, cmdLineParam, stdinContent) => (
     new Promise((resolve, reject) => {
         register(user, provider, creator,appName).then((uid) => {
+            if ((stdinContent !== null) && (stdinContent !== undefined)) {
+              const dataUid = uuidV4();
+              console.log(`data uid = ${workUid}`);
+              const dataDescription = `<data><uid>${workUid}</uid><accessrights>0x755</accessrights><status>UNAVAILABLE</status></data>`;
+              sendData(dataDescription).then(() => {
+                var dataFile = '/tmp/dataUid';
+                fs.writeFile(dataFile, stdinContent).then() => {
+                  uploadData(dataUid, dataFile).then(() => {
+                    var stdinuri = 'xw://' + ${SERVERNAME} + ':' + ${SERVERPORT} + '/' + dataUid;
+                    setParam(uid, 'stdinuri', stdinuri).then(() => {
+                      fs.unlink(dataFile);
+                    }
+                  }).catch((err) => {
+                    reject(`submit() sendData error : ${err}`);
+                  });
+                }
+              }).catch((err) => {
+                reject(`submit() sendData error : ${err}`);
+              });
+            }
             setParam(uid, 'cmdline', cmdLineParam).then(() => {
                 setPending(uid).then(() => {
                     resolve(uid);
