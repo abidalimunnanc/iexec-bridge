@@ -599,8 +599,7 @@ async function register(user, provider, creator, appName) {
         const appUid = hashtableAppNames[appName];
         console.log(`${appName} = ${appUid}`);
 
-        const workDescription = '<work><uid>${workUid}</uid><accessrights>0x755</accessrights><appuid>${
-            appUid}</appuid><status>UNAVAILABLE</status></work>';
+        const workDescription = `<work><uid>${workUid}</uid><accessrights>0x755</accessrights><appuid>${appUid}</appuid><status>UNAVAILABLE</status></work>`;
         sendWork(workDescription).then(() => {
             sendWork(workDescription).then(() => { // a 2nd time to force status to UNAVAILABLE
                 resolve(workUid);
