@@ -822,8 +822,8 @@ const submit = ( user, provider, creator,appName, cmdLineParam, stdinContent) =>
         register(user, provider, creator,appName).then((uid) => {
             if ((stdinContent !== null) && (stdinContent !== undefined)) {
               const dataUid = uuidV4();
-              console.log(`data uid = ${workUid}`);
-              const dataDescription = `<data><uid>${workUid}</uid><accessrights>0x755</accessrights><status>UNAVAILABLE</status></data>`;
+              console.log(`data uid = ${dataUid}`);
+              const dataDescription = `<data><uid>${dataUid}</uid><accessrights>0x755</accessrights><status>UNAVAILABLE</status></data>`;
               sendData(dataDescription).then(() => {
                 var dataFile = '/tmp/dataUid';
                 fs.writeFile(dataFile, stdinContent).then() => {
