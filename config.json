@@ -11,27 +11,27 @@
       "name": "getWork",
       "outputs": [
         {
-          "name": "",
+          "name": "workUid",
           "type": "string"
         },
         {
-          "name": "",
+          "name": "appName",
           "type": "string"
         },
         {
-          "name": "",
+          "name": "timestamp",
           "type": "uint256"
         },
         {
-          "name": "",
+          "name": "status",
           "type": "uint8"
         },
         {
-          "name": "",
+          "name": "stdout",
           "type": "string"
         },
         {
-          "name": "",
+          "name": "stderr",
           "type": "string"
         }
       ],
@@ -39,13 +39,36 @@
       "type": "function"
     },
     {
-      "constant": false,
-      "inputs": [],
-      "name": "registerSmartContractAndCreator",
+      "constant": true,
+      "inputs": [
+        {
+          "name": "dapp",
+          "type": "address"
+        }
+      ],
+      "name": "getPrice",
       "outputs": [
         {
           "name": "",
-          "type": "bool"
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "dapp",
+          "type": "address"
+        }
+      ],
+      "name": "getProvider",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
         }
       ],
       "payable": false,
@@ -62,8 +85,21 @@
       "name": "getWorkAppName",
       "outputs": [
         {
-          "name": "",
+          "name": "appName",
           "type": "string"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "rlcToken",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
         }
       ],
       "payable": false,
@@ -80,26 +116,8 @@
       "name": "getWorkStderr",
       "outputs": [
         {
-          "name": "",
+          "name": "stderr",
           "type": "string"
-        }
-      ],
-      "payable": false,
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [
-        {
-          "name": "provider",
-          "type": "address"
-        }
-      ],
-      "name": "getCreator",
-      "outputs": [
-        {
-          "name": "",
-          "type": "address"
         }
       ],
       "payable": false,
@@ -138,7 +156,7 @@
       "name": "getWorkUid",
       "outputs": [
         {
-          "name": "",
+          "name": "workUid",
           "type": "string"
         }
       ],
@@ -156,7 +174,7 @@
       "name": "getWorkStatus",
       "outputs": [
         {
-          "name": "",
+          "name": "status",
           "type": "uint8"
         }
       ],
@@ -174,8 +192,26 @@
       "name": "getWorkStdout",
       "outputs": [
         {
-          "name": "",
+          "name": "stdout",
           "type": "string"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "dappPrice",
+          "type": "uint256"
+        }
+      ],
+      "name": "registerDappAndProvider",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
         }
       ],
       "payable": false,
@@ -193,7 +229,7 @@
           "type": "address"
         },
         {
-          "name": "provider",
+          "name": "dapp",
           "type": "address"
         },
         {
@@ -246,7 +282,7 @@
       "name": "getWorkTimestamp",
       "outputs": [
         {
-          "name": "",
+          "name": "timestamp",
           "type": "uint256"
         }
       ],
@@ -254,7 +290,12 @@
       "type": "function"
     },
     {
-      "inputs": [],
+      "inputs": [
+        {
+          "name": "tokenAddress",
+          "type": "address"
+        }
+      ],
       "payable": false,
       "type": "constructor"
     },
@@ -268,12 +309,12 @@
         },
         {
           "indexed": true,
-          "name": "provider",
+          "name": "dapp",
           "type": "address"
         },
         {
           "indexed": true,
-          "name": "creator",
+          "name": "provider",
           "type": "address"
         },
         {
@@ -322,12 +363,12 @@
       "inputs": [
         {
           "indexed": true,
-          "name": "provider",
+          "name": "dapp",
           "type": "address"
         },
         {
           "indexed": true,
-          "name": "creator",
+          "name": "provider",
           "type": "address"
         }
       ],

@@ -3,11 +3,12 @@ import Web3 from 'web3';
 // import { exec } from 'child_process';
 import config from './config.json';
 
-import * as xwhep from './xwhep';
+import createXWHEPClient from 'xwhep-js-client';
 
 //instanciation provider http
 var provider = new Web3.providers.HttpProvider("http://localhost:8545");
 var contract = require("truffle-contract");
+const xwhep = createXWHEPClient({login:'admin', password: 'admin', hostname: 'localhost', port: '9443'});
 
 // instanciation contract
 var truffleContract = contract({
@@ -34,15 +35,15 @@ const submitEvent = contractInstance.Submit({});
  * they have to call XtremWeb and return result to solidity
  */
 
-function submitAndWaitAndGetStdout(user, provider, creator, appName, param,submitTxHash) {
+function submitAndWaitAndGetStdout(user, dapp, provider, appName, param,submitTxHash) {
     let workUid='';
     let stdout='';
-    xwhep.submitAndWaitAndGetStdout(user, provider, creator, appName,param).then(result => {
+    xwhep.submitAndWaitAndGetStdout(user, dapp, provider, appName,param).then(result => {
         [workUid,stdout]=result;
         console.log(`Here the workUid = ${workUid}`);
         console.log(`Here the stdout = ${stdout}`);
 
-        contractInstance.submitCallback(submitTxHash,user, provider, workUid, appName, 4 /*COMPLETED*/, stdout,'', {
+        contractInstance.submitCallback(submitTxHash,user, dapp, workUid, appName, 4 /*COMPLETED*/, stdout,'', {
             from: bridgeAccount,
             gas: runningGas,
             gasPrice:100000000000
@@ -53,7 +54,7 @@ function submitAndWaitAndGetStdout(user, provider, creator, appName, param,submi
     })
     .catch(error => {
             console.log(error);
-            contractInstance.submitCallback(submitTxHash,user, provider, workUid, appName, 5/*ERROR*/, stdout, `${error}`, {
+            contractInstance.submitCallback(submitTxHash,user, dapp, workUid, appName, 5/*ERROR*/, stdout, `${error}`, {
                 from: bridgeAccount,
                 gas: runningGas,
                 gasPrice:100000000000
@@ -75,7 +76,7 @@ submitEvent.watch((err, res) => {
         return;
     }
     console.log("res.transactionHash:"+res.transactionHash);
-    console.log(`Parse ${res.args.user} ${res.args.provider} ${res.args.creator} ${res.args.appName} ${res.args.args}`);
-    submitAndWaitAndGetStdout(res.args.user, res.args.provider, res.args.creator, res.args.appName, res.args.args,res.transactionHash);
+    console.log(`Parse ${res.args.user} ${res.args.dapp} ${res.args.provider} ${res.args.appName} ${res.args.args}`);
+    submitAndWaitAndGetStdout(res.args.user, res.args.dapp, res.args.provider, res.args.appName, res.args.args,res.transactionHash);
 
 });
