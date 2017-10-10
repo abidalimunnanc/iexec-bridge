@@ -4,6 +4,32 @@
       "constant": true,
       "inputs": [
         {
+          "name": "dapp",
+          "type": "address"
+        }
+      ],
+      "name": "getDappPrice",
+      "outputs": [
+        {
+          "name": "dappPrice",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [],
+      "name": "withdrawCallbackPayment",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
           "name": "submitTxHash",
           "type": "bytes32"
         }
@@ -40,13 +66,8 @@
     },
     {
       "constant": true,
-      "inputs": [
-        {
-          "name": "dapp",
-          "type": "address"
-        }
-      ],
-      "name": "getPrice",
+      "inputs": [],
+      "name": "callbackPrice",
       "outputs": [
         {
           "name": "",
@@ -67,7 +88,7 @@
       "name": "getProvider",
       "outputs": [
         {
-          "name": "",
+          "name": "provider",
           "type": "address"
         }
       ],
@@ -96,6 +117,19 @@
       "constant": true,
       "inputs": [],
       "name": "rlcToken",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "owner",
       "outputs": [
         {
           "name": "",
@@ -142,7 +176,7 @@
           "type": "bool"
         }
       ],
-      "payable": false,
+      "payable": true,
       "type": "function"
     },
     {
@@ -160,6 +194,19 @@
           "type": "string"
         }
       ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_callbackPrice",
+          "type": "uint256"
+        }
+      ],
+      "name": "changeCallbackPrice",
+      "outputs": [],
       "payable": false,
       "type": "function"
     },
@@ -218,6 +265,19 @@
       "type": "function"
     },
     {
+      "constant": true,
+      "inputs": [],
+      "name": "getCallbackPrice",
+      "outputs": [
+        {
+          "name": "callbackPrice",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
       "constant": false,
       "inputs": [
         {
@@ -259,15 +319,15 @@
       "type": "function"
     },
     {
-      "constant": true,
-      "inputs": [],
-      "name": "bridge",
-      "outputs": [
+      "constant": false,
+      "inputs": [
         {
-          "name": "",
+          "name": "newOwner",
           "type": "address"
         }
       ],
+      "name": "transferOwnership",
+      "outputs": [],
       "payable": false,
       "type": "function"
     },
@@ -294,6 +354,10 @@
         {
           "name": "tokenAddress",
           "type": "address"
+        },
+        {
+          "name": "_callbackPrice",
+          "type": "uint256"
         }
       ],
       "payable": false,
@@ -376,5 +440,5 @@
       "type": "event"
     }
   ],
-"ContractAddress":"0xd95a36bb3c67bbb6f50be1087cfe2bdbf498da16"
+"ContractAddress":"0x04ffc7d992ddd3c4062e575dad3962927242150e"
 }
