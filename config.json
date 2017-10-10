@@ -265,19 +265,6 @@
       "type": "function"
     },
     {
-      "constant": true,
-      "inputs": [],
-      "name": "getCallbackPrice",
-      "outputs": [
-        {
-          "name": "callbackPrice",
-          "type": "uint256"
-        }
-      ],
-      "payable": false,
-      "type": "function"
-    },
-    {
       "constant": false,
       "inputs": [
         {
@@ -352,7 +339,7 @@
     {
       "inputs": [
         {
-          "name": "tokenAddress",
+          "name": "_tokenAddress",
           "type": "address"
         },
         {
@@ -434,11 +421,16 @@
           "indexed": true,
           "name": "provider",
           "type": "address"
+        },
+        {
+          "indexed": false,
+          "name": "dappPrice",
+          "type": "uint256"
         }
       ],
       "name": "Register",
       "type": "event"
     }
   ],
-"ContractAddress":"0x04ffc7d992ddd3c4062e575dad3962927242150e"
+"ContractAddress":"0x00b24fcfaa2d0c5a69887c8b1cefb937bdee84f6"
 }
