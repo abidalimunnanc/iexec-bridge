@@ -1,7 +1,6 @@
 // #!/usr/bin/env node
 import Web3 from 'web3';
 // import { exec } from 'child_process';
-import config from './config.json';
 
 import createXWHEPClient from 'xwhep-js-client';
 
@@ -10,15 +9,21 @@ var provider = new Web3.providers.HttpProvider("http://localhost:8545");
 var contract = require("truffle-contract");
 const xwhep = createXWHEPClient({login:'admin', password: 'admin', hostname: 'localhost', port: '9443'});
 
+const oracleJSON = require('iexec-oracle-contract/build/contracts/IexecOracle.json');
+
+const ROPSTEN_ORACLE_ADDRESS = oracleJSON.networks['3'].address;
+const RINKEBY_ORACLE_ADDRESS = oracleJSON.networks['4'].address;
+const KOVAN_ORACLE_ADDRESS = oracleJSON.networks['42'].address;
+
 // instanciation contract
 var truffleContract = contract({
-    abi: config.ContractAbi,
+    abi: oracleJSON.abi,
     network_id: "*"
 })
 
 truffleContract.setProvider(provider);
 
-const contractInstance = truffleContract.at(config.ContractAddress);
+const contractInstance = truffleContract.at(ROPSTEN_ORACLE_ADDRESS);
 
 // instanciation web3
 let web3 = new Web3(provider);
@@ -42,8 +47,7 @@ function submitAndWaitAndGetStdout(user, dapp, provider, appName, param,submitTx
         [workUid,stdout]=result;
         console.log(`Here the workUid = ${workUid}`);
         console.log(`Here the stdout = ${stdout}`);
-
-        contractInstance.submitCallback(submitTxHash,user, dapp, workUid, appName, 4 /*COMPLETED*/, stdout,'', {
+      contractInstance.submitCallback(submitTxHash,user, dapp, workUid, appName, 4 /*COMPLETED*/, stdout,'', {
             from: bridgeAccount,
             gas: runningGas,
             gasPrice:100000000000

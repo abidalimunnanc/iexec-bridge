@@ -35,6 +35,7 @@
     "web3": "^0.19.0",
     "xml2js": "^0.4.17",
     "xwhep-js-client": "github:iexecblockchaincomputing/xwhep-js-client#v1.0.2",
+    "iexec-oracle-contract": "github:iExecBlockchainComputing/iexec-oracle-contract#v1.0.5"
     "yarn": "^0.24.5"
   },
   "devDependencies": {
