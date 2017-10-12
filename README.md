@@ -6,3 +6,5 @@ The role of the bridge will be to connect the smart contract and the xtremWeb co
 https://github.com/oraclize/ethereum-bridge    
 https://github.com/oraclize/ethereum-api     
 
+
+
