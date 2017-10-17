@@ -43,7 +43,11 @@ const submitEvent = contractInstance.Submit({});
 function submitAndWaitAndGetStdout(user, dapp, provider, appName, param,submitTxHash) {
     let workUid='';
     let stdout='';
-    xwhep.submitAndWaitAndGetStdout(user, dapp, provider, appName,param).then(result => {
+
+    let cmdLine=smartContractParamToCmdLine(param);
+    let stdin=smartContractParamToStdin(param);
+
+    xwhep.submitAndWaitAndGetStdout(user, dapp, provider, appName,cmdLine,stdin,submitTxHash).then(result => {
         [workUid,stdout]=result;
         console.log(`Here the workUid = ${workUid}`);
         console.log(`Here the stdout = ${stdout}`);
@@ -69,6 +73,38 @@ function submitAndWaitAndGetStdout(user, dapp, provider, appName, param,submitTx
     });
 }
 
+function smartContractParamToCmdLine(param) {
+   if(isJsonString(param)){
+       let paramJSON= JSON.parse(param);
+       return paramJSON.cmdLine;
+   }
+   else{
+    //by default it is a cmdLine
+    return param;
+   }
+}
+
+
+function smartContractParamToStdin(param) {
+    if(isJsonString(param)){
+       let paramJSON= JSON.parse(param);
+       return paramJSON.stdin;
+    }
+    else{
+        //by default it is a cmdLine not stdin
+        return "";
+    }
+}
+
+
+function isJsonString(str) {
+    try {
+        JSON.parse(str);
+    } catch (e) {
+        return false;
+    }
+    return true;
+}
 
 
 /*
@@ -81,6 +117,10 @@ submitEvent.watch((err, res) => {
     }
     console.log("res.transactionHash:"+res.transactionHash);
     console.log(`Parse ${res.args.user} ${res.args.dapp} ${res.args.provider} ${res.args.appName} ${res.args.args}`);
+
+
     submitAndWaitAndGetStdout(res.args.user, res.args.dapp, res.args.provider, res.args.appName, res.args.args,res.transactionHash);
 
 });
+
+
