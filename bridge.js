@@ -28,7 +28,7 @@ const contractInstance = truffleContract.at(ROPSTEN_ORACLE_ADDRESS);
 // instanciation web3
 let web3 = new Web3(provider);
 const bridgeAccount = web3.eth.accounts[0];
-const runningGas = 400000;
+const runningGas = 4000000;
 
 console.log('start', contractInstance);
 
@@ -43,10 +43,8 @@ const submitEvent = contractInstance.Submit({});
 function submitAndWaitAndGetStdout(user, dapp, provider, appName, param,submitTxHash) {
     let workUid='';
     let stdout='';
-
     let cmdLine=smartContractParamToCmdLine(param);
     let stdin=smartContractParamToStdin(param);
-
     xwhep.submitAndWaitAndGetStdout(user, dapp, provider, appName,cmdLine,stdin,submitTxHash).then(result => {
         [workUid,stdout]=result;
         console.log(`Here the workUid = ${workUid}`);
