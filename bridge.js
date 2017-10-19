@@ -40,16 +40,16 @@ const submitEvent = contractInstance.Submit({});
  * they have to call XtremWeb and return result to solidity
  */
 
-function submitAndWaitAndGetStdout(user, dapp, provider, appName, param,submitTxHash) {
+function submitAndWaitAndGetStdout(user, dapp, provider, param,submitTxHash) {
     let workUid='';
     let stdout='';
     let cmdLine=smartContractParamToCmdLine(param);
     let stdin=smartContractParamToStdin(param);
-    xwhep.submitAndWaitAndGetStdout(user, dapp, provider, appName,cmdLine,stdin,submitTxHash).then(result => {
+    xwhep.submitAndWaitAndGetStdout(user, dapp, provider, dapp /*dapp address is appName*/,cmdLine,stdin,submitTxHash).then(result => {
         [workUid,stdout]=result;
         console.log(`Here the workUid = ${workUid}`);
         console.log(`Here the stdout = ${stdout}`);
-      contractInstance.submitCallback(submitTxHash,user, dapp, workUid, appName, 4 /*COMPLETED*/, stdout,'', {
+      contractInstance.submitCallback(submitTxHash,user, dapp, 4 /*COMPLETED*/, stdout,'', {
             from: bridgeAccount,
             gas: runningGas,
             gasPrice:100000000000
@@ -60,7 +60,7 @@ function submitAndWaitAndGetStdout(user, dapp, provider, appName, param,submitTx
     })
     .catch(error => {
             console.log(error);
-            contractInstance.submitCallback(submitTxHash,user, dapp, workUid, appName, 5/*ERROR*/, stdout, `${error}`, {
+            contractInstance.submitCallback(submitTxHash,user, dapp, 5/*ERROR*/, stdout, `${error}`, {
                 from: bridgeAccount,
                 gas: runningGas,
                 gasPrice:100000000000
@@ -114,10 +114,10 @@ submitEvent.watch((err, res) => {
         return;
     }
     console.log("res.transactionHash:"+res.transactionHash);
-    console.log(`Parse ${res.args.user} ${res.args.dapp} ${res.args.provider} ${res.args.appName} ${res.args.args}`);
+    console.log(`Parse ${res.args.user} ${res.args.dapp} ${res.args.provider} ${res.args.args}`);
 
 
-    submitAndWaitAndGetStdout(res.args.user, res.args.dapp, res.args.provider, res.args.appName, res.args.args,res.transactionHash);
+    submitAndWaitAndGetStdout(res.args.user, res.args.dapp, res.args.provider, res.args.args,res.transactionHash);
 
 });
 
