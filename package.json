@@ -1,6 +1,6 @@
 {
   "name": "bridge",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Bridge XtremWeb",
   "main": "index.js",
   "scripts": {
@@ -35,7 +35,7 @@
     "web3": "^0.19.0",
     "xml2js": "^0.4.17",
     "xwhep-js-client": "github:iexecblockchaincomputing/xwhep-js-client#v1.0.4",
-    "iexec-oracle-contract": "github:iExecBlockchainComputing/iexec-oracle-contract#v1.0.7",
+    "iexec-oracle-contract": "github:iExecBlockchainComputing/iexec-oracle-contract#v1.0.8",
     "yarn": "^0.24.5"
   },
   "devDependencies": {
