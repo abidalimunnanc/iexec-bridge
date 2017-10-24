@@ -34,7 +34,7 @@
     "wait-promise": "^0.4.1",
     "web3": "^0.19.0",
     "xml2js": "^0.4.17",
-    "xwhep-js-client": "github:iexecblockchaincomputing/xwhep-js-client#v1.0.4",
+    "xwhep-js-client": "github:iexecblockchaincomputing/xwhep-js-client#v1.0.5",
     "iexec-oracle-contract": "github:iExecBlockchainComputing/iexec-oracle-contract#v1.0.9",
     "yarn": "^0.24.5"
   },
