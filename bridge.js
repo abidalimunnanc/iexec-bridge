@@ -44,7 +44,14 @@ function submitAndWaitAndGetStdout(user, dapp, provider, param,submitTxHash) {
     let workUid='';
     let stdout='';
     let cmdLine=smartContractParamToCmdLine(param);
-    let stdin=smartContractParamToStdin(param);
+
+
+    const paramJsonify = JSON.parse(param);
+
+    const cmdLine = typeof paramJsonify === 'object' && 'cmdLine' in paramJsonify ? paramJsonify.cmdLine : paramJsonify;
+
+    const stdin = typeof paramJsonify === 'object' && 'stdin' in paramJsonify ? paramJsonify.stdin : '';
+
     xwhep.submitAndWaitAndGetStdout(user, dapp, provider, dapp /*dapp address is appName*/,cmdLine,stdin,submitTxHash).then(result => {
         [workUid,stdout]=result;
         console.log(`Here the workUid = ${workUid}`);
@@ -71,38 +78,6 @@ function submitAndWaitAndGetStdout(user, dapp, provider, param,submitTxHash) {
     });
 }
 
-function smartContractParamToCmdLine(param) {
-   if(isJsonString(param)){
-       let paramJSON= JSON.parse(param);
-       return paramJSON.cmdLine;
-   }
-   else{
-    //by default it is a cmdLine
-    return param;
-   }
-}
-
-
-function smartContractParamToStdin(param) {
-    if(isJsonString(param)){
-       let paramJSON= JSON.parse(param);
-       return paramJSON.stdin;
-    }
-    else{
-        //by default it is a cmdLine not stdin
-        return "";
-    }
-}
-
-
-function isJsonString(str) {
-    try {
-        JSON.parse(str);
-    } catch (e) {
-        return false;
-    }
-    return true;
-}
 
 
 /*
