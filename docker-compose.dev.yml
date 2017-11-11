@@ -1,0 +1,22 @@
+version: '3'
+services:
+  iexec-bridge:
+    restart: unless-stopped
+    image: iexec-bridge:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ${PWD}:/app
+    environment:
+      - DEBUG=*,-babel
+      - DEBUG_COLORS=true
+      - CHAIN=${CHAIN}
+      - HOST=${HOST}
+      - PRIVATE_KEY=${PRIVATE_KEY}
+      - XW_PWD=${XW_PWD}
+
+networks:
+  default:
+    external:
+      name: webproxy
