@@ -1,6 +1,7 @@
 const Debug = require('debug');
 const Web3 = require('web3');
 const createXWHEPClient = require('xwhep-js-client');
+const _ = require('lodash');
 const oracleJSON = require('iexec-oracle-contract/build/contracts/IexecOracle.json');
 const config = require('./config');
 const { signAndSendTx, walletFromPrivKey } = require('./utils');
@@ -43,24 +44,23 @@ oracleContract.events.Submit(async (error, event) => {
     const dapp = event.returnValues.dapp.toLowerCase();
     const submitTxHash = event.transactionHash;
 
-    let param = '';
+    debug('args', args);
+    let param = {};
     try {
       param = JSON.parse(args);
     } catch (err) {
       param = args;
     }
 
-    const cmdLine = typeof param === 'object' && 'cmdLine' in param ? param.cmdLine : param;
-    const stdin = typeof param === 'object' && 'stdin' in param ? param.stdin : '';
-    debug('cmdLine', cmdLine);
-    debug('stdin', stdin);
+    const params = _.isPlainObject(param) ? param : { cmdline: param };
+    debug('params', params);
 
-    const result = await
-      xwhep.submitAndWaitAndGetStdout(user, dapp, provider, dapp, cmdLine, stdin, submitTxHash);
-    const workUID = result[0] || '';
-    const stdout = result[1] || '';
-    debug('workUID', workUID);
+    const { stdout, uri } = await xwhep.submitAndWait(
+      undefined, user, dapp, provider, dapp,
+      params, submitTxHash,
+    );
     debug('stdout', stdout);
+    debug('uri', uri);
 
     const unsignedTx = oracleContract.methods.submitCallback(submitTxHash, user, dapp, 4, stdout, '').encodeABI();
     debug('unsignedTx', unsignedTx);
