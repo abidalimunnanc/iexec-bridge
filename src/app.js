@@ -9,7 +9,7 @@ const { signAndSendTx, walletFromPrivKey } = require('./utils');
 const debug = Debug('app');
 
 const {
-  CHAIN, HOST, PRIVATE_KEY, XW_PWD,
+  CHAIN, HOST, PRIVATE_KEY, XW_LOGIN, XW_PWD, XW_HOST, XW_PORT, IEXEC_ORACLE
 } = process.env;
 debug('CHAIN', CHAIN);
 
@@ -23,15 +23,20 @@ ws.on('end', evt => debug('onEnd', evt));
 ws.on('error', error => debug('onError', error));
 
 const web3 = new Web3(ws);
-
-const oracleAddress = oracleJSON.networks[network_id].address;
+let oracleAddress='';
+if (oracleJSON.networks[network_id] == null){
+    oracleAddress=IEXEC_ORACLE;
+}
+else{
+    oracleAddress = oracleJSON.networks[network_id].address;
+}
 debug('watching oracle at ', oracleAddress);
 const oracleContract = new web3.eth.Contract(oracleJSON.abi, oracleAddress);
 const xwhep = createXWHEPClient({
-  login: 'admin',
+  login: XW_LOGIN,
   password: XW_PWD,
-  hostname: 'xw.iex.ec',
-  port: '443',
+  hostname: XW_HOST,
+  port: XW_PORT,
 });
 
 oracleContract.events.Submit(async (error, event) => {
