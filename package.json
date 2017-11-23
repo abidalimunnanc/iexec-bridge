@@ -21,7 +21,7 @@
     "iexec-oracle-contract": "github:iExecBlockchainComputing/iexec-oracle-contract#v1.0.9",
     "lodash": "^4.17.4",
     "web3": "^1.0.0-beta.24",
-    "xwhep-js-client": "github:iexecblockchaincomputing/xwhep-js-client#v1.0.18"
+    "xwhep-js-client": "github:iexecblockchaincomputing/xwhep-js-client#v1.0.20"
   },
   "devDependencies": {
     "eslint": "^4.11.0",
