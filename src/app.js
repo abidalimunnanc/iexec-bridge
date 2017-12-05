@@ -48,9 +48,9 @@ oracleContract.events.Submit(async (error, event) => {
   try {
     if (error) return debug('Submit error', error);
     debug('Submit event', event);
-    user= event.returnValues[0];
-    provider= event.returnValues[1];
-    args= event.returnValues[2];
+    user= event.returnValues.user;
+    provider= event.returnValues.provider;
+    args= event.returnValues.args;
     dapp = event.returnValues.dapp.toLowerCase();
     submitTxHash = event.transactionHash;
 
