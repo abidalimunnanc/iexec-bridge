@@ -40,14 +40,19 @@ const xwhep = createXWHEPClient({
 });
 
 oracleContract.events.Submit(async (error, event) => {
+  let submitTxHash='';
+  let dapp='';
+  let user='';
+  let provider='';
+  let args='';
   try {
     if (error) return debug('Submit error', error);
     debug('Submit event', event);
-    const {
-      user, provider, args,
-    } = event.returnValues;
-    const dapp = event.returnValues.dapp.toLowerCase();
-    const submitTxHash = event.transactionHash;
+    user= event.returnValues.user;
+    provider= event.returnValues.provider;
+    args= event.returnValues.args;
+    dapp = event.returnValues.dapp.toLowerCase();
+    submitTxHash = event.transactionHash;
 
     debug('args', args);
     let param = {};
@@ -67,7 +72,7 @@ oracleContract.events.Submit(async (error, event) => {
     debug('stdout', stdout);
     debug('uri', uri);
 
-    const unsignedTx = oracleContract.methods.submitCallback(submitTxHash, user, dapp, 4, stdout, '').encodeABI();
+    const unsignedTx = oracleContract.methods.submitCallback(submitTxHash, user, dapp, 4, stdout, '', uri).encodeABI();
     debug('unsignedTx', unsignedTx);
 
     const txReceipt = await signAndSendTx({
@@ -81,6 +86,22 @@ oracleContract.events.Submit(async (error, event) => {
     debug('processed txReceipt', txReceipt);
     return txReceipt;
   } catch (e) {
+
+
+      const unsignedTx = oracleContract.methods.submitCallback(submitTxHash, user, dapp, 5, '', 'BRIDGE FAILURE. OFF-CHAIN COMPUTATION CANCELLED', '').encodeABI();
+      debug('unsignedTx', unsignedTx);
+
+      const txReceipt = await signAndSendTx({
+          web3,
+          userWallet: rlcWallet,
+          unsignedTx,
+          nonceOffset: 0,
+          contractAddress: oracleAddress,
+          chainID: network_id,
+      });
+      debug('processed txReceipt', txReceipt);
+
+
     return debug('onSubmit', e);
   }
 });
