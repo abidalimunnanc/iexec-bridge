@@ -72,36 +72,27 @@ oracleContract.events.Submit(async (error, event) => {
     debug('stdout', stdout);
     debug('uri', uri);
 
-    const unsignedTx = oracleContract.methods.submitCallback(submitTxHash, user, dapp, 4, stdout, '', uri).encodeABI();
+    return callback(submitTxHash, user, dapp, 4, stdout, '', uri);
+  } catch (e) {
+     debug('error onSubmit', e);
+     return callback(submitTxHash, user, dapp, 5, '', 'Bridge failed. Off-chain computation cancelled', '');
+  }
+});
+
+
+
+async function callback(submitTxHash, user, dapp, status, stdout, stderr, uri){
+    const unsignedTx = oracleContract.methods.submitCallback(submitTxHash, user, dapp, status, stdout, stderr, uri).encodeABI();
     debug('unsignedTx', unsignedTx);
 
     const txReceipt = await signAndSendTx({
-      web3,
-      userWallet: rlcWallet,
-      unsignedTx,
-      nonceOffset: 0,
-      contractAddress: oracleAddress,
-      chainID: network_id,
+        web3,
+        userWallet: rlcWallet,
+        unsignedTx,
+        nonceOffset: 0,
+        contractAddress: oracleAddress,
+        chainID: network_id,
     });
     debug('processed txReceipt', txReceipt);
     return txReceipt;
-  } catch (e) {
-
-
-      const unsignedTx = oracleContract.methods.submitCallback(submitTxHash, user, dapp, 5, '', 'BRIDGE FAILURE. OFF-CHAIN COMPUTATION CANCELLED', '').encodeABI();
-      debug('unsignedTx', unsignedTx);
-
-      const txReceipt = await signAndSendTx({
-          web3,
-          userWallet: rlcWallet,
-          unsignedTx,
-          nonceOffset: 0,
-          contractAddress: oracleAddress,
-          chainID: network_id,
-      });
-      debug('processed txReceipt', txReceipt);
-
-
-    return debug('onSubmit', e);
-  }
-});
+}
