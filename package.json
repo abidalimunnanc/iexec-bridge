@@ -24,7 +24,7 @@
     "xwhep-js-client": "github:iexecblockchaincomputing/xwhep-js-client#v1.0.20"
   },
   "devDependencies": {
-    "eslint": "^4.11.0",
+    "eslint": "^4.12.0",
     "eslint-config-airbnb-base": "^12.0.0",
     "eslint-plugin-import": "^2.8.0"
   },
