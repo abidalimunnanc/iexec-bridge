@@ -12,5 +12,8 @@ module.exports = {
     kovan: {
       network_id: '42',
     },
+    local: {
+      network_id: '1337',
+    },
   },
 };

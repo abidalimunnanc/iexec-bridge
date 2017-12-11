@@ -6,15 +6,18 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.dev
-    volumes:
-      - ${PWD}:/app
+    command:  sh -c "./addDockerHost.sh vagrant-ubuntu-trusty-64 && npm start"
     environment:
       - DEBUG=*,-babel
       - DEBUG_COLORS=true
       - CHAIN=${CHAIN}
       - HOST=${HOST}
       - PRIVATE_KEY=${PRIVATE_KEY}
+      - XW_LOGIN=${XW_LOGIN}
       - XW_PWD=${XW_PWD}
+      - XW_HOST=${XW_HOST}
+      - XW_PORT=${XW_PORT}
+      - IEXEC_ORACLE=${IEXEC_ORACLE}
 
 networks:
   default:

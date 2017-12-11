@@ -11,7 +11,11 @@ services:
       - CHAIN=${CHAIN}
       - HOST=${HOST}
       - PRIVATE_KEY=${PRIVATE_KEY}
+      - XW_LOGIN=admin
       - XW_PWD=${XW_PWD}
+      - XW_HOST=xw.iex.ec
+      - XW_PORT=443
+      - IEXEC_ORACLE=notUsedHere
 
 networks:
   default:
