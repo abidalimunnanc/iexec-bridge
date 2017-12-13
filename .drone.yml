@@ -9,6 +9,14 @@ pipeline:
     when:
       event: tag
 
+  scp:
+    image: appleboy/drone-scp
+    host: explorer.iex.ec
+    username: ubuntu
+    secrets: [ ssh_key ]
+    source: docker-compose.yml
+    target: ~/code/iexec-bridge
+
   deploy:
     image: appleboy/drone-ssh
     host: explorer.iex.ec
