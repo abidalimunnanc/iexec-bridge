@@ -1,0 +1,27 @@
+pipeline:
+  publish:
+    image: plugins/docker
+    repo: iexechub/iexec-bridge
+    secrets: [ docker_username, docker_password ]
+    tags:
+      - latest
+      - ${DRONE_TAG##v}
+    when:
+      event: tag
+
+  deploy:
+    image: appleboy/drone-ssh
+    host: explorer.iex.ec
+    username: ubuntu
+    secrets: [ ssh_key, docker_username, docker_password, host, private_key, xw_pwd ]
+    envs: [ docker_username, docker_password, host, private_key, xw_pwd ]
+    port: 22
+    when:
+      event: tag
+    script:
+      - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+      - cd ~/code/iexec-bridge
+      - docker-compose pull
+      - docker-compose -p ropsten-bridge down && CHAIN=ropsten HOST=ropsten$HOST PRIVATE_KEY=$PRIVATE_KEY XW_PWD=$XW_PWD XW_HOST=xw.iex.ec XW_PORT=443 XW_LOGIN=admin docker-compose -p ropsten-bridge up -d --force-recreate
+      - docker-compose -p rinkeby-bridge down && CHAIN=rinkeby HOST=rinkeby$HOST PRIVATE_KEY=$PRIVATE_KEY XW_PWD=$XW_PWD XW_HOST=xw.iex.ec XW_PORT=443 XW_LOGIN=admin docker-compose -p rinkeby-bridge up -d --force-recreate
+      - docker-compose -p kovan-bridge down && CHAIN=kovan HOST=kovan$HOST PRIVATE_KEY=$PRIVATE_KEY XW_PWD=$XW_PWD XW_HOST=xw.iex.ec XW_PORT=443 XW_LOGIN=admin docker-compose -p kovan-bridge up -d --force-recreate
