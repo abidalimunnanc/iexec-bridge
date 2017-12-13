@@ -16,6 +16,8 @@ pipeline:
     secrets: [ ssh_key ]
     source: docker-compose.yml
     target: ~/code/iexec-bridge
+    when:
+      event: tag
 
   deploy:
     image: appleboy/drone-ssh
