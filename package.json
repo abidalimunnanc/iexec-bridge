@@ -1,6 +1,6 @@
 {
   "name": "iexec-bridge",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "iExec bridge",
   "main": "src/app.js",
   "scripts": {
