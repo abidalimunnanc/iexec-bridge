@@ -26,7 +26,7 @@ ws.on('error', error => debug('onError', error));
 const web3 = new Web3(ws);
 
 const oracleAddress = IEXEC_ORACLE || oracleJSON.networks[network_id].address;
-debug('watching oracle at ', oracleAddress);
+debug('watching oracle at', oracleAddress);
 
 const oracleContract = new web3.eth.Contract(oracleJSON.abi, oracleAddress);
 const xwhep = createXWHEPClient({
