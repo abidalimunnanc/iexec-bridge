@@ -2,7 +2,7 @@ version: '3'
 services:
   iexec-bridge:
     restart: unless-stopped
-    image: iexec-bridge:latest
+    image: iexechub/iexec-bridge:latest
     build:
       context: .
     environment:
