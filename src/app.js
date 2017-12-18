@@ -1,6 +1,6 @@
 const Debug = require('debug');
 const Web3 = require('web3');
-const createXWHEPClient = require('xwhep-js-client');
+const createIEXECClient = require('iexec-server-js-client');
 const _ = require('lodash');
 const oracleJSON = require('iexec-oracle-contract/build/contracts/IexecOracle.json');
 const config = require('./config');
@@ -9,7 +9,7 @@ const { signAndSendTx, walletFromPrivKey } = require('./utils');
 const debug = Debug('app');
 
 const {
-  CHAIN, HOST, PRIVATE_KEY, XW_LOGIN, XW_PWD, XW_HOST, XW_PORT, IEXEC_ORACLE,
+  CHAIN, HOST, PRIVATE_KEY, XW_LOGIN, XW_PWD, XW_SERVER, IEXEC_ORACLE,
 } = process.env;
 debug('CHAIN', CHAIN);
 
@@ -29,12 +29,6 @@ const oracleAddress = IEXEC_ORACLE || oracleJSON.networks[network_id].address;
 debug('watching oracle at', oracleAddress);
 
 const oracleContract = new web3.eth.Contract(oracleJSON.abi, oracleAddress);
-const xwhep = createXWHEPClient({
-  login: XW_LOGIN,
-  password: XW_PWD,
-  hostname: XW_HOST,
-  port: XW_PORT,
-});
 
 async function callback(submitTxHash, user, dapp, status, stdout, stderr, uri) {
   const unsignedTx = oracleContract.methods.submitCallback(
@@ -59,8 +53,9 @@ oracleContract.events.Submit(async (error, event) => {
   if (error) return debug('Submit error', error);
 
   debug('Submit event', event);
-  const { user, provider, args } = event.returnValues;
+  const { args } = event.returnValues;
   const dapp = event.returnValues.dapp.toLowerCase();
+  const user = event.returnValues.user.toLowerCase();
   const submitTxHash = event.transactionHash;
 
   try {
@@ -73,16 +68,24 @@ oracleContract.events.Submit(async (error, event) => {
     }
 
     const params = _.isPlainObject(param) ? param : { cmdline: param };
+    params.sgid = submitTxHash;
     debug('params', params);
 
-    const { stdout, uri } = await xwhep.submitAndWait(
-      undefined, user, dapp, provider, dapp,
-      params, submitTxHash,
-    );
-    debug('stdout', stdout);
-    debug('uri', uri);
+    const iexec = createIEXECClient({
+      login: XW_LOGIN,
+      password: XW_PWD,
+      server: XW_SERVER,
+      mandated: user,
+    });
 
-    return callback(submitTxHash, user, dapp, 4, stdout, '', uri);
+    const workUID = await iexec.submitWorkByAppName(dapp, params);
+    const work = await iexec.waitForWorkCompleted(workUID);
+    const resulturi = iexec.getFieldValue(work, 'resulturi');
+    const { stdout } = await iexec.downloadStream(iexec.uri2uid(resulturi));
+    debug('stdout', stdout);
+    debug('resulturi', resulturi);
+
+    return callback(submitTxHash, user, dapp, 4, stdout, '', resulturi);
   } catch (e) {
     debug('error onSubmit', e);
     return callback(submitTxHash, user, dapp, 5, '', 'Bridge failed. Off-chain computation cancelled', '');
