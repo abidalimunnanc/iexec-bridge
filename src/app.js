@@ -21,6 +21,7 @@ const ws = new Web3.providers.WebsocketProvider(HOST);
 
 ws.on('connect', () => debug('connected to', HOST));
 ws.on('end', evt => debug('onEnd', evt));
+// needs reconnect logic
 ws.on('error', error => debug('onError', error));
 
 const web3 = new Web3(ws);
