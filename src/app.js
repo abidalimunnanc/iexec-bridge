@@ -14,8 +14,8 @@ const {
 debug('CHAIN', CHAIN);
 
 const rlcWallet = walletFromPrivKey(PRIVATE_KEY);
-const { network_id } = config.networks[CHAIN];
-debug('network_id', network_id);
+const chainID = config.networks[CHAIN].network_id;
+debug('chainID', chainID);
 
 const ws = new Web3.providers.WebsocketProvider(HOST);
 
@@ -26,7 +26,7 @@ ws.on('error', error => debug('onError', error));
 
 const web3 = new Web3(ws);
 
-const oracleAddress = IEXEC_ORACLE || oracleJSON.networks[network_id].address;
+const oracleAddress = IEXEC_ORACLE || oracleJSON.networks[chainID].address;
 debug('watching oracle at', oracleAddress);
 
 const oracleContract = new web3.eth.Contract(oracleJSON.abi, oracleAddress);
@@ -44,7 +44,7 @@ async function callback(submitTxHash, user, dapp, status, stdout, stderr, uri) {
     unsignedTx,
     nonceOffset: 0,
     contractAddress: oracleAddress,
-    chainID: network_id,
+    chainID,
   });
   debug('processed txReceipt', txReceipt);
   return txReceipt;
