@@ -108,7 +108,7 @@ const initWeb3 = async () => new Promise((res) => {
     await sleep(WS_RECONNECT);
     initWeb3();
   });
-  ws.on('error', () => debug('we.onError'));
+  ws.on('error', () => debug('ws.onError'));
 });
 
 initWeb3();
