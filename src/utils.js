@@ -52,7 +52,10 @@ const signAndSendTx = async ({
   }
 };
 
+const sleep = ms => new Promise(res => setTimeout(res, ms));
+
 module.exports = {
   walletFromPrivKey,
   signAndSendTx,
+  sleep,
 };
