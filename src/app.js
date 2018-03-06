@@ -110,3 +110,5 @@ const initWeb3 = async () => new Promise((res) => {
   });
   ws.on('error', () => debug('we.onError'));
 });
+
+initWeb3();
