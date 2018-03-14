@@ -8,7 +8,6 @@ pipeline:
       - ${DRONE_TAG##v}
     when:
       event: tag
-      branch: master
 
   scp:
     image: appleboy/drone-scp
@@ -19,7 +18,6 @@ pipeline:
     target: ~/code/iexec-bridge
     when:
       event: tag
-      branch: master
 
   deploy:
     image: appleboy/drone-ssh
@@ -30,7 +28,6 @@ pipeline:
     port: 22
     when:
       event: tag
-      branch: master
     script:
       - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
       - cd ~/code/iexec-bridge
