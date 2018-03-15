@@ -9,6 +9,9 @@ module.exports = {
     rinkeby: {
       network_id: '4',
     },
+    rsk: {
+      network_id: '31',
+    },
     kovan: {
       network_id: '42',
     },
