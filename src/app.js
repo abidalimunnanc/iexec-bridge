@@ -69,10 +69,13 @@ const registerOracleEvents = () => {
         login: XW_LOGIN,
         password: XW_PWD,
         server: XW_SERVER,
-        mandated: user,
       });
 
-      const workUID = await iexec.submitWorkByAppName(dapp, params);
+      const app = await iexec.getAppByName(dapp);
+      const appUID = iexec.getFieldValue(app, 'uid');
+      debug('appUID', appUID, 'from name', dapp);
+      iexec.setMandated(user);
+      const workUID = await iexec.submitWork(appUID, params);
       const work = await iexec.waitForWorkCompleted(workUID);
       const resulturi = iexec.getFieldValue(work, 'resulturi');
       const { stdout } = await iexec.downloadStream(iexec.uri2uid(resulturi));
